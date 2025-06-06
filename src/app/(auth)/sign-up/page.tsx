@@ -53,8 +53,8 @@ export default function SignUpPage() {
 
     return (
         <div className="flex h-screen w-screen items-center justify-center">
-            <div className="w-1/2 flex flex-col items-center justify-center">
-                <Image src={"/breezy_logo_full.svg"} alt="Breezy Logo" width={200} height={200} className="mb-4" />
+            <div className="w-1/2 h-full flex flex-col items-center justify-center bg-secondary">
+                <Image src={"/illu_auth_page.svg"} alt="Breezy Logo" width={450} height={450} className="mb-4" />
             </div>
 
             <div className="w-1/2 flex flex-col items-center justify-center">
