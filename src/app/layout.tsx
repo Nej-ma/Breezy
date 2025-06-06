@@ -1,6 +1,11 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import '../lib/i18n'; // Import i18n configuration
+import I18nProvider from "./helpers/I18nProvider";
+
+// components
+import { Toaster } from "sonner";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -27,7 +32,8 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        {children}
+        <Toaster richColors/>
+        <I18nProvider>{children}</I18nProvider>
       </body>
     </html>
   );
