@@ -1,16 +1,22 @@
 "use client";
 
+// service
+import { userService } from '@/services/userService';
+import type * as userType from '@/services/userService';
+
 // ui components
-import Image from 'next/image';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Loader2 } from "lucide-react";
 
 // hooks
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import { useTranslation } from 'react-i18next';
+import { toast } from 'sonner';
+import { useState } from 'react';
 
 // validation schema
 const signUpSchema = yup.object().shape({
@@ -37,6 +43,7 @@ type SignUpFormValues = yup.InferType<typeof signUpSchema>;
 
 export default function SignUpPage() {
     const { t } = useTranslation();
+    const [isLoading, setIsLoading] = useState(false);
 
     const form = useForm<SignUpFormValues>({
         resolver: yupResolver(signUpSchema),
@@ -50,8 +57,36 @@ export default function SignUpPage() {
     });
 
     const onSubmit = (data: SignUpFormValues) => {
-        // Handle sign-up logic here
-        console.log('Sign Up Data:', data);
+        setIsLoading(true);
+        
+        const newUser: userType.UserRequest = {
+            displayName: data.displayName,
+            username: data.username,
+            email: data.email,
+            password: data.password,
+            confirmPassword: data.confirmPassword
+        };
+
+        userService.createUser(newUser)
+            .then((success) => {
+                if (success) {
+                    // Handle successful user creation, e.g., redirect to login page or show success message
+                    console.log('User created successfully');
+                    toast.success(t('signup.successMessage'));
+                } else {
+                    // Handle failure case
+                    console.error('Failed to create user');
+                    toast.error(t('signup.errorMessage'));
+                }
+            })
+            .catch((error) => {
+                // Handle error case
+                console.error('Error creating user:', error);
+                toast.error(t('signup.errorMessage'));
+            })
+            .finally(() => {
+                setIsLoading(false);
+            });
     }
 
     return (
@@ -137,7 +172,12 @@ export default function SignUpPage() {
                             )}
                         />
 
-                        <Button type="submit">{t('signup.submit')}</Button>
+                        <Button type="submit" disabled={isLoading}>
+                            {isLoading ? <>
+                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                </> : null}
+                            { t('signup.submit')}
+                        </Button>
                     </form>
                 </Form>
             </div>

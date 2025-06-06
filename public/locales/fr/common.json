@@ -6,6 +6,8 @@
         "password": "Mot de passe",
         "passwordDescription": "Le mot de passe doit contenir au moins 8 caractères, une majuscule, une minuscule, un chiffre et un caractère spécial [@$!%*?&#].",
         "confirmPassword": "Confirmer le mot de passe",
-        "submit": "S'inscrire"
+        "submit": "S'inscrire",
+        "successMessage": "Votre compte a été créé avec succès. Un email de confirmation a été envoyé à votre adresse. Veuillez vérifier votre boîte de réception et cliquer sur le lien de confirmation pour activer votre compte.",
+        "errorMessage": "Une erreur s'est produite lors de la création de votre compte. Veuillez réessayer plus tard ou contacter le support si le problème persiste."
     }
 }
