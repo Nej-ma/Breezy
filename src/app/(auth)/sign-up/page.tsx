@@ -10,6 +10,7 @@ import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, For
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
+import { useTranslation } from 'react-i18next';
 
 // validation schema
 const signUpSchema = yup.object().shape({
@@ -35,6 +36,8 @@ const signUpSchema = yup.object().shape({
 type SignUpFormValues = yup.InferType<typeof signUpSchema>;
 
 export default function SignUpPage() {
+    const { t } = useTranslation();
+
     const form = useForm<SignUpFormValues>({
         resolver: yupResolver(signUpSchema),
         defaultValues: {
@@ -65,9 +68,9 @@ export default function SignUpPage() {
                             name="displayName"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel>Display Name</FormLabel>
+                                    <FormLabel>{t('signup.displayName')}</FormLabel>
                                     <FormControl>
-                                        <Input placeholder="Enter your display name" {...field} />
+                                        <Input placeholder={t('signup.displayNamePlaceholder')} {...field} />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
@@ -79,9 +82,9 @@ export default function SignUpPage() {
                             name="username"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel>Username</FormLabel>
+                                    <FormLabel>{t('signup.username')}</FormLabel>
                                     <FormControl>
-                                        <Input placeholder="Enter your username" {...field} />
+                                        <Input placeholder={t('signup.usernamePlaceholder')} {...field} />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
@@ -93,9 +96,9 @@ export default function SignUpPage() {
                             name="email"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel>Email</FormLabel>
+                                    <FormLabel>{t('signup.email')}</FormLabel>
                                     <FormControl>
-                                        <Input type="email" placeholder="Enter your email" {...field} />
+                                        <Input type="email" placeholder={t('signup.emailPlaceholder')} {...field} />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
@@ -107,9 +110,9 @@ export default function SignUpPage() {
                             name="password"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel>Password</FormLabel>
+                                    <FormLabel>{t('signup.password')}</FormLabel>
                                     <FormControl>
-                                        <Input type="password" placeholder="Enter your password" {...field} />
+                                        <Input type="password" placeholder={t('signup.passwordPlaceholder')} {...field} />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
@@ -121,16 +124,16 @@ export default function SignUpPage() {
                             name="confirmPassword"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel>Confirm Password</FormLabel>
+                                    <FormLabel>{t('signup.confirmPassword')}</FormLabel>
                                     <FormControl>
-                                        <Input type="password" placeholder="Confirm your password" {...field} />
+                                        <Input type="password" placeholder={t('signup.confirmPasswordPlaceholder')} {...field} />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
                             )}
                         />
 
-                        <Button type="submit">Sign Up</Button>
+                        <Button type="submit">{t('signup.submit')}</Button>
                     </form>
                 </Form>
             </div>
