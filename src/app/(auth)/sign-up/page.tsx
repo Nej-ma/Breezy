@@ -56,11 +56,12 @@ export default function SignUpPage() {
 
     return (
         <div className="flex h-screen w-screen items-center justify-center">
-            <div className="w-1/2 h-full flex flex-col items-center justify-center bg-secondary">
-                <Image src={"/illu_auth_page.svg"} alt="Breezy Logo" width={450} height={450} className="mb-4" />
+            <div className="hidden md:flex w-1/2 h-full flex-col items-center justify-center bg-secondary">
+                <img src={"/illu_auth_page.svg"} alt="Breezy Logo" className="mb-4 w-2/3" />
             </div>
 
-            <div className="w-1/2 flex flex-col items-center justify-center">
+            <div className="w-1/2 flex flex-col items-center justify-center m-5">
+            <img src={"/breezy_logo_small.svg"} alt="Breezy Logo" className="mb-4 w-1/3" />
                 <Form {...form}>
                     <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col max-w-md space-y-6">
                         <FormField
@@ -70,7 +71,7 @@ export default function SignUpPage() {
                                 <FormItem>
                                     <FormLabel>{t('signup.displayName')}</FormLabel>
                                     <FormControl>
-                                        <Input placeholder={t('signup.displayNamePlaceholder')} {...field} />
+                                        <Input placeholder={t('signup.displayName')} {...field} />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
@@ -84,7 +85,7 @@ export default function SignUpPage() {
                                 <FormItem>
                                     <FormLabel>{t('signup.username')}</FormLabel>
                                     <FormControl>
-                                        <Input placeholder={t('signup.usernamePlaceholder')} {...field} />
+                                        <Input placeholder={t('signup.username')} {...field} />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
@@ -98,7 +99,7 @@ export default function SignUpPage() {
                                 <FormItem>
                                     <FormLabel>{t('signup.email')}</FormLabel>
                                     <FormControl>
-                                        <Input type="email" placeholder={t('signup.emailPlaceholder')} {...field} />
+                                        <Input type="email" placeholder={t('signup.email')} {...field} />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
@@ -112,8 +113,11 @@ export default function SignUpPage() {
                                 <FormItem>
                                     <FormLabel>{t('signup.password')}</FormLabel>
                                     <FormControl>
-                                        <Input type="password" placeholder={t('signup.passwordPlaceholder')} {...field} />
+                                        <Input type="password" placeholder={t('signup.password')} {...field} />
                                     </FormControl>
+                                    <FormDescription>
+                                        {t('signup.passwordDescription')}
+                                    </FormDescription>
                                     <FormMessage />
                                 </FormItem>
                             )}
@@ -126,7 +130,7 @@ export default function SignUpPage() {
                                 <FormItem>
                                     <FormLabel>{t('signup.confirmPassword')}</FormLabel>
                                     <FormControl>
-                                        <Input type="password" placeholder={t('signup.confirmPasswordPlaceholder')} {...field} />
+                                        <Input type="password" placeholder={t('signup.password')} {...field} />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>

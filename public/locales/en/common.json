@@ -1,15 +1,11 @@
 {
     "signup": {
-        "displayName": "Display username",
-        "displayNamePlaceholder": "Enter your display name",
+        "displayName": "Name",
         "username": "Username",
-        "usernamePlaceholder": "Enter your username",
         "email": "Email",
-        "emailPlaceholder": "Enter your email",
         "password": "Password",
-        "passwordPlaceholder": "Enter your password",
+        "passwordDescription": "Password must contain at least 8 characters, one uppercase letter, one lowercase letter, one number, and one special character [@$!%*?&#].",
         "confirmPassword": "Confirm password",
-        "confirmPasswordPlaceholder": "confirm your password",
         "submit": "Sign Up"
     }
 }

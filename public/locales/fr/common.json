@@ -1,15 +1,11 @@
 {
     "signup": {
-        "displayName": "Nom d'utilisateur affiché",
-        "displayNamePlaceholder": "Entrez votre nom d'utilisateur affiché",
+        "displayName": "Nom",
         "username": "Nom d'utilisateur",
-        "usernamePlaceholder": "Entrez votre nom d'utilisateur",
         "email": "Courriel",
-        "emailPlaceholder": "Entrez votre courriel",
         "password": "Mot de passe",
-        "passwordPlaceholder": "Entrez votre mot de passe",
+        "passwordDescription": "Le mot de passe doit contenir au moins 8 caractères, une majuscule, une minuscule, un chiffre et un caractère spécial [@$!%*?&#].",
         "confirmPassword": "Confirmer le mot de passe",
-        "confirmPasswordPlaceholder": "Confirmez votre mot de passe",
         "submit": "S'inscrire"
     }
 }
