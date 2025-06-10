@@ -42,6 +42,16 @@ export const createUser = async (userData: UserRequest) => {
     }
 }
 
+export const validateEmail = async (token: string) => {
+    try {
+        const response = await apiClient.post(`users/activate/${token}`);
+        return response.status === 200; // Return true if email validation was successful
+    } catch (error) {
+        console.error('Error validating email:', error);
+        return false; // Return false if there was an error
+    }
+}
+
 export type { User, UserRequest, Role };
 
 export const userService = {
