@@ -28,6 +28,11 @@ type UserRequest = {
     confirmPassword: string;
 }
 
+type LoginRequest = {
+    email: string;
+    password: string;
+}
+
 // Method POST
 export const createUser = async (userData: UserRequest) => {
     console.log('Creating user with data:', userData, JSON.stringify(userData));
@@ -52,7 +57,7 @@ export const validateEmail = async (token: string) => {
     }
 }
 
-export type { User, UserRequest, Role };
+export type { User, UserRequest, Role, LoginRequest };
 
 export const userService = {
     createUser,
