@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import '../lib/i18n'; // Import i18n configuration
+import "../lib/i18n"; // Import i18n configuration
 import I18nProvider from "./helpers/I18nProvider";
 
 // components
@@ -32,7 +32,7 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <Toaster richColors/>
+        <Toaster richColors />
         <I18nProvider>{children}</I18nProvider>
       </body>
     </html>

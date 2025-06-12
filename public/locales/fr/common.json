@@ -1,24 +1,41 @@
 {
-    "signup": {
-        "displayName": "Nom",
-        "username": "Nom d'utilisateur",
-        "email": "Courriel",
-        "password": "Mot de passe",
-        "passwordDescription": "Le mot de passe doit contenir au moins 8 caractères, une majuscule, une minuscule, un chiffre et un caractère spécial [@$!%*?&#].",
-        "confirmPassword": "Confirmer le mot de passe",
-        "submit": "S'inscrire",
-        "successMessage": "Votre compte a été créé avec succès. Un email de confirmation a été envoyé à votre adresse. Veuillez vérifier votre boîte de réception et cliquer sur le lien de confirmation pour activer votre compte.",
-        "errorMessage": "Une erreur s'est produite lors de la création de votre compte. Veuillez réessayer plus tard ou contacter le support si le problème persiste.",
-        "signin": "Se connecter",
-        "alreadyHaveAccount": "Vous avez déjà un compte ?",
-        "noAccount": "Vous n'avez pas de compte ?"
-        
-    }, 
-
-    "validateEmail": {
-        "successText": "Super ! Vous pouvez maintenant accéder à toutes les fonctionnalités de Breezy !",
-        "errorText": "Oups ! Il semble que le lien de confirmation soit invalide ou ait expiré. Veuillez essayer de vous inscrire à nouveau.",
-        "goToSignIn": "Aller à la page de connexion",
-        "goToSignUp": "Créer un compte"
+    "auth": {
+        "signup": {
+            "displayName": "Nom",
+            "username": "Nom d'utilisateur",
+            "email": "Courriel",
+            "password": "Mot de passe",
+            "passwordDescription": "Le mot de passe doit contenir au moins 8 caractères, une majuscule, une minuscule, un chiffre et un caractère spécial [@$!%*?&#].",
+            "confirmPassword": "Confirmer le mot de passe",
+            "submit": "S'inscrire",
+            "successMessage": "Votre compte a été créé avec succès. Un email de confirmation a été envoyé à votre adresse. Veuillez vérifier votre boîte de réception et cliquer sur le lien de confirmation pour activer votre compte.",
+            "errorMessage": "Une erreur s'est produite lors de la création de votre compte. Veuillez réessayer plus tard ou contacter le support si le problème persiste.",
+            "alreadyHaveAccount": "Vous avez déjà un compte ?"
+        },
+        "validateEmail": {
+            "loading" : "Validation de votre email...",
+            "successText": "Super ! Vous pouvez maintenant accéder à toutes les fonctionnalités de Breezy !",
+            "errorText": "Oups ! Il semble que le lien de confirmation soit invalide ou ait expiré. Veuillez essayer de vous inscrire à nouveau.",
+            "goToSignIn": "Aller à la page de connexion",
+            "goToSignUp": "Créer un compte"
+        },
+        "signin": {
+            "submit": "Se connecter",
+            "forgotPassword": "Mot de passe oublié ?",
+            "noAccount": "Vous n'avez pas de compte ?",
+            "successText": "Bienvenue ! Vous êtes maintenant connecté.",
+            "errorText": "Adresse e-mail ou mot de passe invalide. Veuillez réessayer."
+        },
+        "form": {
+            "required": "Ce champ est requis.",
+            "invalidEmail": "Veuillez entrer une adresse e-mail valide.",
+            "passwordMismatch": "Les mots de passe ne correspondent pas.",
+            "minLength": "Doit contenir au moins {{min}} caractères.",
+            "maxLength": "Doit contenir au maximum {{max}} caractères.",
+            "passwordLowercase": "Doit contenir une lettre minuscule.",
+            "passwordUppercase": "Doit contenir une lettre majuscule.",
+            "passwordNumber": "Doit contenir un chiffre.",
+            "passwordSpecial": "Doit contenir un caractère spécial."
+        }
     }
 }
