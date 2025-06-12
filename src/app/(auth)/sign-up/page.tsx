@@ -60,7 +60,7 @@ export default function SignUpPage() {
     const onSubmit = (data: SignUpFormValues) => {
         setIsLoading(true);
         
-        const newUser: userType.RegisterModel = {
+        const newUser: userType.Register = {
             displayName: data.displayName,
             username: data.username,
             email: data.email,

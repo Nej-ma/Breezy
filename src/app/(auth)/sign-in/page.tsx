@@ -1,6 +1,7 @@
 'use client'
 
 // service
+import { userService } from '@/services/authService';
 import type * as userType from '@/services/authService';
 
 // ui components
@@ -48,10 +49,28 @@ export default function SignInPage() {
         const onSubmit = (data: SignInFormValues) => {
             setIsLoading(true);
             
-            const newUser: userType.LoginModel = {
+            const newUser: userType.Login = {
                 email: data.email,
                 password: data.password
             };
+
+            userService.login(newUser)
+                .then((response) => {
+                    if (response) {
+                        toast.success(t('signup.signinSuccess'));
+                        // Redirect to home or dashboard
+                        window.location.href = '/';
+                    } else {
+                        toast.error(t('signup.signinError'));
+                    }
+                })
+                .catch((error) => {
+                    console.error("Login error:", error);
+                    toast.error(t('signup.signinError'));
+                })
+                .finally(() => {
+                    setIsLoading(false);
+                });
         }
     
         return (
