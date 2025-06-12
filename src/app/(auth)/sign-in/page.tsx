@@ -1,8 +1,7 @@
 'use client'
 
 // service
-import { userService } from '@/services/userService';
-import type * as userType from '@/services/userService';
+import type * as userType from '@/services/authService';
 
 // ui components
 import { Input } from '@/components/ui/input';
@@ -49,7 +48,7 @@ export default function SignInPage() {
         const onSubmit = (data: SignInFormValues) => {
             setIsLoading(true);
             
-            const newUser: userType.LoginRequest = {
+            const newUser: userType.LoginModel = {
                 email: data.email,
                 password: data.password
             };
@@ -99,7 +98,7 @@ export default function SignInPage() {
                         </form>
                 </Form>
 
-                <Button className="m-4" variant={"link"}><Link href={"/sign-up"}>{ t('signup.noAccount')}</Link></Button>
+                <Link href={"/sign-up"}><Button className="m-4" variant={"link"}>{ t('signup.noAccount')}</Button></Link>
             </>
         );
 }

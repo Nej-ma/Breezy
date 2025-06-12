@@ -12,5 +12,12 @@
         "signin": "Sign In",
         "alreadyHaveAccount": "Already have an account?",
         "noAccount": "Don't have an account?"
+    },
+
+    "validateEmail": {
+        "successText": "Great! You can now access all the features of Breezy!",
+        "errorText": "Oops! It seems that the confirmation link is invalid or has expired. Please try signing up again.",
+        "goToSignIn": "Go to Sign In",
+        "goToSignUp": "Create an Account"
     }
 }

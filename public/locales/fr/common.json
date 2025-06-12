@@ -12,5 +12,13 @@
         "signin": "Se connecter",
         "alreadyHaveAccount": "Vous avez déjà un compte ?",
         "noAccount": "Vous n'avez pas de compte ?"
+        
+    }, 
+
+    "validateEmail": {
+        "successText": "Super ! Vous pouvez maintenant accéder à toutes les fonctionnalités de Breezy !",
+        "errorText": "Oups ! Il semble que le lien de confirmation soit invalide ou ait expiré. Veuillez essayer de vous inscrire à nouveau.",
+        "goToSignIn": "Aller à la page de connexion",
+        "goToSignUp": "Créer un compte"
     }
 }

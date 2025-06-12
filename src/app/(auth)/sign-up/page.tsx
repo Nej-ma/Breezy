@@ -1,8 +1,8 @@
 "use client";
 
 // service
-import { userService } from '@/services/userService';
-import type * as userType from '@/services/userService';
+import { userService } from '@/services/authService';
+import type * as userType from '@/services/authService';
 
 // ui components
 import { Input } from '@/components/ui/input';
@@ -60,12 +60,11 @@ export default function SignUpPage() {
     const onSubmit = (data: SignUpFormValues) => {
         setIsLoading(true);
         
-        const newUser: userType.UserRequest = {
+        const newUser: userType.RegisterModel = {
             displayName: data.displayName,
             username: data.username,
             email: data.email,
-            password: data.password,
-            confirmPassword: data.confirmPassword
+            password: data.password
         };
 
         userService.createUser(newUser)
@@ -176,7 +175,7 @@ export default function SignUpPage() {
                 </form>
             </Form>
 
-            <Button className="m-4" variant={"link"}><Link href={"/sign-in"}>{ t('signup.alreadyHaveAccount')}</Link></Button>
+            <Link href={"/sign-in"}><Button className="m-4" variant={"link"}>{ t('signup.alreadyHaveAccount')}</Button></Link>
         </>
     );
 }
