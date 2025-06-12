@@ -13,7 +13,7 @@ function Avatar({
     <AvatarPrimitive.Root
       data-slot="avatar"
       className={cn(
-        "relative flex size-8 shrink-0 overflow-hidden rounded-full",
+        "relative flex size-8 shrink-0 overflow-hidden rounded-full border-4 border-white shadow-lg ring-4 ring-[var(--secondary)]",
         className
       )}
       {...props}
@@ -50,4 +50,13 @@ function AvatarFallback({
   )
 }
 
-export { Avatar, AvatarImage, AvatarFallback }
+function UserPlaceholderIcon({ className = "w-8 h-8" }: { className?: string }) {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <circle cx="12" cy="7.5" r="4" stroke="currentColor" strokeWidth="1" fill="none" />
+      <path stroke="currentColor" strokeWidth="1" d="M4 20c0-4 4-6 8-6s8 2 8 6" fill="none" />
+    </svg>
+  );
+}
+
+export { Avatar, AvatarImage, AvatarFallback, UserPlaceholderIcon }

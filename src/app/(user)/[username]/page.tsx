@@ -1,13 +1,16 @@
 "use client";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage, UserPlaceholderIcon } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { Stats } from "@/components/ui/stats";
+import { Stats } from "@/components/custom/stats";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { ArrowLeft, Calendar, Flag, Heart, ImageIcon, LinkIcon, MapPin, MessageCircle, MoreHorizontal, Pencil, Send, Sparkles, StickyNote, UserRoundPen, UserRoundPlus } from "lucide-react";
 import { notFound, useParams } from "next/navigation";
+import Link from "next/link";
+import { Post } from "@/components/custom/post";
+import { useState } from "react";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 
-export default function ProfilePage() {
-  const params = useParams();
-
-  // Exemple de données utilisateur (à remplacer par des données réelles)
+// Exemple de données utilisateur (à remplacer par des données réelles)
   const users = [
   {
     name: "Jean Dupont",
@@ -15,8 +18,11 @@ export default function ProfilePage() {
     bio: "Développeur web passionné, amateur de café ☕ et de voyages 🌍.",
     email: "jean.dupont@email.com",
     avatar: "https://randomuser.me/api/portraits/men/32.jpg",
-    banner: "https://images.pexels.com/photos/417173/pexels-photo-417173.jpeg?auto=compress&w=800&q=80",
+    banner: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=compress&w=1600&q=90",
     stats: { posts: 128, followers: 1024, following: 321 },
+    location: "Paris, France",
+    website: "jeandupont.dev",
+    joinDate: "2021",
   },
   {
     name: "Marie Curie",
@@ -24,122 +30,294 @@ export default function ProfilePage() {
     bio: "Physicienne et chimiste, pionnière dans le domaine de la radioactivité.",
     email: "marie.curie@email.com",
     avatar: "https://randomuser.me/api/portraits/women/32.jpg",
-    banner: "https://images.unsplash.com/photo-1465101046530-73398c7f28ca?auto=compress&w=800&q=80",
+    banner: "https://images.unsplash.com/photo-1465101046530-73398c7f28ca?auto=compress&w=1600&q=90",
     stats: { posts: 256, followers: 2048, following: 432 },
+    location: "Varsovie, Pologne",
+    website: "mariecurie.fr",
+    joinDate: "2019",
   },
 ];
 
-const user = users.find(u => u.username === params.username);
+// Sample posts data
+const samplePosts = [
+  {
+    id: 1,
+    content:
+      "Excited to announce that I'll be speaking at the upcoming React Conference! Can't wait to share my insights on modern web development 🚀 #ReactConf #WebDev",
+    timestamp: "2h",
+    likes: 89,
+    comments: 23,
+    reposts: 12,
+    tags: ["ReactConf", "WebDev"],
+    pinned: true,
+  },
+  {
+    id: 2,
+    content:
+      "Just finished building a new feature for our app using Next.js 13. The new app directory is a game changer! The developer experience is incredible.",
+    timestamp: "1d",
+    likes: 156,
+    comments: 34,
+    reposts: 28,
+    tags: ["NextJS", "WebDev"],
+  },
+  {
+    id: 3,
+    content:
+      "Working late tonight on some exciting AI integrations. The possibilities are endless when you combine creativity with technology! 🤖✨",
+    timestamp: "2d",
+    likes: 203,
+    comments: 45,
+    reposts: 31,
+    tags: ["AI", "Tech"],
+    pinned: true,
+  },
+];
+
+export default function ProfilePage() {
+  const params = useParams();
+
+  const user = users.find(u => u.username === params.username);
   // Si l'utilisateur n'est pas trouvé, on peut rediriger ou afficher un message
   if (!user) {
     return notFound();
   }
 
+  const [posts, setPosts] = useState(samplePosts);
+
+  const handleTogglePin = (postId: number) => {
+    setPosts((prev) =>
+      prev.map((p) =>
+        p.id === postId ? { ...p, pinned: !p.pinned } : p
+      )
+    );
+  };
+
   return (
-    <div className="min-h-screen bg-neutral-100 flex flex-col items-center">
-      {/* Conteneur principal relatif */}
-      <div className="w-full max-w-5xl relative">
-        {/* Bannière */}
-        <div className="h-60 bg-neutral-300 rounded-b-2xl overflow-hidden shadow">
-          <img
-            src={user.banner}
-            alt="Bannière"
-            className="object-cover w-full h-full"
-          />
-        </div>
-        {/* Avatar positionné en dehors de la bannière */}
-        <div className="absolute left-15 -bottom-14 z-20">
-          <Avatar className="w-32 h-32 border-4 border-neutral-100 bg-white">
-            <AvatarImage src={user.avatar} alt={user.username} className="object-cover w-full h-full" />
-            <AvatarFallback>
-              <svg xmlns="http://www.w3.org/2000/svg" className="w-16 h-16 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <circle cx="12" cy="7.5" r="4" stroke="currentColor" strokeWidth="2" fill="none" />
-                <path stroke="currentColor" strokeWidth="2" d="M4 20c0-4 4-6 8-6s8 2 8 6" fill="none" />
-              </svg>
-            </AvatarFallback>
-          </Avatar>
-        </div>
-      </div>
-      {/* Profile Info */}
-      <div className="w-full gap-8 max-w-5xl flex flex-col md:flex-row items-center justify-between mt-10 px-16 relative">
-      <div className="flex flex-col md:flex-row items-center md:items-end w-full">
-        
-        {/* Infos utilisateur */}
-        <div className="flex-1 flex flex-col items-center md:items-start mt-4 md:mt-0">
-        <div className="flex flex-col md:flex-row md:items-center w-full">
-          <div className="flex-1">
-          <h1 className="text-3xl font-bold">{user.name}</h1>
-          <span className="text-gray-500 text-lg">@{user.username}</span>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50">
+
+      {/* Floating Header */}
+      <div className="bg-white/60 backdrop-blur-md sticky top-0 z-11 shadow-sm">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center gap-4 h-16">
+            <Link href="/" className="flex items-center gap-2 text-[var(--primary)] hover:text-[var(--primary-light)] transition-colors">
+              <ArrowLeft className="w-5 h-5" />
+              <span className="font-medium">Retour</span>
+            </Link>
+            <div className="flex items-center gap-2">
+              <h1 className="text-xl font-bold text-gray-900">{user.name}</h1>
+              <Sparkles className="w-4 h-4 text-[var(--primary-light)]" />
+            </div>
           </div>
-          
-        </div>
-        <p className="text-gray-700 mt-2 max-w-2xl text-center md:text-left">{user.bio}</p>
-        <span className="text-gray-400 text-sm mt-1 block">{user.email}</span>
         </div>
       </div>
       
+      {/* Banner */}
+      <div className="relative h-64 overflow-hidden ">
+        <img
+          src={user.banner || "/placeholder.svg"}
+          alt="Banner"
+          className="w-full h-full object-cover"
+        />
+      </div>
 
-      <div className="flex flex-col items-center gap-6 mt-6 md:mt-0 md:ml-8">
-        {/* Bouton Modifier au-dessus */}
-        <Button
-          className="px-6 py-2 rounded-half bg-primary text-white font-medium transition-all duration-200 hover:bg-primary/90 hover:scale-103 focus:outline-none"
-        >
-          Modifier le profil
-        </Button>
-        {/* Stats */}
-        <div className="flex gap-6">
-          <Stats label="Posts" value={user.stats.posts} />
-          <Stats label="Followers" value={user.stats.followers} />
-          <Stats label="Following" value={user.stats.following} />
-        </div>
-      </div>
-      </div>
-      {/* Tabs */}
-      <div className="w-full max-w-5xl mt-8 border-b border-neutral-200 flex px-16">
-        <Button variant="ghost" className="py-3 px-6 font-semibold border-b-2 border-primary text-primary focus:outline-none rounded-none border-0 border-b-2 border-primary">
-          Posts
-        </Button>
-        <Button variant="ghost" className="py-3 px-6 font-semibold text-gray-500 hover:text-primary cursor-pointer transition rounded-none border-0">
-          Médias
-        </Button>
-        <Button variant="ghost" className="py-3 px-6 font-semibold text-gray-500 hover:text-primary cursor-pointer transition rounded-none border-0">
-          Likes
-        </Button>
-      </div>
-      {/* User Posts Preview */}
-      <div className="w-full max-w-5xl px-16 mt-4 space-y-6">
-      {[1, 2, 3].map((id) => (
-        <div
-        key={id}
-        className="bg-white rounded-xl shadow-sm p-6 flex gap-4 items-start hover:shadow-md transition"
-        >
-        <Avatar className="w-12 h-12">
-          <AvatarImage src={user.avatar} alt="Avatar" />
-          <AvatarFallback>
-                <svg xmlns="http://www.w3.org/2000/svg" className="w-8 h-8 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <circle cx="12" cy="7.5" r="4" stroke="currentColor" strokeWidth="2" fill="none" />
-                <path stroke="currentColor" strokeWidth="2" d="M4 20c0-4 4-6 8-6s8 2 8 6" fill="none" />
-                </svg>
-            </AvatarFallback>
-        </Avatar>
-        <div className="flex-1">
-          <div className="flex items-center gap-2">
-          <span className="font-semibold">{user.name}</span>
-          <span className="text-gray-500 text-sm">@{user.username}</span>
-          <span className="text-gray-400 text-xs">· 2h</span>
+      {/* Profile Content with Unique Layout */}
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 relative">
+
+        {/* Profile Card - Floating Design */}
+        <div className="bg-white rounded-2xl shadow-xl border border-blue-100 -mt-20 relative z-10 p-6 mb-6">
+          <div className="flex flex-col lg:flex-row lg:items-center gap-8">
+
+            {/* Avatar Section */}
+            <div className="flex flex-col items-center">
+              <div className="relative">
+                <Avatar className="w-28 h-28 ">
+                  <AvatarImage src={user.avatar || "/placeholder.svg"}  alt={user.name} />
+                  <AvatarFallback className="text-2xl bg-gradient-to-br from-[var(--primary)] to-[var(--primary-light)] text-white">
+                      <UserPlaceholderIcon className="w-16 h-16 text-white-400" />
+                  </AvatarFallback>
+                </Avatar>
+                <div className="absolute -bottom-1 -right-1 w-8 h-8 bg-gradient-to-r from-[var(--primary)] to-[var(--primary-light)] rounded-full flex items-center justify-center shadow-lg">
+                  <Sparkles className="w-4 h-4 text-white" />
+                </div>
+              </div>
+
+              {/* Stats Cards */}
+              <div className="flex gap-4 mt-4">
+                <Stats label="Posts" value={user.stats.posts} />
+                <Stats label="Followers" value={user.stats.followers} />
+                <Stats label="Following" value={user.stats.following} />
+              </div>
+            </div>
+
+            {/* Info Section */}
+            <div className="flex-1">
+              <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+                <div>
+                  <h2 className="text-2xl font-bold text-gray-900 mb-1">{user.name}</h2>
+                  <p className="text-[var(--primary-light)] font-medium">@{user.username}</p>
+                </div>
+
+                <div className="flex gap-2 items-center">
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="outline" size="sm" className="rounded-full border-gray-300 hover:border-blue-300">
+                        <MoreHorizontal className="w-4 h-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="w-48">
+                      <DropdownMenuItem className="cursor-pointer">
+                        <Send className="w-4 h-4 text-[var(--primary)]" />
+                        Envoyer un message
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem className="cursor-pointer text-red-600 focus:text-red-600 focus:bg-red-50">
+                        <Flag className="w-4 h-4" />
+                        Signaler
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                  <Button
+                    className="rounded-full px-4 py-2 transition"
+                    variant="default"
+                  >
+                    <Pencil className="w-4 h-4" />
+                    Modifier le profil
+                  </Button>
+                  <Button
+                    className="rounded-full px-4 py-2 transition"
+                    variant="default"
+                  >
+                    <UserRoundPlus className="w-4 h-4" />
+                    Suivre
+                  </Button>
+                </div>
+              </div>
+
+              {/* Bio and Additional Info */}
+              <p className="text-gray-700 leading-relaxed mt-4 mb-4">{user.bio}</p>
+
+              <div className="flex flex-wrap items-center gap-4 text-sm text-gray-500">
+                {user.location && (
+                  <div className="flex items-center gap-1 bg-gray-50 rounded-full px-3 py-1">
+                    <MapPin className="w-3 h-3" />
+                    <span>{user.location}</span>
+                  </div>
+                )}
+                {user.website && (
+                  <div className="flex items-center gap-1 bg-gray-50 rounded-full px-3 py-1">
+                    <LinkIcon className="w-3 h-3" />
+                    <a href={`https://${user.website}`} className="text-blue-600 hover:underline">
+                      {user.website}
+                    </a>
+                  </div>
+                )}
+                {user.joinDate && (
+                  <div className="flex items-center gap-1 bg-gray-50 rounded-full px-3 py-1">
+                    <Calendar className="w-3 h-3" />
+                    <span>Rejoint en {user.joinDate}</span>
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
-          <p className="mt-1 text-gray-800 text-base leading-relaxed">
-          Ceci est un exemple de post utilisateur. #DéveloppementWeb
-          </p>
-          <div className="flex gap-6 mt-3 text-gray-500 text-sm">
-          <button className="hover:text-blue-600 transition">Commenter</button>
-          <button className="hover:text-pink-500 transition">Like</button>
-          <button className="hover:text-green-600 transition">Partager</button>
+        </div>
+
+        {/* Tabs for Posts, Replies, Media, Likes */}
+        <Tabs defaultValue="posts" className="pb-8">
+          <TabsList className="w-full bg-white rounded-2xl shadow border border-blue-100 flex gap-2">
+            {[
+              {
+          value: "posts",
+          icon: <StickyNote className="w-4 h-4" />,
+          label: "Posts",
+              },
+              {
+          value: "replies",
+          icon: <MessageCircle className="w-4 h-4" />,
+          label: "Réponses",
+              },
+              {
+          value: "media",
+          icon: <ImageIcon className="w-4 h-4" />,
+          label: "Médias",
+              },
+              {
+          value: "likes",
+          icon: <Heart className="w-4 h-4" />,
+          label: "J'aime",
+              },
+            ].map(({ value, icon, label }) => (
+              <TabsTrigger
+          key={value}
+          value={value}
+          className={[
+            "flex-1 py-3 rounded-xl font-semibold transition-all duration-200 animate-fade-in",
+            "hover:bg-blue-50",
+            "data-[state=active]:bg-gradient-to-r",
+            "data-[state=active]:from-[var(--primary)]",
+            "data-[state=active]:to-[var(--primary-light)]",
+            "data-[state=active]:text-white",
+            "data-[state=inactive]:text-gray-500",
+            "data-[state=inactive]:bg-transparent"
+          ].join(" ")}
+              >
+          {icon}
+          {label}
+              </TabsTrigger>
+            ))}
+          </TabsList>
+          {/* Posts Tab Content */}
+          <TabsContent value="posts" className="mt-6 space-y-4">
+            {[...posts]
+              .sort((a, b) => (b.pinned ? 1 : 0) - (a.pinned ? 1 : 0))
+              .map((post) => (
+                <Post
+                  key={post.id}
+                  post={post}
+                  user={user}
+                  showPinnedPost
+                  onTogglePin={handleTogglePin}
+                />
+              ))}
+          </TabsContent>
+
+          {/* Replies Tab Content */}
+          <TabsContent value="replies" className="mt-6">
+          <div className="flex flex-col items-center justify-center bg-card rounded-2xl shadow-lg p-12 text-center">
+            <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mb-4">
+            <MessageCircle className="w-8 h-8 text-primary" />
+            </div>
+            <p className="text-gray-500 text-lg">Aucune réponse pour le moment</p>
+            <p className="text-gray-400 text-sm mt-2">Les réponses apparaîtront ici</p>
           </div>
-        </div>
-        </div>
-      ))}
+          </TabsContent>
+
+          {/* Media Tab Content */}
+          <TabsContent value="media" className="mt-6">
+          <div className="flex flex-col items-center justify-center bg-card rounded-2xl shadow-lg p-12 text-center">
+            <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mb-4">
+            <ImageIcon className="w-8 h-8 text-primary" />
+            </div>
+            <p className="text-gray-500 text-lg">Aucun média partagé</p>
+            <p className="text-gray-400 text-sm mt-2">Photos et vidéos apparaîtront ici</p>
+          </div>
+          </TabsContent>
+          
+          {/* Likes Tab Content */}
+          <TabsContent value="likes" className="mt-6">
+          <div className="flex flex-col items-center justify-center bg-card rounded-2xl shadow-lg p-12 text-center">
+            <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mb-4">
+            <Heart className="w-8 h-8 text-primary" />
+            </div>
+            <p className="text-gray-500 text-lg">Aucun like pour le moment</p>
+            <p className="text-gray-400 text-sm mt-2">Les posts aimés apparaîtront ici</p>
+          </div>
+          </TabsContent>
+
+        </Tabs>
       </div>
     </div>
+    
   );
 }
