@@ -4,6 +4,9 @@
 import { userService } from "@/services/authService";
 import type * as userType from "@/services/authService";
 
+// page
+import RequestPasswordDialog from "../(forgot-password)/page";
+
 // ui components
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -37,7 +40,12 @@ const createSignInSchema = (t: any) =>
     password: yup
       .string()
       .required(t("auth.form.required", "Ce champ est requis"))
-      .min(8, t("auth.form.minLength", "Doit contenir au moins {{min}} caractères", { min: 8 }))
+      .min(
+        8,
+        t("auth.form.minLength", "Doit contenir au moins {{min}} caractères", {
+          min: 8,
+        })
+      )
       .matches(
         /[a-z]/,
         t("auth.form.passwordLowercase", "Doit contenir une lettre minuscule")
@@ -161,6 +169,8 @@ export default function SignInPage() {
           </Button>
         </form>
       </Form>
+
+      <RequestPasswordDialog />
 
       <Link href={"/sign-up"}>
         <Button className="m-4" variant={"link"}>

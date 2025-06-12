@@ -80,10 +80,32 @@ const login = async (userData: Login) => {
     }
 }
 
+const requestNewPassword = async (email: string) => {
+    try {
+        const response = await apiClient.post('auth/forgot-password', { email });
+        return response.status === 200; // Return true if request was successful
+    } catch (error) {
+        console.error('Error requesting new password:', error);
+        return false; // Return false if there was an error
+    }
+}
+
+const resetPassword = async (token: string, newPassword: string) => {
+    try {
+        const response = await apiClient.post(`auth/reset-password/${token}`, { password: newPassword });
+        return response.status === 200; // Return true if password reset was successful
+    } catch (error) {
+        console.error('Error resetting password:', error);
+        return false; // Return false if there was an error
+    }
+}
+
 export const userService = {
     createUser,
     validateEmail,
     login,
+    requestNewPassword,
+    resetPassword,
 };
 
 

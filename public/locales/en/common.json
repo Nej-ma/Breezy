@@ -1,4 +1,9 @@
 {
+    "common": {
+        "loading": "Loading...",
+        "error": "An error occurred. Please try again."
+    },
+
     "auth": {
         "signup": {
             "displayName": "Name",
@@ -24,6 +29,8 @@
         "signin": {
             "submit": "Sign In",
             "forgotPassword": "Forgot Password?",
+            "forgotPasswordText": "Enter your email address to receive a reset link.",
+            "sendResetLink": "Send Reset Link",
             "noAccount": "Don't have an account? Sign Up",
             "successText": "Welcome back! You are now signed in.",
             "errorText": "Invalid email or password. Please try again."
@@ -39,7 +46,12 @@
             "passwordUppercase": "Must contain an uppercase letter.",
             "passwordNumber": "Must contain a number.",
             "passwordSpecial": "Must contain a special character."
+        },
+
+        "forgotPassword": {
+            "title": "Password Reset",
+            "successMessage": "A password reset link has been sent to your email address.",
+            "errorMessage": "Unable to send password reset email."
         }
-        
     }
 }

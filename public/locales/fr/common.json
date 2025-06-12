@@ -1,4 +1,9 @@
 {
+    "common": {
+        "loading": "Chargement...",
+        "error": "Une erreur s'est produite. Veuillez réessayer."
+    },
+
     "auth": {
         "signup": {
             "displayName": "Nom",
@@ -22,6 +27,8 @@
         "signin": {
             "submit": "Se connecter",
             "forgotPassword": "Mot de passe oublié ?",
+            "forgotPasswordText": "Entrez votre adresse e-mail pour recevoir un lien de réinitialisation.",
+            "sendResetLink": "Envoyer le lien de réinitialisation",
             "noAccount": "Vous n'avez pas de compte ?",
             "successText": "Bienvenue ! Vous êtes maintenant connecté.",
             "errorText": "Adresse e-mail ou mot de passe invalide. Veuillez réessayer."
@@ -36,6 +43,12 @@
             "passwordUppercase": "Doit contenir une lettre majuscule.",
             "passwordNumber": "Doit contenir un chiffre.",
             "passwordSpecial": "Doit contenir un caractère spécial."
+        },
+
+        "forgotPassword": {
+            "title": "Réinitialisation du mot de passe",
+            "successMessage": "Un lien de réinitialisation de mot de passe a été envoyé à votre adresse e-mail.",
+            "errorMessage": "Impossible d'envoyer l'e-mail de réinitialisation du mot de passe."
         }
     }
 }
