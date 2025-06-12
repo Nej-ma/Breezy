@@ -9,12 +9,12 @@ interface StatsProps {
 
 export function Stats({ label, value, icon }: StatsProps) {
   return (
-    <Card className="w-18 md:w-22 text-center border-0 shadow-none bg-transparent">
+    <Card className="text-center bg-[var(--secondary-light)] rounded-xl p-3 min-w-[70px] shadow-none border-0 gap-0">
       <CardHeader className="p-0 flex flex-col items-center">
-        {icon && <div className="text-gray-500">{icon}</div>}
-        <div className="text-lg font-bold">{value}</div>
+      {icon && <div className="mb-1 text-gray-500">{icon}</div>}
+      <div className="font-bold text-lg text-gray-900">{value}</div>
       </CardHeader>
-      <CardContent className="p-0 text-sm text-gray-500">{label}</CardContent>
+      <CardContent className="p-0 text-xs text-gray-600">{label}</CardContent>
     </Card>
   );
 }
