@@ -52,6 +52,20 @@
             "title": "Password Reset",
             "successMessage": "A password reset link has been sent to your email address.",
             "errorMessage": "Unable to send password reset email."
+        },
+
+        "resetPassword": {
+            "title": "Reset Password",
+            "subtitle": "Please choose a new password for your account.",
+            "newPasswordPlaceholder": "New Password",
+            "confirmPasswordPlaceholder": "Confirm New Password",
+            "submit": "Reset Password",
+            "successMessage": "Your password has been successfully reset. You can now log in with your new password.",
+            "errorMessage": "An error occurred while resetting your password. Please try again later.",
+            "invalidToken": "The password reset token is invalid or has expired. Please request a new password reset link.",
+            "validatingToken": "Validating your request...",
+            "backToLogin": "Back to Login"
+
         }
     }
 }
