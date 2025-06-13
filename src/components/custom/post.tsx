@@ -3,21 +3,27 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage, UserPlaceholderIcon } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { MessageCircle, Repeat2, Heart, Share, Sparkles, Pin, User, MoreVertical, Pen, Trash2 } from "lucide-react";
+import { MessageCircle, Repeat2, Heart, Share, Sparkles, Pin, User, MoreVertical, Pencil, Trash2 } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { useState } from "react";
+import Link from "next/link";
 
 type User = {
-  name: string;
+  displayName: string;
   username: string;
   avatar?: string;
 };
 
-type PostType = {
+export type PostType = {
   id: number;
   pinned?: boolean;
   timestamp: string;
   content: string;
   tags?: string[];
+  media?: {
+    type: "image" | "video";
+    url: string;
+  };
   comments: number;
   reposts: number;
   likes: number;
@@ -27,11 +33,15 @@ interface PostProps {
   post: PostType;
   user: User;
   showPinnedPost?: boolean;
-  onTogglePin?: (postId: number | number) => void;
+  onTogglePin?: (postId: number) => void;
 }
 
 export function Post({ post, user, showPinnedPost: showPinnedBanner, onTogglePin }: PostProps) {
     const showPost = showPinnedBanner && post.pinned;
+
+    const [liked, setLiked] = useState(false);
+    const [reposted, setReposted] = useState(false);
+
     return (
     <Card
       key={post.id}
@@ -51,14 +61,20 @@ export function Post({ post, user, showPinnedPost: showPinnedBanner, onTogglePin
         <CardContent>
             <div className="flex items-start gap-4">
             <Avatar className="w-12 h-12 ring-2 border-none">
-                <AvatarImage src={user.avatar || "/placeholder.svg"} alt={user.name} />
-                <AvatarFallback className="bg-gradient-to-br from-[var(--primary)] to-[var(--primary-light)] text-white">
-                    <UserPlaceholderIcon className="w-8 h-8" />
-                </AvatarFallback>
+                <Link href={`/${user.username}`} className="block w-12 h-12 rounded-full overflow-hidden focus:outline-none focus:ring-2 focus:ring-[var(--primary)]">
+                    <AvatarImage src={user.avatar || "/placeholder.svg"} alt={user.displayName} />
+                    <AvatarFallback className="bg-gradient-to-br from-[var(--primary)] to-[var(--primary-light)] text-white">
+                        <UserPlaceholderIcon className="w-8 h-8" />
+                    </AvatarFallback>
+                </Link>
             </Avatar>
             <div className="flex-1">
                 <div className="flex items-center gap-2 mb-2">
-                <span className="font-semibold text-gray-900">{user.name}</span>
+                <span className="font-semibold text-gray-900 transition-colors">
+                    <Link href={`/${user.username}`}>
+                        {user.displayName}
+                    </Link>
+                </span>
                 <Sparkles className="w-4 h-4 text-[var(--primary-light)]" />
                 <span className="text-gray-500">@{user.username}</span>
                 <span className="text-gray-400">·</span>
@@ -97,7 +113,7 @@ export function Post({ post, user, showPinnedPost: showPinnedBanner, onTogglePin
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end" className="w-36">
                         <DropdownMenuItem className="cursor-pointer">
-                            <Pen className="w-4 h-4 text-[var(--primary)]" />
+                            <Pencil className="w-4 h-4 text-[var(--primary)]" />
                             Modifier
                         </DropdownMenuItem>
                         <DropdownMenuItem className="cursor-pointer text-red-600 focus:text-red-600 focus:bg-red-50">
@@ -110,12 +126,33 @@ export function Post({ post, user, showPinnedPost: showPinnedBanner, onTogglePin
                 </div>
                 <p className="text-gray-800 leading-relaxed mb-4">{post.content}</p>
 
+                {post.media && (
+                <div className="mb-4 rounded-2xl overflow-hidden border border-gray-100 bg-gray-50">
+                    {post.media.type === "image" && (
+                    <img
+                        src={post.media.url}
+                        alt="media"
+                        className="w-full max-h-80 object-cover"
+                        loading="lazy"
+                    />
+                    )}
+                    {post.media.type === "video" && (
+                    <video
+                        src={post.media.url}
+                        controls
+                        className="w-full max-h-80 object-cover"
+                        style={{ background: "#000" }}
+                    />
+                    )}
+                </div>
+                )}
+
                 {post.tags && post.tags.length > 0 && (
                 <div className="flex flex-wrap gap-2 mb-4">
                     {post.tags.map((tag, tagIndex) => (
                     <Badge
                         key={tagIndex}
-                        className="bg-[var(--secondary-light)] text-[var(--primary-light)] hover:bg-[var(--secondary)] hover:text-[var(--primary)] border-0 rounded-full"
+                        className="bg-[var(--secondary-light)] text-[var(--primary-light)] hover:bg-[var(--secondary)] hover:text-[var(--primary)] border-0 rounded-full font-semibold"
                     >
                         #{tag}
                     </Badge>
@@ -125,36 +162,46 @@ export function Post({ post, user, showPinnedPost: showPinnedBanner, onTogglePin
 
                 <div className="flex items-center gap-6">
                 <Button
-                    variant="ghost"
-                    size="sm"
-                    className="text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-full"
-                >
-                    <MessageCircle className="w-4 h-4 mr-2" />
-                    {post.comments}
-                </Button>
-                <Button
-                    variant="ghost"
-                    size="sm"
-                    className="text-gray-500 hover:text-green-600 hover:bg-green-50 rounded-full"
-                >
-                    <Repeat2 className="w-4 h-4 mr-2" />
-                    {post.reposts}
-                </Button>
-                <Button
-                    variant="ghost"
-                    size="sm"
-                    className="text-gray-500 hover:text-red-500 hover:bg-red-50 rounded-full"
-                >
-                    <Heart className="w-4 h-4 mr-2" />
-                    {post.likes}
-                </Button>
-                <Button
-                    variant="ghost"
-                    size="sm"
-                    className="text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-full"
-                >
-                    <Share className="w-4 h-4" />
-                </Button>
+                variant="ghost"
+                size="sm"
+                className={`rounded-full transition-all
+                  ${liked ? "text-red-500 hover:text-red-500 hover:bg-red-50" : "text-gray-500 hover:text-red-500 hover:bg-red-50"}
+                `}
+                onClick={() => setLiked((v) => !v)}
+              >
+                {liked ? (
+                  <Heart className="w-4 h-4 fill-current" />
+                ) : (
+                  <Heart className="w-4 h-4" />
+                )}
+                {post.likes + (liked ? 1 : 0)}
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                className={`rounded-full transition-all
+                  ${reposted ? "text-green-600 hover:text-green-600 hover:bg-green-50" : "text-gray-500 hover:text-green-600 hover:bg-green-50"}
+                `}
+                onClick={() => setReposted((v) => !v)}
+              >
+                <Repeat2 className="w-4 h-4" />
+                {post.reposts + (reposted ? 1 : 0)}
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-full"
+              >
+                <MessageCircle className="w-4 h-4" />
+                {post.comments}
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-full"
+              >
+                <Share className="w-4 h-4" />
+              </Button>
                 </div>
             </div>
             </div>

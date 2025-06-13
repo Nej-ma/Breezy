@@ -3,53 +3,59 @@ import { Avatar, AvatarFallback, AvatarImage, UserPlaceholderIcon } from "@/comp
 import { Button } from "@/components/ui/button";
 import { Stats } from "@/components/custom/stats";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { ArrowLeft, Calendar, Flag, Heart, ImageIcon, LinkIcon, MapPin, MessageCircle, MoreHorizontal, Pencil, Send, Sparkles, StickyNote, UserRoundPen, UserRoundPlus } from "lucide-react";
+import { ArrowLeft, Calendar, Flag, Heart, ImageIcon, LinkIcon, MapPin, MessageCircle, MoreHorizontal, Pencil, Send, Sparkles, StickyNote, UserRoundCheck, UserRoundPlus } from "lucide-react";
 import { notFound, useParams } from "next/navigation";
 import Link from "next/link";
-import { Post } from "@/components/custom/post";
-import { useState } from "react";
+import { Post, PostType } from "@/components/custom/post";
+import { useEffect, useState } from "react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import apiClient from "@/utils/api";
+import { User } from "@/services/userService";
 
 // Exemple de données utilisateur (à remplacer par des données réelles)
-  const users = [
-  {
-    name: "Jean Dupont",
-    username: "jean_dupont",
-    bio: "Développeur web passionné, amateur de café ☕ et de voyages 🌍.",
-    email: "jean.dupont@email.com",
-    avatar: "https://randomuser.me/api/portraits/men/32.jpg",
-    banner: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=compress&w=1600&q=90",
-    stats: { posts: 128, followers: 1024, following: 321 },
-    location: "Paris, France",
-    website: "jeandupont.dev",
-    joinDate: "2021",
-  },
-  {
-    name: "Marie Curie",
-    username: "marie_curie",
-    bio: "Physicienne et chimiste, pionnière dans le domaine de la radioactivité.",
-    email: "marie.curie@email.com",
-    avatar: "https://randomuser.me/api/portraits/women/32.jpg",
-    banner: "https://images.unsplash.com/photo-1465101046530-73398c7f28ca?auto=compress&w=1600&q=90",
-    stats: { posts: 256, followers: 2048, following: 432 },
-    location: "Varsovie, Pologne",
-    website: "mariecurie.fr",
-    joinDate: "2019",
-  },
-];
+//   const users = [
+//   {
+//     name: "Jean Dupont",
+//     username: "jean_dupont",
+//     bio: "Développeur web passionné, amateur de café ☕ et de voyages 🌍.",
+//     email: "jean.dupont@email.com",
+//     avatar: "https://randomuser.me/api/portraits/men/32.jpg",
+//     banner: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=compress&w=1600&q=90",
+//     stats: { posts: 128, followers: 1024, following: 321 },
+//     location: "Paris, France",
+//     website: "jeandupont.dev",
+//     joinDate: "2021",
+//   },
+//   {
+//     name: "Marie Curie",
+//     username: "marie_curie",
+//     bio: "Physicienne et chimiste, pionnière dans le domaine de la radioactivité.",
+//     email: "marie.curie@email.com",
+//     avatar: "https://randomuser.me/api/portraits/women/32.jpg",
+//     banner: "https://images.unsplash.com/photo-1465101046530-73398c7f28ca?auto=compress&w=1600&q=90",
+//     stats: { posts: 256, followers: 2048, following: 432 },
+//     location: "Varsovie, Pologne",
+//     website: "mariecurie.fr",
+//     joinDate: "2019",
+//   },
+// ];
 
 // Sample posts data
 const samplePosts = [
   {
     id: 1,
     content:
-      "Excited to announce that I'll be speaking at the upcoming React Conference! Can't wait to share my insights on modern web development 🚀 #ReactConf #WebDev",
+      "Excited to announce that I'll be speaking at the upcoming React Conference! Can't wait to share my insights on modern web development 🚀",
     timestamp: "2h",
     likes: 89,
     comments: 23,
     reposts: 12,
     tags: ["ReactConf", "WebDev"],
     pinned: true,
+    media: {
+      type: "image" as const,
+      url: "https://images.unsplash.com/photo-1461749280684-dccba630e2f6?auto=compress&w=800&q=80", // conference / tech talk
+    },
   },
   {
     id: 2,
@@ -72,18 +78,72 @@ const samplePosts = [
     tags: ["AI", "Tech"],
     pinned: true,
   },
-];
+  {
+    id: 4,
+    content:
+      "Découvrez ma dernière vidéo sur l'intégration de l'IA dans les applications web !",
+    timestamp: "3d",
+    likes: 67,
+    comments: 15,
+    reposts: 7,
+    tags: ["Video", "AI"],
+    media: {
+      type: "video" as const,
+      url: "https://videos.pexels.com/video-files/857195/857195-sd_640_360_25fps.mp4",
+    },
+  },
+] as PostType[];
 
 export default function ProfilePage() {
+
+  const [userData, setUserData] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [posts, setPosts] = useState<PostType[]>(samplePosts);
+  const [isFollowing, setIsFollowing] = useState(false);
+  const [followersCount, setFollowersCount] = useState<number>(0);
+  
   const params = useParams();
 
-  const user = users.find(u => u.username === params.username);
-  // Si l'utilisateur n'est pas trouvé, on peut rediriger ou afficher un message
-  if (!user) {
-    return notFound();
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const res = await apiClient.get(`/users/${params.username}`);
+        setUserData(res.data);
+        setFollowersCount(res.data.followersCount || 0);
+      } catch (err) {
+        setUserData(null);
+        setFollowersCount(0);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchUser();
+  }, [params.username]);
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <span>Chargement...</span>
+      </div>
+    );
   }
 
-  const [posts, setPosts] = useState(samplePosts);
+  const user = userData;
+  // Si l'utilisateur n'est pas trouvé, on peut rediriger ou afficher un message
+  if (!user) {
+    notFound();
+  }
+  
+  const handleFollowClick = () => {
+    if (isFollowing) {
+      setIsFollowing(false);
+      setFollowersCount((count) => count - 1);
+    } else {
+      setIsFollowing(true);
+      setFollowersCount((count) => count + 1);
+    }
+  };
 
   const handleTogglePin = (postId: number) => {
     setPosts((prev) =>
@@ -105,7 +165,7 @@ export default function ProfilePage() {
               <span className="font-medium">Retour</span>
             </Link>
             <div className="flex items-center gap-2">
-              <h1 className="text-xl font-bold text-gray-900">{user.name}</h1>
+              <h1 className="text-xl font-bold text-gray-900">{user.displayName}</h1>
               <Sparkles className="w-4 h-4 text-[var(--primary-light)]" />
             </div>
           </div>
@@ -115,7 +175,7 @@ export default function ProfilePage() {
       {/* Banner */}
       <div className="relative h-64 overflow-hidden ">
         <img
-          src={user.banner || "/placeholder.svg"}
+          src={user.coverPicture || "/placeholder.svg"}
           alt="Banner"
           className="w-full h-full object-cover"
         />
@@ -132,7 +192,7 @@ export default function ProfilePage() {
             <div className="flex flex-col items-center">
               <div className="relative">
                 <Avatar className="w-28 h-28 ">
-                  <AvatarImage src={user.avatar || "/placeholder.svg"}  alt={user.name} />
+                  <AvatarImage src={user.profilePicture || "/placeholder.svg"}  alt={user.displayName} />
                   <AvatarFallback className="text-2xl bg-gradient-to-br from-[var(--primary)] to-[var(--primary-light)] text-white">
                       <UserPlaceholderIcon className="w-16 h-16 text-white-400" />
                   </AvatarFallback>
@@ -144,9 +204,9 @@ export default function ProfilePage() {
 
               {/* Stats Cards */}
               <div className="flex gap-4 mt-4">
-                <Stats label="Posts" value={user.stats.posts} />
-                <Stats label="Followers" value={user.stats.followers} />
-                <Stats label="Following" value={user.stats.following} />
+                <Stats label="Posts" value={user.postsCount} />
+                <Stats label="Followers" value={followersCount} />
+                <Stats label="Following" value={user.followingCount} />
               </div>
             </div>
 
@@ -154,7 +214,7 @@ export default function ProfilePage() {
             <div className="flex-1">
               <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
                 <div>
-                  <h2 className="text-2xl font-bold text-gray-900 mb-1">{user.name}</h2>
+                  <h2 className="text-2xl font-bold text-gray-900 mb-1">{user.displayName}</h2>
                   <p className="text-[var(--primary-light)] font-medium">@{user.username}</p>
                 </div>
 
@@ -185,11 +245,26 @@ export default function ProfilePage() {
                     Modifier le profil
                   </Button>
                   <Button
-                    className="rounded-full px-4 py-2 transition"
-                    variant="default"
+                    className={`min-w-[120px] rounded-full px-4 py-2 transition-all duration-200 flex items-center gap-2
+                      ${isFollowing
+                        ? "bg-white text-[var(--primary)] border border-blue-200 hover:bg-[var(--secondary-light)] hover:text-[var(--primary-light)] shadow-sm"
+                        : "bg-[var(--primary)] text-white shadow-lg"
+                      }
+                      active:scale-95
+                    `}
+                    onClick={handleFollowClick}
                   >
-                    <UserRoundPlus className="w-4 h-4" />
-                    Suivre
+                    {isFollowing ? (
+                      <>
+                        <UserRoundCheck className="w-4 h-4 transition-transform duration-200" />
+                        <span>Suivi(e)</span>
+                      </>
+                    ) : (
+                      <>
+                        <UserRoundPlus className="w-4 h-4 transition-transform duration-200" />
+                        <span>Suivre</span>
+                      </>
+                    )}
                   </Button>
                 </div>
               </div>
@@ -198,24 +273,26 @@ export default function ProfilePage() {
               <p className="text-gray-700 leading-relaxed mt-4 mb-4">{user.bio}</p>
 
               <div className="flex flex-wrap items-center gap-4 text-sm text-gray-500">
-                {user.location && (
+                {/* {user.location && ( */}
                   <div className="flex items-center gap-1 bg-gray-50 rounded-full px-3 py-1">
                     <MapPin className="w-3 h-3" />
-                    <span>{user.location}</span>
+                    <span>user.location</span>
                   </div>
-                )}
-                {user.website && (
+                {/* )} */}
+                {/* {user.website && ( */}
                   <div className="flex items-center gap-1 bg-gray-50 rounded-full px-3 py-1">
                     <LinkIcon className="w-3 h-3" />
-                    <a href={`https://${user.website}`} className="text-blue-600 hover:underline">
-                      {user.website}
+                    <a href={`https://user.website`} className="text-blue-600 hover:underline">
+                      user.website
                     </a>
                   </div>
-                )}
-                {user.joinDate && (
+                {/* )} */}
+                {user.createdAt && (
                   <div className="flex items-center gap-1 bg-gray-50 rounded-full px-3 py-1">
                     <Calendar className="w-3 h-3" />
-                    <span>Rejoint en {user.joinDate}</span>
+                    <span>
+                      Rejoint en {new Date(user.createdAt).toLocaleDateString("fr-FR", { year: "numeric", month: "long" })}
+                    </span>
                   </div>
                 )}
               </div>
@@ -275,7 +352,11 @@ export default function ProfilePage() {
                 <Post
                   key={post.id}
                   post={post}
-                  user={user}
+                  user={{
+                    displayName: user.displayName,
+                    username: user.username,
+                    avatar: user.profilePicture,
+                  }}
                   showPinnedPost
                   onTogglePin={handleTogglePin}
                 />
