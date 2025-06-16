@@ -1,11 +1,21 @@
-import axios from 'axios';
+import axios from "axios";
 
 const apiClient = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:3000/api/',
+  baseURL: process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8080/api/",
+  withCredentials: true, // Enable cookies to be sent with requests
   headers: {
-    'Content-Type': 'application/json',
-    'Accept': 'application/json',
+    "Content-Type": "application/json",
+    Accept: "application/json",
   },
 });
 
-export default apiClient
+// Add an interceptor to dynamically add the token
+apiClient.interceptors.request.use((config) => {
+  const token = localStorage.getItem("access_token");
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
+
+export default apiClient;

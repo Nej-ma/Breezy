@@ -1,13 +1,71 @@
 {
-    "signup": {
-        "displayName": "Name",
-        "username": "Username",
-        "email": "Email",
-        "password": "Password",
-        "passwordDescription": "Password must contain at least 8 characters, one uppercase letter, one lowercase letter, one number, and one special character [@$!%*?&#].",
-        "confirmPassword": "Confirm password",
-        "submit": "Sign Up",
-        "successMessage": "Your account has been successfully created. A confirmation email has been sent to your address. Please check your inbox and click the confirmation link to activate your account.",
-        "errorMessage": "An error occurred while creating your account. Please try again later or contact support if the problem persists."
+    "common": {
+        "loading": "Loading...",
+        "error": "An error occurred. Please try again."
+    },
+
+    "auth": {
+        "signup": {
+            "displayName": "Name",
+            "username": "Username",
+            "email": "Email",
+            "password": "Password",
+            "passwordDescription": "Password must contain at least 8 characters, one uppercase letter, one lowercase letter, one number, and one special character [@$!%*?&#].",
+            "confirmPassword": "Confirm password",
+            "submit": "Sign Up",
+            "successMessage": "Your account has been successfully created. A confirmation email has been sent to your address. Please check your inbox and click the confirmation link to activate your account.",
+            "errorMessage": "An error occurred while creating your account. Please try again later or contact support if the problem persists.",
+            "alreadyHaveAccount": "Already have an account?"
+        },
+
+        "validateEmail": {
+            "loading" : "Validating your email...",
+            "successText": "Great! You can now access all the features of Breezy!",
+            "errorText": "Oops! It seems that the confirmation link is invalid or has expired. Please try signing up again.",
+            "goToSignIn": "Go to Sign In",
+            "goToSignUp": "Create an Account"
+        },
+
+        "signin": {
+            "submit": "Sign In",
+            "forgotPassword": "Forgot Password?",
+            "forgotPasswordText": "Enter your email address to receive a reset link.",
+            "sendResetLink": "Send Reset Link",
+            "noAccount": "Don't have an account? Sign Up",
+            "successText": "Welcome back! You are now signed in.",
+            "errorText": "Invalid email or password. Please try again."
+        },
+
+        "form": {
+            "required": "This field is required.",
+            "invalidEmail": "Please enter a valid email address.",
+            "passwordMismatch": "Passwords do not match.",
+            "minLength": "Must be at least {{min}} characters long.",
+            "maxLength": "Must be at most {{max}} characters long.",
+            "passwordLowercase": "Must contain a lowercase letter.",
+            "passwordUppercase": "Must contain an uppercase letter.",
+            "passwordNumber": "Must contain a number.",
+            "passwordSpecial": "Must contain a special character."
+        },
+
+        "forgotPassword": {
+            "title": "Password Reset",
+            "successMessage": "A password reset link has been sent to your email address.",
+            "errorMessage": "Unable to send password reset email."
+        },
+
+        "resetPassword": {
+            "title": "Reset Password",
+            "subtitle": "Please choose a new password for your account.",
+            "newPasswordPlaceholder": "New Password",
+            "confirmPasswordPlaceholder": "Confirm New Password",
+            "submit": "Reset Password",
+            "successMessage": "Your password has been successfully reset. You can now log in with your new password.",
+            "errorMessage": "An error occurred while resetting your password. Please try again later.",
+            "invalidToken": "The password reset token is invalid or has expired. Please request a new password reset link.",
+            "validatingToken": "Validating your request...",
+            "backToLogin": "Back to Login"
+
+        }
     }
 }
