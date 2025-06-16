@@ -9,6 +9,16 @@ import { Button } from "@/components/ui/button";
 import { Stats } from "@/components/custom/stats";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
+  Dialog,
+  DialogTrigger,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+  DialogClose,
+} from "@/components/ui/dialog";
+import {
   ArrowLeft,
   Calendar,
   Flag,
@@ -38,6 +48,9 @@ import {
 } from "@/components/ui/dropdown-menu";
 import apiClient from "@/utils/api";
 import { User } from "@/services/userService";
+import { useForm } from "react-hook-form";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 
 // Sample posts data
 const samplePosts = [
@@ -94,14 +107,22 @@ const samplePosts = [
 ] as PostType[];
 
 export default function ProfilePage() {
-  const [userData, setUserData] = useState<User | null>(null);
+  const params = useParams();
+
+  const [userData, setUserData] = useState<User>();
   const [loading, setLoading] = useState(true);
   const [posts, setPosts] = useState<PostType[]>(samplePosts);
   const [isFollowing, setIsFollowing] = useState(false);
   const [followersCount, setFollowersCount] = useState<number>(0);
   const [likedPosts, setLikedPosts] = useState<number[]>([]);
 
-  const params = useParams();
+  const form = useForm({
+    defaultValues: {
+      displayName: userData?.displayName,
+      bio: userData?.bio || "",
+      website: "userData?.website",
+    },
+  });
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -110,7 +131,7 @@ export default function ProfilePage() {
         setUserData(res.data);
         setFollowersCount(res.data.followersCount || 0);
       } catch (err) {
-        setUserData(null);
+        setUserData(undefined);
         setFollowersCount(0);
       } finally {
         setLoading(false);
@@ -126,6 +147,12 @@ export default function ProfilePage() {
       </div>
     );
   }
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = form;
 
   const user = userData;
   // Si l'utilisateur n'est pas trouvé, on peut rediriger ou afficher un message
@@ -246,13 +273,117 @@ export default function ProfilePage() {
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
-                  <Button
-                    className="rounded-full px-4 py-2 transition"
-                    variant="default"
-                  >
-                    <Pencil className="w-4 h-4" />
-                    Modifier le profil
-                  </Button>
+                  {/* Dialog “Modifier le profil” */}
+                  <Dialog>
+                    <DialogTrigger asChild>
+                      <Button
+                        variant="default"
+                        size="sm"
+                        className="rounded-full flex items-center gap-2"
+                      >
+                        <Pencil className="w-4 h-4" />
+                        Modifier le profil
+                      </Button>
+                    </DialogTrigger>
+
+                    <DialogContent className="max-w-md bg-white rounded-2xl shadow-lg p-6">
+                      <DialogHeader>
+                        <DialogTitle>Modifier le profil</DialogTitle>
+                        <DialogDescription>
+                          Modifie les informations de ton profil ci-dessous.
+                        </DialogDescription>
+                      </DialogHeader>
+
+                      <form
+                        onSubmit={handleSubmit(async (data) => {
+                          console.log(
+                            "TODO: appeler l’API de mise à jour",
+                            data
+                          );
+                        })}
+                        className="space-y-6"
+                      >
+                        <div className="flex justify-center">
+                          <Avatar className="w-20 h-20 ring-4 ring-white shadow-md">
+                            <AvatarImage
+                              src={user.profilePicture || "/placeholder.svg"}
+                              alt={user.displayName}
+                            />
+                            <AvatarFallback className="bg-gradient-to-br from-[var(--primary)] to-[var(--primary-light)] text-white">
+                              <UserPlaceholderIcon className="w-10 h-10" />
+                            </AvatarFallback>
+                          </Avatar>
+                        </div>
+
+                        {/* Nom affiché */}
+                        <div className="space-y-1">
+                          <label
+                            htmlFor="displayName"
+                            className="block text-sm font-medium"
+                          >
+                            Nom affiché
+                          </label>
+                          <Input
+                            id="displayName"
+                            {...register("displayName", {
+                              required: "Le nom est requis",
+                            })}
+                          />
+                          {errors.displayName && (
+                            <p className="text-xs text-red-600">
+                              {errors.displayName.message}
+                            </p>
+                          )}
+                        </div>
+
+                        {/* Bio */}
+                        <div className="space-y-1">
+                          <label
+                            htmlFor="bio"
+                            className="block text-sm font-medium"
+                          >
+                            Bio
+                          </label>
+                          <Textarea id="bio" rows={3} {...register("bio")} />
+                        </div>
+
+                        {/* Site web */}
+                        <div className="space-y-1">
+                          <label
+                            htmlFor="website"
+                            className="block text-sm font-medium"
+                          >
+                            Site web
+                          </label>
+                          <Input
+                            id="website"
+                            type="url"
+                            {...register("website", {
+                              pattern: {
+                                value:
+                                  /^(https?:\/\/)?[\w-]+(\.[\w-]+)+[/#?]?.*$/i,
+                                message: "URL invalide",
+                              },
+                            })}
+                          />
+                          {errors.website && (
+                            <p className="text-xs text-red-600">
+                              {errors.website.message}
+                            </p>
+                          )}
+                        </div>
+
+                        <DialogFooter className="flex justify-end gap-2">
+                          <DialogClose asChild>
+                            <Button variant="outline">Fermer</Button>
+                          </DialogClose>
+                          <Button type="submit" variant="default">
+                            Enregistrer
+                          </Button>
+                        </DialogFooter>
+                      </form>
+                    </DialogContent>
+                  </Dialog>
                   <Button
                     className={`min-w-[120px] rounded-full px-4 py-2 transition-all duration-200 flex items-center gap-2
                       ${
