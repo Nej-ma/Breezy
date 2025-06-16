@@ -1,44 +1,43 @@
 "use client";
-import { Avatar, AvatarFallback, AvatarImage, UserPlaceholderIcon } from "@/components/ui/avatar";
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+  UserPlaceholderIcon,
+} from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Stats } from "@/components/custom/stats";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { ArrowLeft, Calendar, Flag, Heart, ImageIcon, LinkIcon, MapPin, MessageCircle, MoreHorizontal, Pencil, Send, Sparkles, StickyNote, UserRoundCheck, UserRoundPlus } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  ArrowLeft,
+  Calendar,
+  Flag,
+  Heart,
+  ImageIcon,
+  LinkIcon,
+  MapPin,
+  MessageCircle,
+  MoreHorizontal,
+  Pencil,
+  Send,
+  Sparkles,
+  StickyNote,
+  UserRoundCheck,
+  UserRoundPlus,
+} from "lucide-react";
 import { notFound, useParams } from "next/navigation";
 import Link from "next/link";
 import { Post, PostType } from "@/components/custom/post";
 import { useEffect, useState } from "react";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import apiClient from "@/utils/api";
 import { User } from "@/services/userService";
-
-// Exemple de données utilisateur (à remplacer par des données réelles)
-//   const users = [
-//   {
-//     name: "Jean Dupont",
-//     username: "jean_dupont",
-//     bio: "Développeur web passionné, amateur de café ☕ et de voyages 🌍.",
-//     email: "jean.dupont@email.com",
-//     avatar: "https://randomuser.me/api/portraits/men/32.jpg",
-//     banner: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=compress&w=1600&q=90",
-//     stats: { posts: 128, followers: 1024, following: 321 },
-//     location: "Paris, France",
-//     website: "jeandupont.dev",
-//     joinDate: "2021",
-//   },
-//   {
-//     name: "Marie Curie",
-//     username: "marie_curie",
-//     bio: "Physicienne et chimiste, pionnière dans le domaine de la radioactivité.",
-//     email: "marie.curie@email.com",
-//     avatar: "https://randomuser.me/api/portraits/women/32.jpg",
-//     banner: "https://images.unsplash.com/photo-1465101046530-73398c7f28ca?auto=compress&w=1600&q=90",
-//     stats: { posts: 256, followers: 2048, following: 432 },
-//     location: "Varsovie, Pologne",
-//     website: "mariecurie.fr",
-//     joinDate: "2019",
-//   },
-// ];
 
 // Sample posts data
 const samplePosts = [
@@ -95,15 +94,14 @@ const samplePosts = [
 ] as PostType[];
 
 export default function ProfilePage() {
-
   const [userData, setUserData] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [posts, setPosts] = useState<PostType[]>(samplePosts);
   const [isFollowing, setIsFollowing] = useState(false);
   const [followersCount, setFollowersCount] = useState<number>(0);
-  
-  const params = useParams();
+  const [likedPosts, setLikedPosts] = useState<number[]>([]);
 
+  const params = useParams();
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -134,7 +132,7 @@ export default function ProfilePage() {
   if (!user) {
     notFound();
   }
-  
+
   const handleFollowClick = () => {
     if (isFollowing) {
       setIsFollowing(false);
@@ -147,31 +145,33 @@ export default function ProfilePage() {
 
   const handleTogglePin = (postId: number) => {
     setPosts((prev) =>
-      prev.map((p) =>
-        p.id === postId ? { ...p, pinned: !p.pinned } : p
-      )
+      prev.map((p) => (p.id === postId ? { ...p, pinned: !p.pinned } : p))
     );
   };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50">
-
       {/* Floating Header */}
       <div className="bg-white/60 backdrop-blur-md sticky top-0 z-11 shadow-sm">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center gap-4 h-16">
-            <Link href="/" className="flex items-center gap-2 text-[var(--primary)] hover:text-[var(--primary-light)] transition-colors">
+            <Link
+              href="/"
+              className="flex items-center gap-2 text-[var(--primary)] hover:text-[var(--primary-light)] transition-colors"
+            >
               <ArrowLeft className="w-5 h-5" />
               <span className="font-medium">Retour</span>
             </Link>
             <div className="flex items-center gap-2">
-              <h1 className="text-xl font-bold text-gray-900">{user.displayName}</h1>
+              <h1 className="text-xl font-bold text-gray-900">
+                {user.displayName}
+              </h1>
               <Sparkles className="w-4 h-4 text-[var(--primary-light)]" />
             </div>
           </div>
         </div>
       </div>
-      
+
       {/* Banner */}
       <div className="relative h-64 overflow-hidden ">
         <img
@@ -183,18 +183,19 @@ export default function ProfilePage() {
 
       {/* Profile Content with Unique Layout */}
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 relative">
-
         {/* Profile Card - Floating Design */}
         <div className="bg-white rounded-2xl shadow-xl border border-blue-100 -mt-20 relative z-10 p-6 mb-6">
           <div className="flex flex-col lg:flex-row lg:items-center gap-8">
-
             {/* Avatar Section */}
             <div className="flex flex-col items-center">
               <div className="relative">
                 <Avatar className="w-28 h-28 ">
-                  <AvatarImage src={user.profilePicture || "/placeholder.svg"}  alt={user.displayName} />
+                  <AvatarImage
+                    src={user.profilePicture || "/placeholder.svg"}
+                    alt={user.displayName}
+                  />
                   <AvatarFallback className="text-2xl bg-gradient-to-br from-[var(--primary)] to-[var(--primary-light)] text-white">
-                      <UserPlaceholderIcon className="w-16 h-16 text-white-400" />
+                    <UserPlaceholderIcon className="w-16 h-16 text-white-400" />
                   </AvatarFallback>
                 </Avatar>
                 <div className="absolute -bottom-1 -right-1 w-8 h-8 bg-gradient-to-r from-[var(--primary)] to-[var(--primary-light)] rounded-full flex items-center justify-center shadow-lg">
@@ -214,14 +215,22 @@ export default function ProfilePage() {
             <div className="flex-1">
               <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
                 <div>
-                  <h2 className="text-2xl font-bold text-gray-900 mb-1">{user.displayName}</h2>
-                  <p className="text-[var(--primary-light)] font-medium">@{user.username}</p>
+                  <h2 className="text-2xl font-bold text-gray-900 mb-1">
+                    {user.displayName}
+                  </h2>
+                  <p className="text-[var(--primary-light)] font-medium">
+                    @{user.username}
+                  </p>
                 </div>
 
                 <div className="flex gap-2 items-center">
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <Button variant="outline" size="sm" className="rounded-full border-gray-300 hover:border-blue-300">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="rounded-full border-gray-300 hover:border-blue-300"
+                      >
                         <MoreHorizontal className="w-4 h-4" />
                       </Button>
                     </DropdownMenuTrigger>
@@ -246,9 +255,10 @@ export default function ProfilePage() {
                   </Button>
                   <Button
                     className={`min-w-[120px] rounded-full px-4 py-2 transition-all duration-200 flex items-center gap-2
-                      ${isFollowing
-                        ? "bg-white text-[var(--primary)] border border-blue-200 hover:bg-[var(--secondary-light)] hover:text-[var(--primary-light)] shadow-sm"
-                        : "bg-[var(--primary)] text-white shadow-lg"
+                      ${
+                        isFollowing
+                          ? "bg-white text-[var(--primary)] border border-blue-200 hover:bg-[var(--secondary-light)] hover:text-[var(--primary-light)] shadow-sm"
+                          : "bg-[var(--primary)] text-white shadow-lg"
                       }
                       active:scale-95
                     `}
@@ -270,28 +280,37 @@ export default function ProfilePage() {
               </div>
 
               {/* Bio and Additional Info */}
-              <p className="text-gray-700 leading-relaxed mt-4 mb-4">{user.bio}</p>
+              <p className="text-gray-700 leading-relaxed mt-4 mb-4">
+                {user.bio}
+              </p>
 
               <div className="flex flex-wrap items-center gap-4 text-sm text-gray-500">
                 {/* {user.location && ( */}
-                  <div className="flex items-center gap-1 bg-gray-50 rounded-full px-3 py-1">
-                    <MapPin className="w-3 h-3" />
-                    <span>user.location</span>
-                  </div>
+                <div className="flex items-center gap-1 bg-gray-50 rounded-full px-3 py-1">
+                  <MapPin className="w-3 h-3" />
+                  <span>user.location</span>
+                </div>
                 {/* )} */}
                 {/* {user.website && ( */}
-                  <div className="flex items-center gap-1 bg-gray-50 rounded-full px-3 py-1">
-                    <LinkIcon className="w-3 h-3" />
-                    <a href={`https://user.website`} className="text-blue-600 hover:underline">
-                      user.website
-                    </a>
-                  </div>
+                <div className="flex items-center gap-1 bg-gray-50 rounded-full px-3 py-1">
+                  <LinkIcon className="w-3 h-3" />
+                  <a
+                    href={`https://user.website`}
+                    className="text-blue-600 hover:underline"
+                  >
+                    user.website
+                  </a>
+                </div>
                 {/* )} */}
                 {user.createdAt && (
                   <div className="flex items-center gap-1 bg-gray-50 rounded-full px-3 py-1">
                     <Calendar className="w-3 h-3" />
                     <span>
-                      Rejoint en {new Date(user.createdAt).toLocaleDateString("fr-FR", { year: "numeric", month: "long" })}
+                      Rejoint en{" "}
+                      {new Date(user.createdAt).toLocaleDateString("fr-FR", {
+                        year: "numeric",
+                        month: "long",
+                      })}
                     </span>
                   </div>
                 )}
@@ -305,42 +324,42 @@ export default function ProfilePage() {
           <TabsList className="w-full bg-white rounded-2xl shadow border border-blue-100 flex gap-2">
             {[
               {
-          value: "posts",
-          icon: <StickyNote className="w-4 h-4" />,
-          label: "Posts",
+                value: "posts",
+                icon: <StickyNote className="w-4 h-4" />,
+                label: "Posts",
               },
               {
-          value: "replies",
-          icon: <MessageCircle className="w-4 h-4" />,
-          label: "Réponses",
+                value: "replies",
+                icon: <MessageCircle className="w-4 h-4" />,
+                label: "Réponses",
               },
               {
-          value: "media",
-          icon: <ImageIcon className="w-4 h-4" />,
-          label: "Médias",
+                value: "media",
+                icon: <ImageIcon className="w-4 h-4" />,
+                label: "Médias",
               },
               {
-          value: "likes",
-          icon: <Heart className="w-4 h-4" />,
-          label: "J'aime",
+                value: "likes",
+                icon: <Heart className="w-4 h-4" />,
+                label: "J'aime",
               },
             ].map(({ value, icon, label }) => (
               <TabsTrigger
-          key={value}
-          value={value}
-          className={[
-            "flex-1 py-3 rounded-xl font-semibold transition-all duration-200 animate-fade-in",
-            "hover:bg-blue-50",
-            "data-[state=active]:bg-gradient-to-r",
-            "data-[state=active]:from-[var(--primary)]",
-            "data-[state=active]:to-[var(--primary-light)]",
-            "data-[state=active]:text-white",
-            "data-[state=inactive]:text-gray-500",
-            "data-[state=inactive]:bg-transparent"
-          ].join(" ")}
+                key={value}
+                value={value}
+                className={[
+                  "flex-1 py-3 rounded-xl font-semibold transition-all duration-200 animate-fade-in",
+                  "hover:bg-blue-50",
+                  "data-[state=active]:bg-gradient-to-r",
+                  "data-[state=active]:from-[var(--primary)]",
+                  "data-[state=active]:to-[var(--primary-light)]",
+                  "data-[state=active]:text-white",
+                  "data-[state=inactive]:text-gray-500",
+                  "data-[state=inactive]:bg-transparent",
+                ].join(" ")}
               >
-          {icon}
-          {label}
+                {icon}
+                {label}
               </TabsTrigger>
             ))}
           </TabsList>
@@ -359,46 +378,112 @@ export default function ProfilePage() {
                   }}
                   showPinnedPost
                   onTogglePin={handleTogglePin}
+                  liked={likedPosts.includes(post.id)}
+                  onToggleLike={() => {
+                    setLikedPosts((prev) =>
+                      prev.includes(post.id)
+                        ? prev.filter((id) => id !== post.id)
+                        : [...prev, post.id]
+                    );
+                  }}
                 />
               ))}
           </TabsContent>
 
           {/* Replies Tab Content */}
           <TabsContent value="replies" className="mt-6">
-          <div className="flex flex-col items-center justify-center bg-card rounded-2xl shadow-lg p-12 text-center">
-            <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mb-4">
-            <MessageCircle className="w-8 h-8 text-primary" />
+            <div className="flex flex-col items-center justify-center bg-card rounded-2xl shadow-lg p-12 text-center">
+              <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mb-4">
+                <MessageCircle className="w-8 h-8 text-primary" />
+              </div>
+              <p className="text-gray-500 text-lg">
+                Aucune réponse pour le moment
+              </p>
+              <p className="text-gray-400 text-sm mt-2">
+                Les réponses apparaîtront ici
+              </p>
             </div>
-            <p className="text-gray-500 text-lg">Aucune réponse pour le moment</p>
-            <p className="text-gray-400 text-sm mt-2">Les réponses apparaîtront ici</p>
-          </div>
           </TabsContent>
 
           {/* Media Tab Content */}
-          <TabsContent value="media" className="mt-6">
-          <div className="flex flex-col items-center justify-center bg-card rounded-2xl shadow-lg p-12 text-center">
-            <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mb-4">
-            <ImageIcon className="w-8 h-8 text-primary" />
-            </div>
-            <p className="text-gray-500 text-lg">Aucun média partagé</p>
-            <p className="text-gray-400 text-sm mt-2">Photos et vidéos apparaîtront ici</p>
-          </div>
-          </TabsContent>
-          
-          {/* Likes Tab Content */}
-          <TabsContent value="likes" className="mt-6">
-          <div className="flex flex-col items-center justify-center bg-card rounded-2xl shadow-lg p-12 text-center">
-            <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mb-4">
-            <Heart className="w-8 h-8 text-primary" />
-            </div>
-            <p className="text-gray-500 text-lg">Aucun like pour le moment</p>
-            <p className="text-gray-400 text-sm mt-2">Les posts aimés apparaîtront ici</p>
-          </div>
+          <TabsContent value="media" className="mt-6 space-y-4">
+            {[...posts]
+              .filter((post) => !!post.media)
+              .map((post) => (
+                <Post
+                  key={post.id}
+                  post={post}
+                  user={{
+                    displayName: user.displayName,
+                    username: user.username,
+                    avatar: user.profilePicture,
+                  }}
+                  showPinnedPost
+                  onTogglePin={handleTogglePin}
+                  liked={likedPosts.includes(post.id)}
+                  onToggleLike={() => {
+                    setLikedPosts((prev) =>
+                      prev.includes(post.id)
+                        ? prev.filter((id) => id !== post.id)
+                        : [...prev, post.id]
+                    );
+                  }}
+                />
+              ))}
+            {[...posts].filter((post) => !!post.media).length === 0 && (
+              <div className="flex flex-col items-center justify-center bg-card rounded-2xl shadow-lg p-12 text-center">
+                <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mb-4">
+                  <ImageIcon className="w-8 h-8 text-primary" />
+                </div>
+                <p className="text-gray-500 text-lg">Aucun média partagé</p>
+                <p className="text-gray-400 text-sm mt-2">
+                  Photos et vidéos apparaîtront ici
+                </p>
+              </div>
+            )}
           </TabsContent>
 
+          {/* Likes Tab Content */}
+          <TabsContent value="likes" className="mt-6 space-y-4">
+            {[...posts]
+              .filter((post) => likedPosts.includes(post.id))
+              .map((post) => (
+                <Post
+                  key={post.id}
+                  post={post}
+                  user={{
+                    displayName: user.displayName,
+                    username: user.username,
+                    avatar: user.profilePicture,
+                  }}
+                  showPinnedPost
+                  onTogglePin={handleTogglePin}
+                  liked={likedPosts.includes(post.id)}
+                  onToggleLike={() => {
+                    setLikedPosts((prev) =>
+                      prev.includes(post.id)
+                        ? prev.filter((id) => id !== post.id)
+                        : [...prev, post.id]
+                    );
+                  }}
+                />
+              ))}
+            {likedPosts.length === 0 && (
+              <div className="flex flex-col items-center justify-center bg-card rounded-2xl shadow-lg p-12 text-center">
+                <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mb-4">
+                  <Heart className="w-8 h-8 text-primary" />
+                </div>
+                <p className="text-gray-500 text-lg">
+                  Aucun like pour le moment
+                </p>
+                <p className="text-gray-400 text-sm mt-2">
+                  Les posts aimés apparaîtront ici
+                </p>
+              </div>
+            )}
+          </TabsContent>
         </Tabs>
       </div>
     </div>
-    
   );
 }
