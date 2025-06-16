@@ -59,23 +59,25 @@ const validateEmail = async (token: string) => {
   }
 };
 
-const login = async (userData: Login) => {
+const login = async (userData: Login): Promise<AuthResponse> => {
   try {
     const response = await apiClient.post("auth/login", userData);
-    if (response.status === 200) {
-      // Assuming the response contains user data and a token
-      const { user, token } = response.data;
-      // Store user data and token in local storage or context
-      localStorage.setItem("user", JSON.stringify(user));
-      localStorage.setItem("token", token);
-      return { user, token }; // Return user data and token
+    if (response.status === 200 && response.data) {
+      // Store token in localStorage (the interceptor will use it for future requests)
+      if (response.data.token) {
+        localStorage.setItem("access_token", response.data.token);
+      }
+
+      // Optionally store user data in localStorage or state management
+      localStorage.setItem("user", JSON.stringify(response.data.user));
+
+      return response.data;
     } else {
-      console.error("Login failed:", response.statusText);
-      return null; // Return null if login failed
+      throw new Error(response.data?.message || "auth.signin.errorText");
     }
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error during login:", error);
-    return null; // Return null if there was an error
+    throw error; // Re-throw to be caught by the component
   }
 };
 

@@ -18,17 +18,4 @@ apiClient.interceptors.request.use((config) => {
   return config;
 });
 
-// Add response interceptor
-apiClient.interceptors.response.use(
-  (response) => response,
-  (error) => {
-    console.error("Response error:", {
-      status: error.response?.status,
-      headers: error.response?.headers,
-      data: error.response?.data
-    });
-    return Promise.reject(error);
-  }
-);
-
 export default apiClient;

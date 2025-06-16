@@ -1,11 +1,8 @@
 "use client";
 
-import Image from "next/image";
-
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useUser } from "@/utils/hooks/useUser";
-import { useToken } from "@/utils/hooks/useToken";
 
 export default function Home() {
   const router = useRouter();

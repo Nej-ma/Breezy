@@ -29,8 +29,6 @@ import * as yup from "yup";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { useState, useEffect } from "react";
-import { useUser } from "@/utils/hooks/useUser";
-import { useToken } from "@/utils/hooks/useToken";
 
 // Define the initial schema without translations
 const createSignInSchema = (t: any) =>
@@ -70,8 +68,6 @@ export default function SignInPage() {
   const { t, i18n } = useTranslation();
   const [isLoading, setIsLoading] = useState(false);
   const [signInSchema, setSignInSchema] = useState(() => createSignInSchema(t));
-  const { setUser } = useUser();
-  const { setToken } = useToken();
 
   // Update validation schema when language changes
   useEffect(() => {
@@ -100,20 +96,22 @@ export default function SignInPage() {
     userService
       .login(loginData)
       .then((response) => {
-        if (response) {
-          toast.success(t("auth.signin.successText"));
-          // Redirect to home or dashboard
-          window.location.href = "/";
-          setUser(response.user);
-          setToken(response.token);
-          
-        } else {
-          toast.error(t("auth.signin.errorText"));
+        // First check if we have a valid response with user and token
+        if (!response || !response.user || !response.token) {
+          throw new Error(t("auth.signin.errorText"));
         }
+
+        // If we get here, we have a valid response
+        toast.success(t("auth.signin.successText"));
+
+        // Redirect to home or dashboard
+        window.location.href = "/";
       })
       .catch((error) => {
         console.error("Login error:", error);
-        toast.error(t("auth.signin.errorText"));
+        toast.error(
+          t(error?.response?.data?.message || "auth.signin.errorText")
+        );
       })
       .finally(() => {
         setIsLoading(false);
