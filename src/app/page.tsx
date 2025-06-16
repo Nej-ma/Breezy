@@ -4,14 +4,17 @@ import Image from "next/image";
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { useUser } from "@/utils/hooks/useUser";
+import { useToken } from "@/utils/hooks/useToken";
 
 export default function Home() {
   const router = useRouter();
 
+  const { getUser } = useUser();
+  const user = getUser();
+
   // check if the user is authenticated
-  const isAuthenticated = Boolean(
-    typeof window !== "undefined" && localStorage.getItem("token")
-  );
+  const isAuthenticated = Boolean(typeof window !== "undefined" && user);
 
   // if authenticated, redirect to dashboard
   useEffect(() => {

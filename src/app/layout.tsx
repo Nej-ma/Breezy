@@ -2,7 +2,10 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import "../lib/i18n"; // Import i18n configuration
+
+// Context providers
 import I18nProvider from "./helpers/I18nProvider";
+import AuthProvider from "./auth-provider";
 
 // components
 import { Toaster } from "sonner";
@@ -33,7 +36,10 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <Toaster richColors />
-        <I18nProvider>{children}</I18nProvider>
+        <AuthProvider>
+          {/* Wrap children with AuthProvider to provide user and token context */}
+          <I18nProvider>{children}</I18nProvider>
+        </AuthProvider>
       </body>
     </html>
   );

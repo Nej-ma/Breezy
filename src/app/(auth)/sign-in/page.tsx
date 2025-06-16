@@ -29,6 +29,8 @@ import * as yup from "yup";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { useState, useEffect } from "react";
+import { useUser } from "@/utils/hooks/useUser";
+import { useToken } from "@/utils/hooks/useToken";
 
 // Define the initial schema without translations
 const createSignInSchema = (t: any) =>
@@ -68,6 +70,8 @@ export default function SignInPage() {
   const { t, i18n } = useTranslation();
   const [isLoading, setIsLoading] = useState(false);
   const [signInSchema, setSignInSchema] = useState(() => createSignInSchema(t));
+  const { setUser } = useUser();
+  const { setToken } = useToken();
 
   // Update validation schema when language changes
   useEffect(() => {
@@ -100,6 +104,9 @@ export default function SignInPage() {
           toast.success(t("auth.signin.successText"));
           // Redirect to home or dashboard
           window.location.href = "/";
+          setUser(response.user);
+          setToken(response.token);
+          
         } else {
           toast.error(t("auth.signin.errorText"));
         }
