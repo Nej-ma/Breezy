@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist, Geist_Mono, Inter, Montserrat } from "next/font/google";
 import "./globals.css";
 import "../lib/i18n"; // Import i18n configuration
 
