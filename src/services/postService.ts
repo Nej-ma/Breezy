@@ -109,9 +109,25 @@ const likePost = async (postId: string, userId: string) => {
   }
 };
 
+const deletePost = async (postId: string) => {
+  try {
+    const response = await apiClient.delete(`posts/${postId}`);
+    if (response.status === 200) {
+      console.log("Post deleted successfully");
+    } else {
+      console.error(`Error deleting post: ${response.statusText}`);
+      throw new Error(`Error deleting post: ${response.statusText}`);
+    }
+  } catch (error) {
+    console.error("Error deleting post:", error);
+    throw error;
+  }
+};
+
 export const postService = {
   getUserPosts,
   getUserPostsById,
   postPost,
   likePost,
+  deletePost,
 };
