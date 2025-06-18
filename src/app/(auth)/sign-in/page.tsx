@@ -1,7 +1,7 @@
 "use client";
 
 // service
-import { userService } from "@/services/authService";
+import { authService } from "@/services/authService";
 import type * as userType from "@/services/authService";
 
 // page
@@ -93,7 +93,7 @@ export default function SignInPage() {
       password: data.password,
     };
 
-    userService
+    authService
       .login(loginData)
       .then((response) => {
         // First check if we have a valid response with user and token

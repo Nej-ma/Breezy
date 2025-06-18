@@ -1,19 +1,12 @@
-export type Role = "user" | "admin" | "moderator";
+import apiClient from "@/utils/api";
 
-export type User = {
-  id: string;
-  displayName: string;
-  username: string;
-  email: string;
-  bio: string;
-  profilePicture: string;
-  coverPicture: string;
-  isVerified: boolean;
-  isActive: boolean;
-  role: Role;
-  isSuspended: boolean;
-  followersCount: number;
-  followingCount: number;
-  postsCount: number;
-  createdAt: string;
+import type { UserProfile } from "@/utils/types/userType";
+
+const getUserProfile = async (username: string): Promise<UserProfile> => {
+  const response = await apiClient.get(`/users/${username}`);
+  return response.data;
+};
+
+export const userService = {
+  getUserProfile,
 };

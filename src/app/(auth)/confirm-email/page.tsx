@@ -6,7 +6,7 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 
 // services
-import { userService } from "@/services/authService";
+import { authService } from "@/services/authService";
 
 // hooks
 import { useTranslation } from "react-i18next";
@@ -31,7 +31,7 @@ export default function ValidateEmailPage() {
         // get token from URL
         console.log("Token from URL:", token);
 
-        const result = await userService.validateEmail(token);
+        const result = await authService.validateEmail(token);
         setIsValid(true);
       } catch (error) {
         console.error("Error validating email:", error);

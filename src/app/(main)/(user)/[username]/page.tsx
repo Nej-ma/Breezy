@@ -37,7 +37,7 @@ import {
 } from "lucide-react";
 import { notFound, useParams } from "next/navigation";
 import Link from "next/link";
-import { Post, PostType } from "@/components/custom/post";
+import { Post } from "@/components/custom/post";
 import { useEffect, useState } from "react";
 import {
   DropdownMenu,
@@ -47,10 +47,13 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import apiClient from "@/utils/api";
-import type { User } from "@/services/userService";
 import { useForm } from "react-hook-form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+
+// types
+import type { Post as PostType } from "@/utils/types/postType";
+import type { UserProfile } from "@/utils/types/userType";
 
 // Sample posts data
 const samplePosts = [
@@ -109,7 +112,7 @@ const samplePosts = [
 export default function ProfilePage() {
   const params = useParams();
 
-  const [userData, setUserData] = useState<User>();
+  const [userData, setUserData] = useState<UserProfile>();
   const [loading, setLoading] = useState(true);
   const [posts, setPosts] = useState<PostType[]>(samplePosts);
   const [isFollowing, setIsFollowing] = useState(false);

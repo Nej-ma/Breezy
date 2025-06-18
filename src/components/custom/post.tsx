@@ -1,3 +1,5 @@
+"use client";
+
 // Post.tsx
 import { Card, CardContent } from "@/components/ui/card";
 import {
@@ -29,29 +31,17 @@ import {
 import { useState } from "react";
 import Link from "next/link";
 
+// Types
+import type { Post } from "@/utils/types/postType";
+
 type User = {
   displayName: string;
   username: string;
   avatar?: string;
 };
 
-export type PostType = {
-  id: number;
-  pinned?: boolean;
-  timestamp: string;
-  content: string;
-  tags?: string[];
-  media?: {
-    type: "image" | "video";
-    url: string;
-  };
-  comments: number;
-  reposts: number;
-  likes: number;
-};
-
 interface PostProps {
-  post: PostType;
+  post: Post;
   user: User;
   showPinnedPost?: boolean;
   liked?: boolean;
