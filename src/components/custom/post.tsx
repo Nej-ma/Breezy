@@ -84,6 +84,27 @@ export function Post({
     }
   }, []);
 
+  function getRelativeTime(dateString: string): string {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diff = (now.getTime() - date.getTime()) / 1000; // seconds
+
+    if (diff < 60) return "now";
+    if (diff < 3600) return `${Math.floor(diff / 60)}m`;
+    if (diff < 86400) return `${Math.floor(diff / 3600)}h`;
+    if (diff < 604800) return `${Math.floor(diff / 86400)}d`;
+
+    // If more than a week, show date (e.g., Jun 18)
+    const options: Intl.DateTimeFormatOptions = {
+      month: "short",
+      day: "numeric",
+    };
+    if (date.getFullYear() !== now.getFullYear()) {
+      options.year = "numeric";
+    }
+    return date.toLocaleDateString(undefined, options);
+  }
+
   return (
     <Card
       key={post._id}
@@ -124,7 +145,9 @@ export function Post({
               <Sparkles className="w-4 h-4 text-[var(--primary-light)]" />
               <span className="text-gray-500">@{user.username}</span>
               <span className="text-gray-400">·</span>
-              <span className="text-gray-500 text-sm">{post.createdAt}</span>
+              <span className="text-gray-500 text-sm">
+                {getRelativeTime(post.createdAt)}
+              </span>
               {/* Bouton épingler à droite */}
               <div className="ml-auto flex items-center gap-1">
                 {/* {onTogglePin && (
@@ -148,7 +171,7 @@ export function Post({
                   </Button>
                 )} */}
                 {/* Dropdown actions */}
-                {user.username === post.author && (
+                {user.userId === post.author && (
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button
@@ -237,7 +260,7 @@ export function Post({
                   {post.likes.length}
                 </span>
               </Button>
-              <Button
+              {/* <Button
                 variant="ghost"
                 size="sm"
                 className={`rounded-full transition-all
@@ -251,7 +274,7 @@ export function Post({
               >
                 <Repeat2 className="w-4 h-4" />
                 {post.repostsCount}
-              </Button>
+              </Button> */}
               <Button
                 variant="ghost"
                 size="sm"

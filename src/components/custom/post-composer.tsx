@@ -77,11 +77,14 @@ function Form({
 }
 
 interface PostComposerProps {
-    userProfile: UserProfile | null;
-    refreshPosts?: () => void; // Optional prop to refresh posts after submission
+  userProfile: UserProfile | null;
+  refreshPosts?: () => void; // Optional prop to refresh posts after submission
 }
 
-export default function PostComposer({ userProfile, refreshPosts }: PostComposerProps) {
+export default function PostComposer({
+  userProfile,
+  refreshPosts,
+}: PostComposerProps) {
   const [visibility, setVisibility] = useState(visibilityOptions[0]);
   const [attachedFiles, setAttachedFiles] = useState<File[]>([]);
   const [isPosting, setIsPosting] = useState(false);
@@ -125,9 +128,9 @@ export default function PostComposer({ userProfile, refreshPosts }: PostComposer
     setIsPosting(false);
 
     try {
-        await postService.postPost(data.content, visibility.value, attachedFiles);
-        // Optionally refresh posts if a refresh function is provided
-        refreshPosts?.();
+      await postService.postPost(data.content, visibility.value, attachedFiles);
+      // Optionally refresh posts if a refresh function is provided
+      refreshPosts?.();
     } catch (error) {
       console.error("Error posting data:", error);
     }
@@ -138,13 +141,13 @@ export default function PostComposer({ userProfile, refreshPosts }: PostComposer
       {/* Header */}
       <div className="flex items-center gap-3 mb-4">
         <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center">
-          <Avatar className="">
+          <Avatar className="w-12 h-12 ring-2 border-none">
             <AvatarImage
               src={userProfile?.profilePicture || "/placeholder.svg"}
-              alt={userProfile?.displayName || "User Avatar"}
+              alt={userProfile?.displayName}
             />
-            <AvatarFallback className="text-2xl bg-gradient-to-br from-[var(--primary)] to-[var(--primary-light)] text-white">
-              <UserPlaceholderIcon className="w-16 h-16 text-white-400" />
+            <AvatarFallback className="bg-gradient-to-br from-[var(--primary)] to-[var(--primary-light)] text-white">
+              <UserPlaceholderIcon className="w-8 h-8" />
             </AvatarFallback>
           </Avatar>
         </div>
