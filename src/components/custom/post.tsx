@@ -82,7 +82,7 @@ export function Post({
     } else {
       setLikedState(false);
     }
-  }, []);
+  }, [user.userId, post.likes]);
 
   function getRelativeTime(dateString: string): string {
     const date = new Date(dateString);
