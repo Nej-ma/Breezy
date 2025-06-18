@@ -55,7 +55,7 @@ export function Post({
   // const showPost = showPinnedBanner && post.pinned;
 
   const [reposted, setReposted] = useState(false);
-  const [likedState, setLikedState] = useState(true || false);
+  const [likedState, setLikedState] = useState(post.likes.includes(user.userId));
 
   // add timeout to avoid multiple likes in quick succession
   const likeTimeout = useRef<NodeJS.Timeout | null>(null);
