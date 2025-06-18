@@ -54,18 +54,9 @@ export default function HomePage() {
       <PostComposer userProfile={userProfile} refreshPosts={refreshPosts} />
       <div className="w-full max-w-2xl mx-auto flex flex-col gap-4 mt-6">
         {posts.map((post: PostType) => {
-          const { displayName, username, profilePicture } = userProfile || {};
-          return (
-            <Post
-              key={post.id}
-              post={post}
-              user={{
-                displayName: displayName ?? "",
-                username: username ?? "",
-                avatar: profilePicture ?? "",
-              }}
-            />
-          );
+          if (!userProfile) return null;
+
+          return <Post key={post._id} post={post} user={userProfile} />;
         })}
       </div>
     </main>

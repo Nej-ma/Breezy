@@ -50,6 +50,16 @@ const getUserPosts = async (): Promise<Post[]> => {
   }
 };
 
+const getUserPostsById = async (postId: string): Promise<Post> => {
+  try {
+    const response = await apiClient.get(`posts/${postId}`);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching user posts by ID:", error);
+    throw error;
+  }
+};
+
 const postPost = async (content: string, visibility: string, files: File[]) => {
   try {
     const tags = extractTags(content);
@@ -84,7 +94,24 @@ const postPost = async (content: string, visibility: string, files: File[]) => {
   }
 };
 
+const likePost = async (postId: string, userId: string) => {
+  try {
+    const response = await apiClient.put(`posts/${postId}/like`, { userId });
+    if (response.status === 200) {
+      console.log("Post liked successfully");
+    } else {
+      console.error(`Error liking post: ${response.statusText}`);
+      throw new Error(`Error liking post: ${response.statusText}`);
+    }
+  } catch (error) {
+    console.error("Error liking post:", error);
+    throw error;
+  }
+};
+
 export const postService = {
   getUserPosts,
+  getUserPostsById,
   postPost,
+  likePost,
 };

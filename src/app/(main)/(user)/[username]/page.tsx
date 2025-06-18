@@ -55,66 +55,66 @@ import { Textarea } from "@/components/ui/textarea";
 import type { Post as PostType } from "@/utils/types/postType";
 import type { UserProfile } from "@/utils/types/userType";
 
-// Sample posts data
-const samplePosts = [
-  {
-    id: 1,
-    content:
-      "Excited to announce that I'll be speaking at the upcoming React Conference! Can't wait to share my insights on modern web development 🚀",
-    timestamp: "2h",
-    likes: 89,
-    comments: 23,
-    reposts: 12,
-    tags: ["ReactConf", "WebDev"],
-    pinned: true,
-    media: {
-      type: "image" as const,
-      url: "https://images.unsplash.com/photo-1461749280684-dccba630e2f6?auto=compress&w=800&q=80", // conference / tech talk
-    },
-  },
-  {
-    id: 2,
-    content:
-      "Just finished building a new feature for our app using Next.js 13. The new app directory is a game changer! The developer experience is incredible.",
-    timestamp: "1d",
-    likes: 156,
-    comments: 34,
-    reposts: 28,
-    tags: ["NextJS", "WebDev"],
-  },
-  {
-    id: 3,
-    content:
-      "Working late tonight on some exciting AI integrations. The possibilities are endless when you combine creativity with technology! 🤖✨",
-    timestamp: "2d",
-    likes: 203,
-    comments: 45,
-    reposts: 31,
-    tags: ["AI", "Tech"],
-    pinned: true,
-  },
-  {
-    id: 4,
-    content:
-      "Découvrez ma dernière vidéo sur l'intégration de l'IA dans les applications web !",
-    timestamp: "3d",
-    likes: 67,
-    comments: 15,
-    reposts: 7,
-    tags: ["Video", "AI"],
-    media: {
-      type: "video" as const,
-      url: "https://videos.pexels.com/video-files/857195/857195-sd_640_360_25fps.mp4",
-    },
-  },
-] as PostType[];
+// // Sample posts data
+// const samplePosts = [
+//   {
+//     id: 1,
+//     content:
+//       "Excited to announce that I'll be speaking at the upcoming React Conference! Can't wait to share my insights on modern web development 🚀",
+//     timestamp: "2h",
+//     likes: 89,
+//     comments: 23,
+//     reposts: 12,
+//     tags: ["ReactConf", "WebDev"],
+//     pinned: true,
+//     media: {
+//       type: "image" as const,
+//       url: "https://images.unsplash.com/photo-1461749280684-dccba630e2f6?auto=compress&w=800&q=80", // conference / tech talk
+//     },
+//   },
+//   {
+//     id: 2,
+//     content:
+//       "Just finished building a new feature for our app using Next.js 13. The new app directory is a game changer! The developer experience is incredible.",
+//     timestamp: "1d",
+//     likes: 156,
+//     comments: 34,
+//     reposts: 28,
+//     tags: ["NextJS", "WebDev"],
+//   },
+//   {
+//     _id: 3,
+//     content:
+//       "Working late tonight on some exciting AI integrations. The possibilities are endless when you combine creativity with technology! 🤖✨",
+//     timestamp: "2d",
+//     likes: 203,
+//     comments: 45,
+//     reposts: 31,
+//     tags: ["AI", "Tech"],
+//     pinned: true,
+//   },
+//   {
+//     _id: 4,
+//     content:
+//       "Découvrez ma dernière vidéo sur l'intégration de l'IA dans les applications web !",
+
+//     likes: 67,
+//     comments: 15,
+//     reposts: 7,
+//     tags: ["Video", "AI"],
+//     media: {
+//       type: "video" as const,
+//       url: "https://videos.pexels.com/video-files/857195/857195-sd_640_360_25fps.mp4",
+//     },
+//   },
+// ] as PostType[];
 
 export default function ProfilePage() {
   const params = useParams();
 
   const [userData, setUserData] = useState<UserProfile>();
   const [loading, setLoading] = useState(true);
-  const [posts, setPosts] = useState<PostType[]>(samplePosts);
+  const [posts, setPosts] = useState<PostType[]>([]);
   const [isFollowing, setIsFollowing] = useState(false);
   const [followersCount, setFollowersCount] = useState<number>(0);
   const [likedPosts, setLikedPosts] = useState<number[]>([]);
@@ -174,9 +174,9 @@ export default function ProfilePage() {
   };
 
   const handleTogglePin = (postId: number) => {
-    setPosts((prev) =>
-      prev.map((p) => (p.id === postId ? { ...p, pinned: !p.pinned } : p))
-    );
+    // setPosts((prev) =>
+    //   prev.map((p) => (p.id === postId ? { ...p, pinned: !p.pinned } : p))
+    // );
   };
 
   return (
@@ -500,26 +500,14 @@ export default function ProfilePage() {
           {/* Posts Tab Content */}
           <TabsContent value="posts" className="mt-6 space-y-4">
             {[...posts]
-              .sort((a, b) => (b.pinned ? 1 : 0) - (a.pinned ? 1 : 0))
+              // .sort((a, b) => (b.pinned ? 1 : 0) - (a.pinned ? 1 : 0))
               .map((post) => (
                 <Post
-                  key={post.id}
+                  key={post._id}
                   post={post}
-                  user={{
-                    displayName: user.displayName,
-                    username: user.username,
-                    avatar: user.profilePicture,
-                  }}
+                  user={user}
                   showPinnedPost
                   onTogglePin={handleTogglePin}
-                  liked={likedPosts.includes(post.id)}
-                  onToggleLike={() => {
-                    setLikedPosts((prev) =>
-                      prev.includes(post.id)
-                        ? prev.filter((id) => id !== post.id)
-                        : [...prev, post.id]
-                    );
-                  }}
                 />
               ))}
           </TabsContent>
@@ -542,29 +530,25 @@ export default function ProfilePage() {
           {/* Media Tab Content */}
           <TabsContent value="media" className="mt-6 space-y-4">
             {[...posts]
-              .filter((post) => !!post.media)
+              .filter(
+                (post) =>
+                  (post.images && post.images.length > 0) ||
+                  (post.videos && post.videos.length > 0)
+              )
               .map((post) => (
                 <Post
-                  key={post.id}
+                  key={post._id}
                   post={post}
-                  user={{
-                    displayName: user.displayName,
-                    username: user.username,
-                    avatar: user.profilePicture,
-                  }}
-                  showPinnedPost
-                  onTogglePin={handleTogglePin}
-                  liked={likedPosts.includes(post.id)}
-                  onToggleLike={() => {
-                    setLikedPosts((prev) =>
-                      prev.includes(post.id)
-                        ? prev.filter((id) => id !== post.id)
-                        : [...prev, post.id]
-                    );
-                  }}
+                  user={user}
+                  showPinnedPost={false}
+                  onTogglePin={() => {}}
                 />
               ))}
-            {[...posts].filter((post) => !!post.media).length === 0 && (
+            {[...posts].filter(
+              (post) =>
+                (post.images && post.images.length > 0) ||
+                (post.videos && post.videos.length > 0)
+            ).length === 0 && (
               <div className="flex flex-col items-center justify-center bg-card rounded-2xl shadow-lg p-12 text-center">
                 <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mb-4">
                   <ImageIcon className="w-8 h-8 text-primary" />
@@ -580,26 +564,14 @@ export default function ProfilePage() {
           {/* Likes Tab Content */}
           <TabsContent value="likes" className="mt-6 space-y-4">
             {[...posts]
-              .filter((post) => likedPosts.includes(post.id))
+              // .filter((post) => likedPosts.includes(post._id))
               .map((post) => (
                 <Post
-                  key={post.id}
+                  key={post._id}
                   post={post}
-                  user={{
-                    displayName: user.displayName,
-                    username: user.username,
-                    avatar: user.profilePicture,
-                  }}
+                  user={user}
                   showPinnedPost
                   onTogglePin={handleTogglePin}
-                  liked={likedPosts.includes(post.id)}
-                  onToggleLike={() => {
-                    setLikedPosts((prev) =>
-                      prev.includes(post.id)
-                        ? prev.filter((id) => id !== post.id)
-                        : [...prev, post.id]
-                    );
-                  }}
                 />
               ))}
             {likedPosts.length === 0 && (

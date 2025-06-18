@@ -1,14 +1,16 @@
 export type Post = {
-  id: number;
-  pinned?: boolean;
-  timestamp: string;
+  _id: string;
+  author: string;
   content: string;
-  tags?: string[];
-  media?: {
-    type: "image" | "video";
-    url: string;
-  };
-  comments: number;
-  reposts: number;
-  likes: number;
+  images: string[];
+  videos: string[];
+  tags: string[];
+  mentions: string[];
+  likes: string[];
+  commentsCount: number;
+  repostsCount: number;
+  isReported: boolean;
+  isDeleted: boolean;
+  visibility: "public" | "private" | "friends"; // adjust as needed
+  createdAt: string;
 };
