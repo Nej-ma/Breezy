@@ -1,7 +1,7 @@
 "use client";
 
 // service
-import { userService } from "@/services/authService";
+import { authService } from "@/services/authService";
 import type * as userType from "@/services/authService";
 
 // ui components
@@ -106,7 +106,7 @@ export default function SignUpPage() {
       password: data.password,
     };
 
-    userService
+    authService
       .createUser(newUser)
       .then((success) => {
         if (success) {

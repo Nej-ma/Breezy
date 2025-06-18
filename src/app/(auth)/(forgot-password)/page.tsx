@@ -1,7 +1,7 @@
 "use client";
 
 // service
-import { userService } from "@/services/authService";
+import { authService } from "@/services/authService";
 
 // hooks
 import { useTranslation } from "react-i18next";
@@ -69,7 +69,7 @@ export default function RequestPasswordDialog() {
     setIsLoading(true);
 
     try {
-      const success = await userService.requestNewPassword(data.email);
+      const success = await authService.requestNewPassword(data.email);
 
       if (success) {
         toast.success(

@@ -1,5 +1,7 @@
 import apiClient from "@/utils/api";
+import type { User } from "@/utils/types/userType";
 
+// only used here
 export type Login = {
   email: string;
   password: string;
@@ -10,24 +12,6 @@ export type Register = {
   username: string;
   email: string;
   password: string;
-};
-
-export type UserRole = "user" | "admin" | "moderator";
-
-export type User = {
-  id: string;
-  username: string;
-  email: string;
-  displayName: string;
-  bio: string;
-  profilePicture: string;
-  coverPicture: string;
-  isVerified: boolean;
-  role: UserRole;
-  followersCount: number;
-  followingCount: number;
-  postsCount: number;
-  createdAt: string;
 };
 
 export type AuthResponse = {
@@ -104,7 +88,7 @@ const resetPassword = async (token: string, newPassword: string) => {
   }
 };
 
-export const userService = {
+export const authService = {
   createUser,
   validateEmail,
   login,

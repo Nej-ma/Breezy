@@ -4,6 +4,15 @@
         "error": "Une erreur s'est produite. Veuillez réessayer."
     },
 
+    "navbar": {
+        "home": "Accueil",
+        "logout": "Se déconnecter",
+        "profile": "Profil",
+        "message": "Message",
+        "notification": "Notification",
+        "settings": "Paramètres"
+    },
+
     "auth": {
         "signup": {
             "displayName": "Nom",

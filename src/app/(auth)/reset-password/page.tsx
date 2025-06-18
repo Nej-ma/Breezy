@@ -1,7 +1,7 @@
 "use client";
 
 // service
-import { userService } from "@/services/authService";
+import { authService } from "@/services/authService";
 
 // ui components
 import { Button } from "@/components/ui/button";
@@ -134,7 +134,7 @@ export default function ResetPasswordPage() {
         return;
       }
 
-      const result = await userService.resetPassword(token, data.password);
+      const result = await authService.resetPassword(token, data.password);
 
       if (result) {
         toast.success(
