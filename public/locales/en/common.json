@@ -4,6 +4,15 @@
         "error": "An error occurred. Please try again."
     },
 
+    "navbar": {
+        "home": "Home",
+        "logout": "Logout",
+        "profile": "Profile",
+        "message": "Message",
+        "notification": "Notification",
+        "settings": "Settings"
+    },
+
     "auth": {
         "signup": {
             "displayName": "Name",

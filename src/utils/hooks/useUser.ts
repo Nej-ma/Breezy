@@ -3,6 +3,7 @@
 import { useCallback } from "react";
 
 type User = {
+  username: string;
   role: string;
 };
 
@@ -10,11 +11,13 @@ const USER_KEY = "user";
 
 export function useUser() {
   const getUser = useCallback((): User | null => {
+    if (typeof window === "undefined" || !window.localStorage) return null;
+
     const userString = localStorage.getItem(USER_KEY);
     if (!userString) return null;
     try {
       const user = JSON.parse(userString);
-      return { role: user.role };
+      return { username: user.username, role: user.role };
     } catch {
       return null;
     }

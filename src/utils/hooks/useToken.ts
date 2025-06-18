@@ -6,6 +6,8 @@ const ACCESS_TOKEN_KEY = "access_token";
 
 export function useToken() {
   const getToken = useCallback(() => {
+    if (typeof window === "undefined" || !window.localStorage) return null;
+
     return localStorage.getItem(ACCESS_TOKEN_KEY);
   }, []);
 
