@@ -20,6 +20,8 @@ export type UserProfile = {
   bio: string;
   profilePicture: string;
   coverPicture: string;
+  location: string;
+  website: string;
   followersCount: number;
   followingCount: number;
   postsCount: number;
