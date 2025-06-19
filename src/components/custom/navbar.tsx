@@ -2,6 +2,7 @@
 
 import type * as React from "react";
 import { Home, User, MessageSquare, Bell, LogOut } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 import Link from "next/link";
 
@@ -33,6 +34,7 @@ export default function Navbar({
   // Custom hooks to fetch user and token data
   const { getUser, removeUser } = useUser();
   const { removeToken } = useToken();
+  const router = useRouter();
 
   // Fetch user data
   const user = getUser();
@@ -41,7 +43,7 @@ export default function Navbar({
   const handleLogout = () => {
     removeUser();
     removeToken();
-    // Optionally redirect to login page or show a message
+    router.push("/sign-in");
   };
 
   const { t } = useTranslation("common"); // use the "common" namespace
