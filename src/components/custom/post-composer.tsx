@@ -2,11 +2,12 @@
 
 import type React from "react";
 // hooks
-import { useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useUser } from "@/utils/hooks/useUser";
 
 // services
 import { postService } from "@/services/postService";
+import { userService } from "@/services/userService";
 
 // types
 import type { UserProfile } from "@/utils/types/userType";
@@ -36,6 +37,8 @@ import {
   UserPlaceholderIcon,
 } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
+
+import { AutoCompleteUser } from "./auto-completer-user";
 
 // form
 import { useForm, Controller, FormProvider } from "react-hook-form";
@@ -88,6 +91,9 @@ export default function PostComposer({
   const [visibility, setVisibility] = useState(visibilityOptions[0]);
   const [attachedFiles, setAttachedFiles] = useState<File[]>([]);
   const [isPosting, setIsPosting] = useState(false);
+  const [searchedUsers, setSearchedUsers] = useState<UserProfile[]>([]);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const mentionTriggerRef = useRef<HTMLDivElement>(null);
 
   // get user data
   const { getUser } = useUser();
@@ -116,6 +122,24 @@ export default function PostComposer({
   const removeFile = (index: number) => {
     setAttachedFiles((prev) => prev.filter((_, i) => i !== index));
   };
+
+  useEffect(() => {
+    // trigger autocomplete when user types @
+    const words = content.split(" ");
+    const mentionTrigger = words.find((word) => word.startsWith("@"));
+    if (mentionTrigger) {
+      console.log("Triggering autocomplete for:", mentionTrigger);
+
+      userService.searchUser(mentionTrigger.slice(1)).then((profiles) => {
+        if (profiles) {
+          console.log("Found user profile:", profiles);
+          setSearchedUsers(profiles);
+        } else {
+          console.log("No user found for:", mentionTrigger);
+        }
+      });
+    }
+  }, [content]);
 
   const onSubmit = async (data: FormValues) => {
     if (!data.content.trim() && attachedFiles.length === 0) return;
@@ -172,12 +196,54 @@ export default function PostComposer({
               },
             }}
             render={({ field }) => (
-              <Textarea
-                placeholder="What's happening?"
-                {...field}
-                className="min-h-[100px] resize-none border-0 p-0 text-base placeholder:text-muted-foreground focus-visible:ring-0"
-                maxLength={maxCharacters}
-              />
+              <div>
+                <Textarea
+                  placeholder="What's happening?"
+                  {...field}
+                  ref={(e) => {
+                    // Maintain both refs
+                    field.ref(e);
+                    textareaRef.current = e;
+                  }}
+                  className="min-h-[100px] resize-none border-0 p-0 text-base placeholder:text-muted-foreground focus-visible:ring-0"
+                  maxLength={maxCharacters}
+                />
+                {/* Mention Trigger */}
+                <AutoCompleteUser
+                  users={searchedUsers}
+                  onSelect={(user) => {
+                    // Get the current content
+                    const currentContent = methods.getValues("content");
+
+                    // Find the last mention token
+                    const words = currentContent.split(" ");
+                    let mentionIndex = -1;
+
+                    for (let i = words.length - 1; i >= 0; i--) {
+                      if (words[i].startsWith("@")) {
+                        mentionIndex = i;
+                        break;
+                      }
+                    }
+
+                    if (mentionIndex !== -1) {
+                      // Replace the mention with the selected username
+                      words[mentionIndex] = `@${user.username}`;
+
+                      // Update the content with the new mention
+                      methods.setValue("content", words.join(" "), {
+                        shouldValidate: true,
+                        shouldDirty: true,
+                      });
+
+                      // Force a re-render
+                      methods.trigger("content");
+                    }
+                  }}
+                  triggerRef={mentionTriggerRef}
+                  methods={methods}
+                />
+              </div>
             )}
           />
           {/* Character Count */}
