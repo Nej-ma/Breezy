@@ -123,7 +123,11 @@ export default function Navbar({
                 variant={"ghost"}
                 className="flex items-center justify-start gap-2 text-red-600 hover:text-red-700 hover:bg-red-50"
               >
-                <LogOut className="h-4 w-4" />
+                <LogOut
+                  onClick={handleLogout}
+                  className="h-4 w-4"
+                  aria-hidden="true"
+                />
                 <span>{t("navbar.logout")}</span>
               </Button>
             </SidebarMenuButton>
