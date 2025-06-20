@@ -220,7 +220,7 @@ export function Post({ post, user, refreshPosts }: PostProps) {
                 </span>
 
                 <div className="ml-auto flex items-center gap-1">
-                  {user.userId === post.author && (
+                  {(user.userId === post.author || user.role === "moderator" || user.role === "admin") && (
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <Button
@@ -235,13 +235,15 @@ export function Post({ post, user, refreshPosts }: PostProps) {
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
-                        <DropdownMenuItem
-                          className="cursor-pointer"
-                          onClick={() => setModifyContentState(true)}
-                        >
-                          <Pencil className="w-4 h-4 text-[var(--primary)]" />
-                          {t("post.actions.edit")}
-                        </DropdownMenuItem>
+                        {user.userId === post.author && (
+                          <DropdownMenuItem
+                            className="cursor-pointer"
+                            onClick={() => setModifyContentState(true)}
+                          >
+                            <Pencil className="w-4 h-4 text-[var(--primary)]" />
+                            {t("post.actions.edit")}
+                          </DropdownMenuItem>
+                        )}
                         <DropdownMenuItem
                           className="cursor-pointer text-red-600 focus:text-red-600 focus:bg-red-50"
                           onClick={() => setIsDeleteDialogOpen(true)}

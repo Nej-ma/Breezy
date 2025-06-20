@@ -240,7 +240,6 @@ export default function PostComposer({
                     }
                   }}
                   triggerRef={mentionTriggerRef}
-                  methods={methods}
                 />
               </div>
             )}
