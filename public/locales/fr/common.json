@@ -1,7 +1,16 @@
 {
     "common": {
         "loading": "Chargement...",
-        "error": "Une erreur s'est produite. Veuillez réessayer."
+        "error": "Une erreur s'est produite. Veuillez réessayer.",
+        "save": "Sauvegarder",
+        "cancel": "Annuler",
+        "delete": "Supprimer",
+        "edit": "Modifier",
+        "post": "Publier",
+        "publish": "Publier",
+        "update": "Mettre à jour",
+        "search": "Rechercher",
+        "noResults": "Aucun résultat trouvé"
     },
 
     "navbar": {
@@ -11,6 +20,48 @@
         "message": "Message",
         "notification": "Notification",
         "settings": "Paramètres"
+    },
+
+    "post": {
+        "actions": {
+            "open": "Ouvrir le menu",
+            "edit": "Modifier",
+            "delete": "Supprimer",
+            "share": "Partager",
+            "like": "Aimer",
+            "comment": "Commenter",
+            "attach": "Joindre"
+        },
+        "visibility": {
+            "public": "Public",
+            "publicDescription": "Tout le monde peut voir ce post",
+            "friends": "Amis",
+            "friendsDescription": "Seuls vos amis peuvent voir ce post",
+            "private": "Privé",
+            "privateDescription": "Seul vous pouvez voir ce post"
+        },
+        "time": {
+            "now": "maintenant",
+            "minute": "m",
+            "hour": "h",
+            "day": "j"
+        },
+        "delete": {
+            "title": "Supprimer le post",
+            "confirmation": "Êtes-vous sûr de vouloir supprimer ce post ? Cette action est irréversible."
+        },
+        "image": "Image",
+        "attachedFiles": "Fichiers attachés:"
+    },
+
+    "postComposer": {
+        "placeholder": "Quoi de neuf ?",
+        "createPost": "Créer un post",
+        "shareThoughts": "Partagez ce qui vous passe par la tête",
+        "characterLimit": "Maximum {count} caractères autorisés.",
+        "posting": "Publication en cours...",
+        "attach": "Joindre",
+        "noUsersFound": "Aucun utilisateur trouvé."
     },
 
     "auth": {
@@ -23,55 +74,13 @@
             "confirmPassword": "Confirmer le mot de passe",
             "submit": "S'inscrire",
             "successMessage": "Votre compte a été créé avec succès. Un email de confirmation a été envoyé à votre adresse. Veuillez vérifier votre boîte de réception et cliquer sur le lien de confirmation pour activer votre compte.",
-            "errorMessage": "Une erreur s'est produite lors de la création de votre compte. Veuillez réessayer plus tard ou contacter le support si le problème persiste.",
-            "alreadyHaveAccount": "Vous avez déjà un compte ?"
-        },
-        "validateEmail": {
-            "loading" : "Validation de votre email...",
-            "successText": "Super ! Vous pouvez maintenant accéder à toutes les fonctionnalités de Breezy !",
-            "errorText": "Oups ! Il semble que le lien de confirmation soit invalide ou ait expiré. Veuillez essayer de vous inscrire à nouveau.",
-            "goToSignIn": "Aller à la page de connexion",
-            "goToSignUp": "Créer un compte"
-        },
-        "signin": {
-            "submit": "Se connecter",
-            "forgotPassword": "Mot de passe oublié ?",
-            "forgotPasswordText": "Entrez votre adresse e-mail pour recevoir un lien de réinitialisation.",
-            "sendResetLink": "Envoyer le lien de réinitialisation",
-            "noAccount": "Vous n'avez pas de compte ?",
-            "successText": "Bienvenue ! Vous êtes maintenant connecté.",
-            "errorText": "Adresse e-mail ou mot de passe invalide. Veuillez réessayer."
-        },
-        "form": {
-            "required": "Ce champ est requis.",
-            "invalidEmail": "Veuillez entrer une adresse e-mail valide.",
-            "passwordMismatch": "Les mots de passe ne correspondent pas.",
-            "minLength": "Doit contenir au moins {{min}} caractères.",
-            "maxLength": "Doit contenir au maximum {{max}} caractères.",
-            "passwordLowercase": "Doit contenir une lettre minuscule.",
-            "passwordUppercase": "Doit contenir une lettre majuscule.",
-            "passwordNumber": "Doit contenir un chiffre.",
-            "passwordSpecial": "Doit contenir un caractère spécial."
-        },
-
-        "forgotPassword": {
-            "title": "Réinitialisation du mot de passe",
-            "successMessage": "Un lien de réinitialisation de mot de passe a été envoyé à votre adresse e-mail.",
-            "errorMessage": "Impossible d'envoyer l'e-mail de réinitialisation du mot de passe.",
-            "sendResetLink": "Envoyer le lien de réinitialisation"
-        },
-        
-        "resetPassword": {
-            "title": "Réinitialisation du mot de passe",
-            "subtitle": "Veuillez choisir un nouveau mot de passe pour votre compte.",
-            "newPasswordPlaceholder": "Nouveau mot de passe",
-            "confirmPasswordPlaceholder": "Confirmer le nouveau mot de passe",
-            "submit": "Réinitialiser le mot de passe",
-            "successMessage": "Votre mot de passe a été réinitialisé avec succès.",
-            "errorMessage": "La réinitialisation du mot de passe a échoué.",
-            "invalidToken": "Le lien de réinitialisation est invalide ou a expiré.",
-            "validatingToken": "Validation de votre demande...",
-            "backToLogin": "Retour à la connexion"
+            "errorMessage": "Une erreur s'est produite lors de la création de votre compte. Veuillez réessayer plus tard ou contacter le support si le problème persiste."
         }
+    },
+
+    "suspense": {
+        "updating": "Mise à jour en cours...",
+        "loading": "Chargement...",
+        "saving": "Sauvegarde en cours..."
     }
 }

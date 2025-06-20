@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { UserProfile } from "@/utils/types/userType";
+import { useTranslation } from "react-i18next"; // Add this import
 
 import {
   Popover,
@@ -26,15 +27,14 @@ interface AutoCompleteUserProps {
   users?: UserProfile[];
   onSelect?: (user: UserProfile) => void;
   triggerRef: React.RefObject<HTMLDivElement | null>; // Reference to the PopoverAnchor
-  methods: any;
 }
 
 export function AutoCompleteUser({
   users = [],
   onSelect,
-  triggerRef,
-  methods,
+  triggerRef
 }: AutoCompleteUserProps) {
+  const { t } = useTranslation("common"); // Add translation hook
   const [open, setOpen] = useState(false);
   const [searchedUsers, setSearchedUsers] = useState<UserProfile[]>([]);
 
@@ -65,7 +65,7 @@ export function AutoCompleteUser({
         <Command>
           <CommandList>
             {searchedUsers.length === 0 ? (
-              <CommandEmpty>No users found.</CommandEmpty>
+              <CommandEmpty>{t("postComposer.noUsersFound")}</CommandEmpty>
             ) : (
               <CommandGroup>
                 {searchedUsers.map((user) => (
@@ -89,7 +89,7 @@ export function AutoCompleteUser({
                     <span>{user.displayName}</span>
                     {user.username && (
                       <span className="ml-2 text-xs text-muted-foreground">
-                        {user.username}
+                        @{user.username}
                       </span>
                     )}
                   </CommandItem>

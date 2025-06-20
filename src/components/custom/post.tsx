@@ -32,6 +32,7 @@ import {
 import { Textarea } from "../ui/textarea";
 import { useEffect, useState, Suspense } from "react";
 import Link from "next/link";
+import { useTranslation } from "react-i18next"; // Add this import
 
 // Types
 import type { Post, PostVisibility } from "@/utils/types/postType";
@@ -40,12 +41,6 @@ import type { UserProfile } from "@/utils/types/userType";
 // Services
 import { postService } from "@/services/postService";
 import { useRef } from "react";
-
-interface PostProps {
-  post: Post;
-  user: UserProfile;
-  refreshPosts?: () => void; // Optional prop to refresh posts after actions
-}
 
 // Add this import if not already present
 import Loader from "./loader";
@@ -60,28 +55,38 @@ import {
   AlertDialogContent,
 } from "@/components/ui/alert-dialog";
 
-const visibilityOptions = [
-  {
-    value: "public",
-    label: "Public",
-    description: "Anyone can see this post",
-    icon: Globe,
-  },
-  {
-    value: "friends",
-    label: "Friends",
-    description: "Only your friends can see this",
-    icon: Users,
-  },
-  {
-    value: "private",
-    label: "Only me",
-    description: "Only you can see this post",
-    icon: Lock,
-  },
-];
+interface PostProps {
+  post: Post;
+  user: UserProfile;
+  refreshPosts?: () => void; // Optional prop to refresh posts after actions
+}
 
 export function Post({ post, user, refreshPosts }: PostProps) {
+  // Add translation hook
+  const { t } = useTranslation("common");
+
+  // Define visibility options with translations
+  const visibilityOptions = [
+    {
+      value: "public",
+      label: t("post.visibility.public"),
+      description: t("post.visibility.publicDescription"),
+      icon: Globe,
+    },
+    {
+      value: "friends",
+      label: t("post.visibility.friends"),
+      description: t("post.visibility.friendsDescription"),
+      icon: Users,
+    },
+    {
+      value: "private",
+      label: t("post.visibility.private"),
+      description: t("post.visibility.privateDescription"),
+      icon: Lock,
+    },
+  ];
+
   // Existing state variables
   const [likedState, setLikedState] = useState(
     post.likes.includes(user.userId)
@@ -125,10 +130,11 @@ export function Post({ post, user, refreshPosts }: PostProps) {
     const now = new Date();
     const diff = (now.getTime() - date.getTime()) / 1000; // seconds
 
-    if (diff < 60) return "now";
-    if (diff < 3600) return `${Math.floor(diff / 60)}m`;
-    if (diff < 86400) return `${Math.floor(diff / 3600)}h`;
-    if (diff < 604800) return `${Math.floor(diff / 86400)}d`;
+    if (diff < 60) return t("post.time.now");
+    if (diff < 3600) return `${Math.floor(diff / 60)}${t("post.time.minute")}`;
+    if (diff < 86400) return `${Math.floor(diff / 3600)}${t("post.time.hour")}`;
+    if (diff < 604800)
+      return `${Math.floor(diff / 86400)}${t("post.time.day")}`;
 
     // If more than a week, show date (e.g., Jun 18)
     const options: Intl.DateTimeFormatOptions = {
@@ -183,17 +189,8 @@ export function Post({ post, user, refreshPosts }: PostProps) {
         key={post._id}
         className={
           "border-0 shadow-lg bg-white rounded-2xl overflow-hidden hover:shadow-xl transition-all duration-300 "
-          // (showPost ? "pt-0 pb-6" : "")
         }
       >
-        {/* {showPost && (
-        <div className="bg-[var(--secondary-light)] px-6 py-2 border-b border-[var(primary)]">
-          <div className="flex items-center gap-2 text-sm text-[var(--primary-light)]">
-            <Pin className="w-3 h-3 mt-0.5" fill="currentColor" />
-            <span className="font-medium">Épinglé</span>
-          </div>
-        </div>
-      )} */}
         <CardContent>
           <div className="flex items-start gap-4">
             <Avatar className="w-12 h-12 ring-2 border-none">
@@ -213,7 +210,7 @@ export function Post({ post, user, refreshPosts }: PostProps) {
             <div className="flex-1">
               <div className="flex items-center gap-2 mb-2">
                 <span className="font-semibold text-gray-900 transition-colors">
-                  <Link href={`/${user.username}`}>{user.displayName}</Link>
+                  {user.username}
                 </span>
                 <Sparkles className="w-4 h-4 text-[var(--primary-light)]" />
                 <span className="text-gray-500">@{user.username}</span>
@@ -221,55 +218,36 @@ export function Post({ post, user, refreshPosts }: PostProps) {
                 <span className="text-gray-500 text-sm">
                   {getRelativeTime(post.createdAt)}
                 </span>
-                {/* Bouton épingler à droite */}
+
                 <div className="ml-auto flex items-center gap-1">
-                  {/* {onTogglePin && (
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className={`w-7 h-7 rounded-full transition-colors
-                            ${
-                              post.pinned
-                                ? "text-[var(--primary)] hover:text-[var(--primary-light)]"
-                                : "text-gray-400 hover:text-[var(--primary)]"
-                            }
-                        `}
-                    title={post.pinned ? "Unpin" : "Pin"}
-                    onClick={() => onTogglePin(post.id)}
-                  >
-                    <Pin
-                      className="w-4 h-4 rotate-45"
-                      fill={post.pinned ? "currentColor" : "none"}
-                    />
-                  </Button>
-                )} */}
-                  {/* Dropdown actions */}
                   {user.userId === post.author && (
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <Button
                           variant="ghost"
-                          size="icon"
-                          className="w-7 h-7 rounded-full text-gray-400 hover:text-[var(--primary-light)] focus-visible:outline-none focus:ring-0 focus:bg-transparent"
-                          title="Actions"
+                          size="sm"
+                          className="h-8 w-8 p-0 text-gray-500"
                         >
-                          <MoreVertical className="w-4 h-4" />
+                          <span className="sr-only">
+                            {t("post.actions.open")}
+                          </span>
+                          <MoreVertical className="h-4 w-4" />
                         </Button>
                       </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end" className="w-36">
+                      <DropdownMenuContent align="end">
                         <DropdownMenuItem
                           className="cursor-pointer"
                           onClick={() => setModifyContentState(true)}
                         >
                           <Pencil className="w-4 h-4 text-[var(--primary)]" />
-                          Modifier
+                          {t("post.actions.edit")}
                         </DropdownMenuItem>
                         <DropdownMenuItem
                           className="cursor-pointer text-red-600 focus:text-red-600 focus:bg-red-50"
                           onClick={() => setIsDeleteDialogOpen(true)}
                         >
                           <Trash2 className="w-4 h-4 text-red-600" />
-                          Supprimer
+                          {t("post.actions.delete")}
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
@@ -285,6 +263,18 @@ export function Post({ post, user, refreshPosts }: PostProps) {
                   />
 
                   <Button
+                    variant="outline"
+                    size="sm"
+                    className="mt-2 mr-2"
+                    onClick={() => {
+                      setModifyContentState(false);
+                      setModifiedContent(post.content);
+                    }}
+                  >
+                    {t("common.cancel")}
+                  </Button>
+                  <Button
+                    size="sm"
                     className="mt-2 ml-auto"
                     onClick={() => {
                       updatePost(modifiedContent);
@@ -292,7 +282,7 @@ export function Post({ post, user, refreshPosts }: PostProps) {
                       setModifiedContent(post.content);
                     }}
                   >
-                    Save
+                    {t("common.save")}
                   </Button>
                 </div>
               ) : isLoading ? (
@@ -310,7 +300,7 @@ export function Post({ post, user, refreshPosts }: PostProps) {
                       <img
                         key={`img-${idx}`}
                         src={imgUrl}
-                        alt={`image-${idx}`}
+                        alt={`${t("post.image")} ${idx + 1}`}
                         className="w-full max-h-80 object-cover"
                         loading="lazy"
                       />
@@ -348,37 +338,18 @@ export function Post({ post, user, refreshPosts }: PostProps) {
                   className={`rounded-full transition-all
                     ${
                       likedState
-                        ? "text-red-500 hover:text-red-500 hover:bg-red-50"
+                        ? "text-red-500 hover:text-red-600 hover:bg-red-50"
                         : "text-gray-500 hover:text-red-500 hover:bg-red-50"
-                    }
-                    active:scale-95
-                    `}
+                    }`}
                   onClick={handleToggleLike}
                 >
-                  {likedState ? (
-                    <Heart className="w-4 h-4 fill-current" />
-                  ) : (
-                    <Heart className="w-4 h-4" />
-                  )}
-                  <span className="inline-block min-w-[2ch] text-center font-mono tabular-nums">
-                    {post.likes.length}
-                  </span>
+                  <Heart
+                    className={`w-4 h-4 ${
+                      likedState ? "fill-current" : "fill-none"
+                    }`}
+                  />
+                  {post.likes.length}
                 </Button>
-                {/* <Button
-                variant="ghost"
-                size="sm"
-                className={`rounded-full transition-all
-                  ${
-                    reposted
-                      ? "text-green-600 hover:text-green-600 hover:bg-green-50"
-                      : "text-gray-500 hover:text-green-600 hover:bg-green-50"
-                  }
-                `}
-                onClick={() => setReposted((v) => !v)}
-              >
-                <Repeat2 className="w-4 h-4" />
-                {post.repostsCount}
-              </Button> */}
                 <Button
                   variant="ghost"
                   size="sm"
@@ -402,18 +373,15 @@ export function Post({ post, user, refreshPosts }: PostProps) {
                         <Button
                           variant="ghost"
                           size="sm"
-                          className="flex items-center gap-2"
+                          className="text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-full"
                           type="button"
                         >
-                          {post.visibility === "public" && (
-                            <Globe className="w-4 h-4 text-gray-500" />
-                          )}
-                          {post.visibility === "friends" && (
-                            <Users className="w-4 h-4 text-gray-500" />
-                          )}
-                          {post.visibility === "private" && (
-                            <Lock className="w-4 h-4 text-gray-500" />
-                          )}
+                          {(() => {
+                            const Icon = visibilityOptions.find(
+                              (option) => option.value === post.visibility
+                            )?.icon;
+                            return Icon ? <Icon className="w-4 h-4" /> : null;
+                          })()}
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="start" className="w-56">
@@ -455,25 +423,23 @@ export function Post({ post, user, refreshPosts }: PostProps) {
         >
           <AlertDialogContent>
             <AlertDialogHeader>
-              <AlertDialogTitle>Supprimer le post</AlertDialogTitle>
+              <AlertDialogTitle>{t("post.delete.title")}</AlertDialogTitle>
               <AlertDialogDescription>
-                Êtes-vous sûr de vouloir supprimer ce post ? Cette action est
-                irréversible.
+                {t("post.delete.confirmation")}
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
-              <AlertDialogCancel>Annuler</AlertDialogCancel>
+              <AlertDialogCancel>{t("common.cancel")}</AlertDialogCancel>
               <AlertDialogAction
                 className="text-white bg-destructive hover:bg-destructive/90 focus:ring-2 focus:ring-destructive/50"
                 onClick={() => {
                   postService.deletePost(post._id).then(() => {
-                    // Optionally handle success or update local state
                     setIsDeleteDialogOpen(false);
-                    refreshPosts?.(); // Call the refresh function if provided
+                    refreshPosts?.();
                   });
                 }}
               >
-                Supprimer
+                {t("common.delete")}
               </AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>
