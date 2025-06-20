@@ -151,9 +151,12 @@ export function Post({ post, user, refreshPosts }: PostProps) {
     setIsLoading(true);
 
     postService
-      .updatePostContent(post._id, newContent)
+      .updatePostContent(postState._id, newContent)
       .then(() => {
-        post.content = newContent;
+        setPostState((prevState) => ({
+          ...prevState,
+          content: newContent,
+        }));
         setModifyContentState(false);
         setModifiedContent(newContent);
         refreshPosts?.();
