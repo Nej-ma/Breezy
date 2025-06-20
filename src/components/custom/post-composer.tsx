@@ -2,11 +2,13 @@
 
 import type React from "react";
 // hooks
-import { useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useUser } from "@/utils/hooks/useUser";
+import { useTranslation } from "react-i18next"; // Add this import
 
 // services
 import { postService } from "@/services/postService";
+import { userService } from "@/services/userService";
 
 // types
 import type { UserProfile } from "@/utils/types/userType";
@@ -37,57 +39,54 @@ import {
 } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 
+import { AutoCompleteUser } from "./auto-completer-user";
+
 // form
 import { useForm, Controller, FormProvider } from "react-hook-form";
 
-const visibilityOptions = [
-  {
-    value: "public",
-    label: "Public",
-    description: "Anyone can see this post",
-    icon: Globe,
-  },
-  {
-    value: "friends",
-    label: "Friends",
-    description: "Only your friends can see this",
-    icon: Users,
-  },
-  {
-    value: "private",
-    label: "Only me",
-    description: "Only you can see this post",
-    icon: Lock,
-  },
-];
-
-type FormValues = {
-  content: string;
-};
-
-function Form({
-  children,
-  ...props
-}: React.PropsWithChildren<React.FormHTMLAttributes<HTMLFormElement>>) {
-  return (
-    <form {...props} className="space-y-3">
-      {children}
-    </form>
-  );
+interface PostComposerProps {
+  userProfile: UserProfile;
+  refreshPosts?: () => void;
 }
 
-interface PostComposerProps {
-  userProfile: UserProfile | null;
-  refreshPosts?: () => void; // Optional prop to refresh posts after submission
+interface FormValues {
+  content: string;
 }
 
 export default function PostComposer({
   userProfile,
   refreshPosts,
 }: PostComposerProps) {
+  const { t } = useTranslation("common"); // Add translation hook
+
+  // Define visibility options with translations
+  const visibilityOptions = [
+    {
+      value: "public",
+      label: t("post.visibility.public"),
+      description: t("post.visibility.publicDescription"),
+      icon: Globe,
+    },
+    {
+      value: "friends",
+      label: t("post.visibility.friends"),
+      description: t("post.visibility.friendsDescription"),
+      icon: Users,
+    },
+    {
+      value: "private",
+      label: t("post.visibility.private"),
+      description: t("post.visibility.privateDescription"),
+      icon: Lock,
+    },
+  ];
+
   const [visibility, setVisibility] = useState(visibilityOptions[0]);
   const [attachedFiles, setAttachedFiles] = useState<File[]>([]);
   const [isPosting, setIsPosting] = useState(false);
+  const [searchedUsers, setSearchedUsers] = useState<UserProfile[]>([]);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const mentionTriggerRef = useRef<HTMLDivElement>(null);
 
   // get user data
   const { getUser } = useUser();
@@ -117,22 +116,42 @@ export default function PostComposer({
     setAttachedFiles((prev) => prev.filter((_, i) => i !== index));
   };
 
+  useEffect(() => {
+    // trigger autocomplete when user types @
+    const words = content.split(" ");
+    const mentionTrigger = words.find((word) => word.startsWith("@"));
+    if (mentionTrigger) {
+      console.log("Triggering autocomplete for:", mentionTrigger);
+
+      userService.searchUser(mentionTrigger.slice(1)).then((profiles) => {
+        if (profiles) {
+          console.log("Found user profile:", profiles);
+          setSearchedUsers(profiles);
+        } else {
+          console.log("No user found for:", mentionTrigger);
+        }
+      });
+    }
+  }, [content]);
+
   const onSubmit = async (data: FormValues) => {
-    if (!data.content.trim() && attachedFiles.length === 0) return;
-
     setIsPosting(true);
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-
-    reset();
-    setAttachedFiles([]);
-    setIsPosting(false);
 
     try {
-      await postService.postPost(data.content, visibility.value, attachedFiles);
-      // Optionally refresh posts if a refresh function is provided
-      refreshPosts?.();
+      // Submit post with files
+      postService
+        .postPost(data.content, visibility.value, attachedFiles)
+        .finally(() => {
+          // Reset the form and attached files after posting
+          reset();
+          setAttachedFiles([]);
+          setSearchedUsers([]);
+          refreshPosts?.();
+        });
     } catch (error) {
-      console.error("Error posting data:", error);
+      console.error("Error creating post:", error);
+    } finally {
+      setIsPosting(false);
     }
   };
 
@@ -152,15 +171,17 @@ export default function PostComposer({
           </Avatar>
         </div>
         <div className="flex-1">
-          <h3 className="font-semibold text-sm">Create a post</h3>
+          <h3 className="font-semibold text-sm">
+            {t("postComposer.createPost")}
+          </h3>
           <p className="text-xs text-muted-foreground">
-            Share what's on your mind
+            {t("postComposer.shareThoughts")}
           </p>
         </div>
       </div>
 
       <FormProvider {...methods}>
-        <Form onSubmit={handleSubmit(onSubmit)}>
+        <form onSubmit={handleSubmit(onSubmit)}>
           {/* Content Input */}
           <Controller
             name="content"
@@ -168,16 +189,59 @@ export default function PostComposer({
             rules={{
               maxLength: {
                 value: maxCharacters,
-                message: `Maximum ${maxCharacters} characters allowed.`,
+                message: t("postComposer.characterLimit", {
+                  count: maxCharacters,
+                }),
               },
             }}
             render={({ field }) => (
-              <Textarea
-                placeholder="What's happening?"
-                {...field}
-                className="min-h-[100px] resize-none border-0 p-0 text-base placeholder:text-muted-foreground focus-visible:ring-0"
-                maxLength={maxCharacters}
-              />
+              <div>
+                <Textarea
+                  placeholder={t("postComposer.placeholder")}
+                  {...field}
+                  ref={(e) => {
+                    // Maintain both refs
+                    field.ref(e);
+                    textareaRef.current = e;
+                  }}
+                  className="min-h-[100px] resize-none border-0 p-0 text-base placeholder:text-muted-foreground focus-visible:ring-0"
+                  maxLength={maxCharacters}
+                />
+                {/* Mention Trigger */}
+                <AutoCompleteUser
+                  users={searchedUsers}
+                  onSelect={(user) => {
+                    // Get the current content
+                    const currentContent = methods.getValues("content");
+
+                    // Find the last mention token
+                    const words = currentContent.split(" ");
+                    let mentionIndex = -1;
+
+                    for (let i = words.length - 1; i >= 0; i--) {
+                      if (words[i].startsWith("@")) {
+                        mentionIndex = i;
+                        break;
+                      }
+                    }
+
+                    if (mentionIndex !== -1) {
+                      // Replace the mention with the selected username
+                      words[mentionIndex] = `@${user.username}`;
+
+                      // Update the content with the new mention
+                      methods.setValue("content", words.join(" "), {
+                        shouldValidate: true,
+                        shouldDirty: true,
+                      });
+
+                      // Force a re-render
+                      methods.trigger("content");
+                    }
+                  }}
+                  triggerRef={mentionTriggerRef}
+                />
+              </div>
             )}
           />
           {/* Character Count */}
@@ -196,6 +260,7 @@ export default function PostComposer({
               </span>
             </div>
           )}
+
           {errors.content && (
             <div className="text-xs text-red-500">{errors.content.message}</div>
           )}
@@ -203,7 +268,7 @@ export default function PostComposer({
           {/* Attached Files */}
           {attachedFiles.length > 0 && (
             <div className="space-y-2">
-              <p className="text-sm font-medium">Attached files:</p>
+              <p className="text-sm font-medium">{t("post.attachedFiles")}</p>
               <div className="flex flex-wrap gap-2">
                 {attachedFiles.map((file, index) => (
                   <Badge
@@ -249,7 +314,9 @@ export default function PostComposer({
                   type="button"
                 >
                   <Paperclip className="w-4 h-4" />
-                  <span className="hidden sm:inline">Attach</span>
+                  <span className="hidden sm:inline">
+                    {t("post.actions.attach")}
+                  </span>
                 </Button>
               </div>
 
@@ -303,17 +370,17 @@ export default function PostComposer({
               {isPosting ? (
                 <>
                   <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
-                  Posting...
+                  {t("postComposer.posting")}
                 </>
               ) : (
                 <>
                   <Send className="w-4 h-4 mr-2" />
-                  Post
+                  {t("common.post")}
                 </>
               )}
             </Button>
           </div>
-        </Form>
+        </form>
       </FormProvider>
     </div>
   );

@@ -56,7 +56,14 @@ export default function HomePage() {
         {posts.map((post: PostType) => {
           if (!userProfile) return null;
 
-          return <Post key={post._id} post={post} user={userProfile} />;
+          return (
+            <Post
+              key={post._id}
+              post={post}
+              user={userProfile}
+              refreshPosts={refreshPosts}
+            />
+          );
         })}
       </div>
     </main>
