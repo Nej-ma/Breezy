@@ -128,7 +128,7 @@ const updatePostContent = async (postId: string, content: string) => {
   }
 };
 
-const updatePostVisibility = async (postId: string, visibility: string) => {
+const updatePostVisibility = async (postId: string, visibility: PostVisibility) => {
   try {
     const response = await apiClient.put(`posts/${postId}`, {
       visibility,
