@@ -12,13 +12,16 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   MessageCircle,
-  Repeat2,
+  Eye,
   Heart,
   Share,
   Sparkles,
   MoreVertical,
   Pencil,
   Trash2,
+  Globe,
+  Users,
+  Lock,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -26,11 +29,12 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useEffect, useState } from "react";
+import { Textarea } from "../ui/textarea";
+import { useEffect, useState, Suspense } from "react";
 import Link from "next/link";
 
 // Types
-import type { Post } from "@/utils/types/postType";
+import type { Post, PostVisibility } from "@/utils/types/postType";
 import type { UserProfile } from "@/utils/types/userType";
 
 // Services
@@ -44,6 +48,7 @@ interface PostProps {
 }
 
 // Add this import if not already present
+import Loader from "./loader";
 import {
   AlertDialog,
   AlertDialogHeader,
@@ -55,6 +60,27 @@ import {
   AlertDialogContent,
 } from "@/components/ui/alert-dialog";
 
+const visibilityOptions = [
+  {
+    value: "public",
+    label: "Public",
+    description: "Anyone can see this post",
+    icon: Globe,
+  },
+  {
+    value: "friends",
+    label: "Friends",
+    description: "Only your friends can see this",
+    icon: Users,
+  },
+  {
+    value: "private",
+    label: "Only me",
+    description: "Only you can see this post",
+    icon: Lock,
+  },
+];
+
 export function Post({ post, user, refreshPosts }: PostProps) {
   // Existing state variables
   const [likedState, setLikedState] = useState(
@@ -64,6 +90,11 @@ export function Post({ post, user, refreshPosts }: PostProps) {
 
   // Add new state for dialog
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  // add state to modify the content
+  const [modifyContentState, setModifyContentState] = useState(false);
+  const [modifiedContent, setModifiedContent] = useState(post.content);
+  // Add loading state for update operations
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleToggleLike = () => {
     if (likeTimeout.current) {
@@ -109,6 +140,42 @@ export function Post({ post, user, refreshPosts }: PostProps) {
     }
     return date.toLocaleDateString(undefined, options);
   }
+
+  const updatePost = (newContent: string) => {
+    setIsLoading(true);
+
+    postService
+      .updatePostContent(post._id, newContent)
+      .then(() => {
+        post.content = newContent;
+        setModifyContentState(false);
+        setModifiedContent(newContent);
+        refreshPosts?.();
+        return true;
+      })
+      .finally(() => {
+        setTimeout(() => {
+          setIsLoading(false);
+        }, 500);
+      });
+  };
+
+  const updateVisibility = (newVisibility: PostVisibility) => {
+    setIsLoading(true);
+
+    postService
+      .updatePostVisibility(post._id, newVisibility)
+      .then(() => {
+        post.visibility = newVisibility;
+        refreshPosts?.();
+        return true;
+      })
+      .finally(() => {
+        setTimeout(() => {
+          setIsLoading(false);
+        }, 500);
+      });
+  };
 
   return (
     <>
@@ -190,7 +257,10 @@ export function Post({ post, user, refreshPosts }: PostProps) {
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end" className="w-36">
-                        <DropdownMenuItem className="cursor-pointer">
+                        <DropdownMenuItem
+                          className="cursor-pointer"
+                          onClick={() => setModifyContentState(true)}
+                        >
                           <Pencil className="w-4 h-4 text-[var(--primary)]" />
                           Modifier
                         </DropdownMenuItem>
@@ -206,9 +276,32 @@ export function Post({ post, user, refreshPosts }: PostProps) {
                   )}
                 </div>
               </div>
-              <p className="text-gray-800 leading-relaxed mb-4">
-                {post.content}
-              </p>
+              {modifyContentState ? (
+                <div>
+                  <Textarea
+                    className="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
+                    value={modifiedContent}
+                    onChange={(e) => setModifiedContent(e.target.value)}
+                  />
+
+                  <Button
+                    className="mt-2 ml-auto"
+                    onClick={() => {
+                      updatePost(modifiedContent);
+                      setModifyContentState(false);
+                      setModifiedContent(post.content);
+                    }}
+                  >
+                    Save
+                  </Button>
+                </div>
+              ) : isLoading ? (
+                <Loader />
+              ) : (
+                <p className="text-gray-800 leading-relaxed mb-4">
+                  {post.content}
+                </p>
+              )}
 
               {(post.images?.length > 0 || post.videos?.length > 0) && (
                 <div className="mb-4 rounded-2xl overflow-hidden border border-gray-100 bg-gray-50">
@@ -301,6 +394,54 @@ export function Post({ post, user, refreshPosts }: PostProps) {
                 >
                   <Share className="w-4 h-4" />
                 </Button>
+
+                {user.userId === post.author && (
+                  <div>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="flex items-center gap-2"
+                          type="button"
+                        >
+                          {post.visibility === "public" && (
+                            <Globe className="w-4 h-4 text-gray-500" />
+                          )}
+                          {post.visibility === "friends" && (
+                            <Users className="w-4 h-4 text-gray-500" />
+                          )}
+                          {post.visibility === "private" && (
+                            <Lock className="w-4 h-4 text-gray-500" />
+                          )}
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="start" className="w-56">
+                        {visibilityOptions.map((option) => (
+                          <DropdownMenuItem
+                            key={option.value}
+                            onClick={() =>
+                              updateVisibility(option.value as PostVisibility)
+                            }
+                            className="flex items-start gap-3 p-3"
+                          >
+                            <option.icon className="w-4 h-4 mt-0.5" />
+                            <div className="flex-1">
+                              <div className="font-medium">{option.label}</div>
+                              <div className="text-xs text-muted-foreground">
+                                {option.description}
+                              </div>
+                            </div>
+                            {post.visibility ===
+                              (option.value as PostVisibility) && (
+                              <div className="w-2 h-2 rounded-full bg-primary" />
+                            )}
+                          </DropdownMenuItem>
+                        ))}
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
+                )}
               </div>
             </div>
           </div>

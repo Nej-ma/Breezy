@@ -1,3 +1,5 @@
+export type PostVisibility = "public" | "private" | "friends"; // adjust as needed
+
 export type Post = {
   _id: string;
   author: string;
@@ -11,6 +13,6 @@ export type Post = {
   repostsCount: number;
   isReported: boolean;
   isDeleted: boolean;
-  visibility: "public" | "private" | "friends"; // adjust as needed
+  visibility: PostVisibility;
   createdAt: string;
 };

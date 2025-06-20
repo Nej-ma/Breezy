@@ -2,11 +2,11 @@
 // Types
 
 import apiClient from "@/utils/api";
-import type { Post } from "@/utils/types/postType";
+import type { Post, PostVisibility } from "@/utils/types/postType";
 
 export type PostRequest = {
   content: string;
-  visibility: string;
+  visibility: PostVisibility;
   images: File[];
   videos: File[];
   tags: string[];
@@ -109,6 +109,42 @@ const likePost = async (postId: string, userId: string) => {
   }
 };
 
+const updatePostContent = async (postId: string, content: string) => {
+  try {
+    const response = await apiClient.put(`posts/${postId}`, {
+      content,
+      tags: extractTags(content),
+      mentions: extractMentions(content),
+    });
+    if (response.status === 200) {
+      console.log("Post modified successfully");
+    } else {
+      console.error(`Error modifying post: ${response.statusText}`);
+      throw new Error(`Error modifying post: ${response.statusText}`);
+    }
+  } catch (error) {
+    console.error("Error modifying post:", error);
+    throw error;
+  }
+};
+
+const updatePostVisibility = async (postId: string, visibility: string) => {
+  try {
+    const response = await apiClient.put(`posts/${postId}`, {
+      visibility,
+    });
+    if (response.status === 200) {
+      console.log("Post visibility updated successfully");
+    } else {
+      console.error(`Error updating post visibility: ${response.statusText}`);
+      throw new Error(`Error updating post visibility: ${response.statusText}`);
+    }
+  } catch (error) {
+    console.error("Error updating post visibility:", error);
+    throw error;
+  }
+};
+
 const deletePost = async (postId: string) => {
   try {
     const response = await apiClient.delete(`posts/${postId}`);
@@ -129,5 +165,7 @@ export const postService = {
   getUserPostsById,
   postPost,
   likePost,
+  updatePostContent,
+  updatePostVisibility,
   deletePost,
 };
