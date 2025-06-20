@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Inter, Montserrat } from "next/font/google";
+import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import "../lib/i18n"; // Import i18n configuration
 
 // Context providers
 import I18nProvider from "./helpers/I18nProvider";
@@ -31,7 +30,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="fr">
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
@@ -44,3 +43,4 @@ export default function RootLayout({
     </html>
   );
 }
+
