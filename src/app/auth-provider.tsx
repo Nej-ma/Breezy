@@ -31,9 +31,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isInitialized, setIsInitialized] = useState<boolean>(false);
 
   const refreshUser = async (): Promise<boolean> => {
-    try {
-      console.log("🔄 Trying to refresh user...");
-      
+    try {      
       // Appeler votre API route Next.js qui gère les sessions cookies
       const response = await fetch("/api/auth/me", {
         method: "GET",
@@ -42,7 +40,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       if (response.ok) {
         const data = await response.json();
-        console.log("✅ User data from /api/auth/me:", data);
         setUser(data.user);
         setError(null);
         return true;
@@ -50,8 +47,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       // Si ça échoue, essayer le refresh
       if (response.status === 401) {
-        console.log("🔑 Session expired, trying refresh...");
-        
         const refreshResponse = await fetch("/api/auth/refresh", {
           method: "POST",
           credentials: 'include',
@@ -59,8 +54,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
         if (refreshResponse.ok) {
           const refreshData = await refreshResponse.json();
-          console.log("🎉 Refresh successful! Data:", refreshData);
-          
           if (refreshData.user) {
             setUser(refreshData.user);
             setError(null);
@@ -69,11 +62,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
       }
 
-      console.log("❌ Authentication failed");
+      console.log("Authentication failed");
       setUser(null);
       return false;
     } catch (error) {
-      console.error("💥 Refresh user error:", error);
+      console.error("Refresh user error:", error);
       setError("Connection error");
       setUser(null);
       return false;
@@ -83,24 +76,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // Initialize auth on app load
   useEffect(() => {
     const initAuth = async () => {
-      console.log("🚀 Initializing auth...");
       setLoading(true);
       
       try {
         await refreshUser();
       } catch (error) {
-        console.error("💥 Failed to initialize auth:", error);
+        console.error("Failed to initialize auth:", error);
       } finally {
         setLoading(false);
         setIsInitialized(true);
-        console.log("✅ Auth initialization complete");
       }
     };
     initAuth();
   }, []);
 
   const login = async (email: string, password: string): Promise<boolean> => {
-    console.log("🔐 Login attempt...");
     setLoading(true);
     setError(null);
     
@@ -122,11 +112,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return false;
       }
 
-      console.log("✅ Login successful:", data.user);
+      console.log("Login successful:", data.user);
       setUser(data.user);
       return true;
     } catch (error) {
-      console.error("💥 Login error:", error);
+      console.error("Login error:", error);
       setError("An unexpected error occurred");
       return false;
     } finally {
@@ -135,7 +125,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const logout = async (): Promise<boolean> => {
-    console.log("🚪 Logout initiated...");
     setLoading(true);
     setError(null);
     
@@ -148,12 +137,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       if (!response.ok) {
         const data = await response.json();
-        console.error("❌ Logout failed:", data);
+        console.error("Logout failed:", data);
         setError(data.error || "Logout failed");
         return false;
       }
 
-      console.log("✅ Logout successful, clearing user state...");
+      console.log("Logout successful, clearing user state...");
       setUser(null);
       
       // Rediriger vers la page de connexion
@@ -161,7 +150,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       
       return true;
     } catch (error) {
-      console.error("💥 Logout error:", error);
+      console.error("Logout error:", error);
       setError("An unexpected error occurred");
       // Nettoyer localement même si ça échoue
       setUser(null);
