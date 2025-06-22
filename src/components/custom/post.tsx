@@ -34,6 +34,9 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useTranslation } from "react-i18next"; // Add this import
 
+// Hooks
+import { useAuth } from "@/app/auth-provider";
+
 // Types
 import type { Post, PostVisibility } from "@/utils/types/postType";
 import type { UserProfile } from "@/utils/types/userType";
@@ -57,11 +60,11 @@ import {
 
 interface PostProps {
   post: Post;
-  user: UserProfile;
+  userProfile: UserProfile;
   refreshPosts?: () => void; // Optional prop to refresh posts after actions
 }
 
-export function Post({ post, user, refreshPosts }: PostProps) {
+export function Post({ post, userProfile, refreshPosts }: PostProps) {
   // Add translation hook
   const { t } = useTranslation("common");
 
@@ -89,7 +92,7 @@ export function Post({ post, user, refreshPosts }: PostProps) {
 
   // Existing state variables
   const [likedState, setLikedState] = useState(
-    post.likes.includes(user.userId)
+    post.likes.includes(userProfile.userId)
   );
   const likeTimeout = useRef<NodeJS.Timeout | null>(null);
 
@@ -101,29 +104,35 @@ export function Post({ post, user, refreshPosts }: PostProps) {
   // Add loading state for update operations
   const [isLoading, setIsLoading] = useState(false);
 
+  // users
+  const { user } = useAuth();
+
   const handleToggleLike = () => {
     if (likeTimeout.current) {
       clearTimeout(likeTimeout.current);
     }
     likeTimeout.current = setTimeout(() => {
-      postService.likePost(post._id, user.userId).then(() => {
+      postService.likePost(post._id).then(() => {
         // Optionally handle success or update local state
         postService.getUserPostsById(post._id).then((updatedPost: Post) => {
           // Update the post with the new likes count
           post.likes = updatedPost.likes;
-          setLikedState(updatedPost.likes.includes(user.userId));
+          setLikedState(updatedPost.likes.includes(userProfile.userId));
         });
       });
     }, 400); // 400ms debounce
   };
 
   useEffect(() => {
-    if (user.userId && post.likes.includes(user.userId)) {
+    if (userProfile.userId && post.likes.includes(userProfile.userId)) {
       setLikedState(true);
     } else {
       setLikedState(false);
     }
-  }, [user.userId, post.likes]);
+
+    console.log("Post likes updated:", post.likes);
+    console.log("User profile ID:", userProfile.userId);
+  }, [userProfile.userId, post.likes]);
 
   function getRelativeTime(dateString: string): string {
     const date = new Date(dateString);
@@ -151,12 +160,8 @@ export function Post({ post, user, refreshPosts }: PostProps) {
     setIsLoading(true);
 
     postService
-      .updatePostContent(postState._id, newContent)
+      .updatePostContent(post._id, newContent)
       .then(() => {
-        setPostState((prevState) => ({
-          ...prevState,
-          content: newContent,
-        }));
         setModifyContentState(false);
         setModifiedContent(newContent);
         refreshPosts?.();
@@ -198,12 +203,12 @@ export function Post({ post, user, refreshPosts }: PostProps) {
           <div className="flex items-start gap-4">
             <Avatar className="w-12 h-12 ring-2 border-none">
               <Link
-                href={`/${user.username}`}
+                href={`/${userProfile.username}`}
                 className="block w-12 h-12 rounded-full overflow-hidden focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
               >
                 <AvatarImage
-                  src={user.profilePicture || "/placeholder.svg"}
-                  alt={user.displayName}
+                  src={userProfile.profilePicture || "/placeholder.svg"}
+                  alt={userProfile.displayName}
                 />
                 <AvatarFallback className="bg-gradient-to-br from-[var(--primary)] to-[var(--primary-light)] text-white">
                   <UserPlaceholderIcon className="w-8 h-8" />
@@ -213,17 +218,19 @@ export function Post({ post, user, refreshPosts }: PostProps) {
             <div className="flex-1">
               <div className="flex items-center gap-2 mb-2">
                 <span className="font-semibold text-gray-900 transition-colors">
-                  {user.username}
+                  {userProfile.username}
                 </span>
                 <Sparkles className="w-4 h-4 text-[var(--primary-light)]" />
-                <span className="text-gray-500">@{user.username}</span>
+                <span className="text-gray-500">@{userProfile.username}</span>
                 <span className="text-gray-400">·</span>
                 <span className="text-gray-500 text-sm">
                   {getRelativeTime(post.createdAt)}
                 </span>
 
                 <div className="ml-auto flex items-center gap-1">
-                  {(user.userId === post.author || user.role === "moderator" || user.role === "admin") && (
+                  {(userProfile.userId === post.author ||
+                    user?.role === "moderator" ||
+                    user?.role === "admin") && (
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <Button
@@ -238,7 +245,7 @@ export function Post({ post, user, refreshPosts }: PostProps) {
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
-                        {user.userId === post.author && (
+                        {userProfile.userId === post.author && (
                           <DropdownMenuItem
                             className="cursor-pointer"
                             onClick={() => setModifyContentState(true)}
@@ -371,7 +378,7 @@ export function Post({ post, user, refreshPosts }: PostProps) {
                   <Share className="w-4 h-4" />
                 </Button>
 
-                {user.userId === post.author && (
+                {userProfile.userId === post.author && (
                   <div>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>

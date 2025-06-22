@@ -38,36 +38,14 @@ const createSignInSchema = (t: any) =>
       .required(t("auth.form.required", "Ce champ est requis")),
     password: yup
       .string()
-      .required(t("auth.form.required", "Ce champ est requis"))
-      .min(
-        8,
-        t("auth.form.minLength", "Doit contenir au moins {{min}} caractères", {
-          min: 8,
-        })
-      )
-      .matches(
-        /[a-z]/,
-        t("auth.form.passwordLowercase", "Doit contenir une lettre minuscule")
-      )
-      .matches(
-        /[A-Z]/,
-        t("auth.form.passwordUppercase", "Doit contenir une lettre majuscule")
-      )
-      .matches(
-        /[0-9]/,
-        t("auth.form.passwordNumber", "Doit contenir un chiffre")
-      )
-      .matches(
-        /[@$!%*?&#]/,
-        t("auth.form.passwordSpecial", "Doit contenir un caractère spécial")
-      ),
+      .required(t("auth.form.required", "Ce champ est requis")),
   });
 
 export default function SignInPage() {
   const { t, i18n } = useTranslation();
   const [isLoading, setIsLoading] = useState(false);
   const [signInSchema, setSignInSchema] = useState(() => createSignInSchema(t));
-  
+
   // ✅ AJOUT : useAuth hook et router
   const { login } = useAuth();
   const router = useRouter();
@@ -98,17 +76,22 @@ export default function SignInPage() {
 
       if (success) {
         toast.success(t("auth.signin.successText", "Connexion réussie !"));
-        
+
         // ✅ Utilise router.push au lieu de window.location.href
         router.push("/home");
       } else {
         // Cette erreur sera gérée par le catch si login rejette
-        toast.error(t("auth.signin.errorText", "Email ou mot de passe incorrect"));
+        toast.error(
+          t("auth.signin.errorText", "Email ou mot de passe incorrect")
+        );
       }
     } catch (error) {
       console.error("Login error:", error);
       toast.error(
-        t("auth.signin.errorText", "Une erreur est survenue lors de la connexion")
+        t(
+          "auth.signin.errorText",
+          "Une erreur est survenue lors de la connexion"
+        )
       );
     } finally {
       setIsLoading(false);
@@ -153,9 +136,6 @@ export default function SignInPage() {
                     {...field}
                   />
                 </FormControl>
-                <FormDescription>
-                  {t("auth.signup.passwordDescription")}
-                </FormDescription>
                 <FormMessage />
               </FormItem>
             )}
