@@ -147,8 +147,8 @@ export default function PostComposer({
 
     try {
       // Submit post with files
-      await postService.createPost(data.content, visibility.value, attachedFiles);
-      
+      await postService.postPost(data.content, visibility.value, attachedFiles);
+
       // Reset the form and attached files after posting
       reset();
       setAttachedFiles([]);

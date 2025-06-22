@@ -1,23 +1,38 @@
-// src/utils/api.ts
+// src/utils/api.ts - Version debug
 import axios from "axios";
 
 const apiClient = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8080/api/",
-  withCredentials: true, // Important : pour envoyer les cookies automatiquement
+  withCredentials: true, // ✅ CRITIQUE : doit être true
   headers: {
     "Content-Type": "application/json",
     Accept: "application/json",
   },
 });
 
+// Debug intercepteur pour voir les cookies
+apiClient.interceptors.request.use((config) => {
+  console.log("🔍 API Request:", {
+    url: config.url,
+    method: config.method,
+    cookies: document.cookie, // Voir les cookies envoyés
+    withCredentials: config.withCredentials
+  });
+  return config;
+});
+
 // Intercepteur pour gérer les erreurs 401 et refresh automatique
 apiClient.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    return response;
+  },
   async (error) => {
+    
     const originalRequest = error.config;
    
     if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
+      
      
       try {
         // Essayer de rafraîchir le token via votre API route Next.js
