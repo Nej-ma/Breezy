@@ -22,4 +22,12 @@ const HomeLayout: React.FC<HomeLayoutProps> = ({ children }) => {
   );
 };
 
-export default HomeLayout;
+export default function MainLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return <AuthGuard>{children}</AuthGuard>;
+}
+
+export { HomeLayout };

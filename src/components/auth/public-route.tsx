@@ -1,6 +1,6 @@
 "use client";
 
-import { useUser } from "@/utils/hooks/useUser";
+import { useAuth } from "@/app/auth-provider";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
@@ -10,18 +10,14 @@ interface PublicRouteProps {
 
 export function PublicRoute({ children }: PublicRouteProps) {
   const router = useRouter();
-  const { getUser } = useUser();
+  const { user } = useAuth();
   
   useEffect(() => {
-    // Use a simpler check that executes immediately
-    const user = getUser();
-    const isAuthenticated = Boolean(user);
-    
-    if (isAuthenticated) {
-      // If authenticated, redirect to home page immediately
+    // If authenticated, redirect to home page immediately
+    if (user) {
       router.replace("/home");
     }
-  }, [router, getUser]);
+  }, [router, user]);
   
   // Immediately render children - don't show a loader
   // This makes the authentication UI visible faster
