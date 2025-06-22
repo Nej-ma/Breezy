@@ -75,8 +75,17 @@
             "submit": "S'inscrire",
             "successMessage": "Votre compte a été créé avec succès. Un email de confirmation a été envoyé à votre adresse. Veuillez vérifier votre boîte de réception et cliquer sur le lien de confirmation pour activer votre compte.",
             "errorMessage": "Une erreur s'est produite lors de la création de votre compte. Veuillez réessayer plus tard ou contacter le support si le problème persiste."
+        },
+        "signin": {
+            "username": "Nom d'utilisateur",
+            "email": "Courriel",
+            "password": "Mot de passe",
+            "submit": "Se connecter",
+            "forgotPassword": "Mot de passe oublié ?",
+            "successMessage": "Connexion réussie. Bienvenue !",
+            "errorMessage": "Nom d'utilisateur ou mot de passe incorrect. Veuillez réessayer."
         }
-    },
+        },
 
     "suspense": {
         "updating": "Mise à jour en cours...",
