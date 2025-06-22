@@ -7,6 +7,9 @@ export interface SessionPayload {
   userId: string;
   role: string;
   username: string;
+  email?: string;
+  displayName?: string;
+  isVerified?: boolean;
   expiresAt: number;
 }
 
@@ -18,6 +21,9 @@ interface JWTSessionPayload extends JWTPayload {
   userId: string;
   role: string;
   username: string;
+  email?: string;
+  displayName?: string;
+  isVerified?: boolean;
   expiresAt: number;
 }
 
@@ -37,11 +43,13 @@ const getSecretKey = (): Uint8Array => {
 // Encrypt session data into JWT
 export async function encrypt(payload: SessionPayload): Promise<string> {
   const secretKey = getSecretKey();
-  
-  const jwtPayload: JWTSessionPayload = {
+    const jwtPayload: JWTSessionPayload = {
     userId: payload.userId,
     role: payload.role,
     username: payload.username,
+    email: payload.email,
+    displayName: payload.displayName,
+    isVerified: payload.isVerified,
     expiresAt: payload.expiresAt
   };
   
@@ -59,18 +67,19 @@ export async function decrypt(token: string): Promise<SessionPayload | null> {
   try {
     const secretKey = getSecretKey();
     const { payload } = await jwtVerify(token, secretKey);
-    
-    // Vérifier si le token a expiré
+      // Check if token has expired
     const now = Math.floor(Date.now() / 1000);
     const sessionPayload = payload as JWTSessionPayload;
     if (sessionPayload.expiresAt && sessionPayload.expiresAt < now) {
       return null;
     }
-    
-    return {
+      return {
       userId: sessionPayload.userId,
       role: sessionPayload.role,
       username: sessionPayload.username,
+      email: sessionPayload.email,
+      displayName: sessionPayload.displayName,
+      isVerified: sessionPayload.isVerified,
       expiresAt: sessionPayload.expiresAt
     };
   } catch (error) {
@@ -82,12 +91,11 @@ export async function decrypt(token: string): Promise<SessionPayload | null> {
 // Create a session by setting cookies
 export async function createSession(payload: SessionPayload): Promise<void> {
   const token = await encrypt(payload);
- 
-  // Set HTTP-only cookie avec le token JWT
+   // Set HTTP-only cookie with JWT token
   const cookieStore = await cookies();
   cookieStore.set({
     name: SESSION_KEY,
-    value: token, // Token JWT, pas les données utilisateur
+    value: token, // JWT token, not user data
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
     sameSite: 'lax',

@@ -1,64 +1,77 @@
-import { NextResponse } from 'next/server';
-import type { NextRequest } from 'next/server';
-import { getSessionFromRequest } from './src/lib/session';
+// middleware.ts
+import { NextRequest, NextResponse } from 'next/server';
+import { getSessionFromRequest } from '@/lib/session';
 
-// Paths that don't require authentication
-const publicPaths = [
-  '/',
+// Routes qui ne nécessitent pas d'authentification
+const publicRoutes = [
   '/sign-in',
   '/sign-up',
   '/forgot-password',
   '/reset-password',
-  '/confirm-email'
+  '/confirm-email',
+  '/api/auth/login',
+  '/api/auth/register',
+  '/api/auth/forgot-password',
+  '/api/auth/reset-password',
+  '/api/auth/activate',
+];
+
+// Routes qui nécessitent d'être déconnecté (redirections si connecté)
+const authRoutes = [
+  '/sign-in',
+  '/sign-up',
+  '/forgot-password',
+  '/reset-password',
+  '/confirm-email',
 ];
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   
-  // Skip middleware for static files and API routes (more specific)
+  // Ignorer les fichiers statiques et les API routes non-auth
   if (
-    pathname.startsWith('/_next/') ||
-    pathname.startsWith('/api/') ||
-    pathname.includes('.') && !pathname.endsWith('/')
+    pathname.startsWith('/_next') ||
+    pathname.startsWith('/api') && !pathname.startsWith('/api/auth') ||
+    pathname.includes('.') // fichiers statiques
   ) {
     return NextResponse.next();
   }
- 
-  // Check if the path is public (improved matching)
-  const isPublicPath = publicPaths.some(path => 
-    pathname === path || pathname.startsWith(path + '/')
-  );
- 
-  // Get session
+
+  // Vérifier la session
   const session = await getSessionFromRequest(request);
   const isAuthenticated = !!session?.isLoggedIn;
- 
-  // Handle authentication logic
-  if (!isAuthenticated && !isPublicPath) {
-    // Redirect to sign-in with return URL
-    const url = new URL('/sign-in', request.url);
-    url.searchParams.set('from', pathname);
-    return NextResponse.redirect(url);
-  }
- 
-  if (isAuthenticated && isPublicPath && pathname !== '/') {
-    // Redirect to home if trying to access auth routes while logged in
+
+  // Si l'utilisateur est connecté et essaie d'accéder aux pages d'auth
+  if (isAuthenticated && authRoutes.includes(pathname)) {
     return NextResponse.redirect(new URL('/home', request.url));
   }
- 
+
+  // Si l'utilisateur n'est pas connecté et essaie d'accéder à une page protégée
+  if (!isAuthenticated && !publicRoutes.includes(pathname)) {
+    return NextResponse.redirect(new URL('/sign-in', request.url));
+  }
+
+  // Rediriger la racine vers /home si connecté, sinon vers /sign-in
+  if (pathname === '/') {
+    if (isAuthenticated) {
+      return NextResponse.redirect(new URL('/home', request.url));
+    } else {
+      return NextResponse.redirect(new URL('/sign-in', request.url));
+    }
+  }
+
   return NextResponse.next();
 }
 
 export const config = {
   matcher: [
     /*
-     * Match all request paths except:
+     * Match all request paths except for the ones starting with:
      * - _next/static (static files)
      * - _next/image (image optimization files)
      * - favicon.ico (favicon file)
-     * - public files (public directory)
-     * - api routes
+     * - public files (public folder)
      */
-    '/((?!api|_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
+    '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
   ],
 };

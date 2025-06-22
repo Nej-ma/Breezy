@@ -1,21 +1,46 @@
+// src/utils/api.ts
 import axios from "axios";
 
 const apiClient = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8080/api/",
-  withCredentials: true, // Enable cookies to be sent with requests
+  withCredentials: true, // Important : pour envoyer les cookies automatiquement
   headers: {
     "Content-Type": "application/json",
     Accept: "application/json",
   },
 });
 
-// Add an interceptor to dynamically add the token
-apiClient.interceptors.request.use((config) => {
-  const token = localStorage.getItem("access_token");
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
+// Intercepteur pour gérer les erreurs 401 et refresh automatique
+apiClient.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    const originalRequest = error.config;
+   
+    if (error.response?.status === 401 && !originalRequest._retry) {
+      originalRequest._retry = true;
+     
+      try {
+        // Essayer de rafraîchir le token via votre API route Next.js
+        const refreshResponse = await fetch("/api/auth/refresh", {
+          method: "POST",
+          credentials: 'include'
+        });
+       
+        if (refreshResponse.ok) {
+          // Token rafraîchi avec succès, réessayer la requête originale
+          return apiClient(originalRequest);
+        } else {
+          // Refresh échoué - rediriger vers login
+          window.location.href = "/sign-in";
+        }
+      } catch (refreshError) {
+        console.error("Token refresh error:", refreshError);
+        window.location.href = "/sign-in";
+      }
+    }
+   
+    return Promise.reject(error);
   }
-  return config;
-});
+);
 
 export default apiClient;

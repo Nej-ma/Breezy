@@ -1,19 +1,17 @@
 "use client";
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
 
-// Define user type (compatible with existing system)
 interface User {
   id?: string;
   _id?: string;
   username: string;
   email: string;
   displayName: string;
-  role: 'user' | 'admin' | 'moderator'; // More specific role types
+  role: 'user' | 'admin' | 'moderator';
   isVerified?: boolean;
   profilePicture?: string;
 }
 
-// Auth context type
 interface AuthContextType {
   user: User | null;
   loading: boolean;
@@ -24,73 +22,96 @@ interface AuthContextType {
   refreshUser: () => Promise<boolean>;
 }
 
-// Create the context
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// Auth provider component
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [isInitialized, setIsInitialized] = useState<boolean>(false);
-  // Refresh user data - fonction séparée pour éviter les dépendances circulaires
+
   const refreshUser = async (): Promise<boolean> => {
     try {
+      console.log("🔄 Trying to refresh user...");
+      
+      // Appeler votre API route Next.js qui gère les sessions cookies
       const response = await fetch("/api/auth/me", {
         method: "GET",
-        credentials: 'include', // Important pour les cookies
+        credentials: 'include',
       });
 
-      if (!response.ok) {
-        if (response.status === 401) {
-          // Non autorisé - pas d'erreur à afficher
-          setUser(null);
-          return false;
-        }
-        // Autres erreurs serveur - ne pas effacer l'utilisateur
-        console.warn(`Auth refresh failed: ${response.status}`);
-        setError(`Server error: ${response.status}`);
-        return false;
+      if (response.ok) {
+        const data = await response.json();
+        console.log("✅ User data from /api/auth/me:", data);
+        setUser(data.user);
+        setError(null);
+        return true;
       }
 
-      const data = await response.json();
-      setUser(data.user);
-      setError(null); // Clear previous errors
-      return true;
+      // Si ça échoue, essayer le refresh
+      if (response.status === 401) {
+        console.log("🔑 Session expired, trying refresh...");
+        
+        const refreshResponse = await fetch("/api/auth/refresh", {
+          method: "POST",
+          credentials: 'include',
+        });
+
+        if (refreshResponse.ok) {
+          const refreshData = await refreshResponse.json();
+          console.log("🎉 Refresh successful! Data:", refreshData);
+          
+          if (refreshData.user) {
+            setUser(refreshData.user);
+            setError(null);
+            return true;
+          }
+        }
+      }
+
+      console.log("❌ Authentication failed");
+      setUser(null);
+      return false;
     } catch (error) {
-      console.error("Refresh user error:", error);
-      // Ne pas setUser(null) en cas d'erreur réseau - garde la session locale
+      console.error("💥 Refresh user error:", error);
       setError("Connection error");
+      setUser(null);
       return false;
     }
   };
-  // Check if user is logged in on initial load
+
+  // Initialize auth on app load
   useEffect(() => {
     const initAuth = async () => {
+      console.log("🚀 Initializing auth...");
       setLoading(true);
+      
       try {
         await refreshUser();
       } catch (error) {
-        console.error("Failed to initialize auth:", error);
+        console.error("💥 Failed to initialize auth:", error);
       } finally {
         setLoading(false);
         setIsInitialized(true);
+        console.log("✅ Auth initialization complete");
       }
     };
     initAuth();
-  }, []); // Pas de dépendances pour éviter les boucles
+  }, []);
 
-  // Login function
   const login = async (email: string, password: string): Promise<boolean> => {
+    console.log("🔐 Login attempt...");
     setLoading(true);
     setError(null);
+    
     try {
+      // Appeler votre API route Next.js pour login
       const response = await fetch("/api/auth/login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        credentials: 'include', // Important pour les cookies
+        credentials: 'include',
         body: JSON.stringify({ email, password }),
       });
 
@@ -101,10 +122,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return false;
       }
 
+      console.log("✅ Login successful:", data.user);
       setUser(data.user);
       return true;
     } catch (error) {
-      console.error("Login error:", error);
+      console.error("💥 Login error:", error);
       setError("An unexpected error occurred");
       return false;
     } finally {
@@ -112,32 +134,44 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  // Logout function
   const logout = async (): Promise<boolean> => {
+    console.log("🚪 Logout initiated...");
     setLoading(true);
     setError(null);
+    
     try {
+      // Appeler votre API route Next.js pour logout
       const response = await fetch("/api/auth/logout", {
         method: "POST",
-        credentials: 'include', // Important pour les cookies
+        credentials: 'include',
       });
 
       if (!response.ok) {
         const data = await response.json();
+        console.error("❌ Logout failed:", data);
         setError(data.error || "Logout failed");
         return false;
       }
 
+      console.log("✅ Logout successful, clearing user state...");
       setUser(null);
+      
+      // Rediriger vers la page de connexion
+      window.location.href = '/sign-in';
+      
       return true;
     } catch (error) {
-      console.error("Logout error:", error);
+      console.error("💥 Logout error:", error);
       setError("An unexpected error occurred");
+      // Nettoyer localement même si ça échoue
+      setUser(null);
+      window.location.href = '/sign-in';
       return false;
     } finally {
       setLoading(false);
     }
   };
+
   const value = {
     user,
     loading,
@@ -153,7 +187,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   );
 }
 
-// Custom hook to use auth context
 export function useAuth() {
   const context = useContext(AuthContext);
   if (context === undefined) {

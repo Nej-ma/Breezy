@@ -2,7 +2,6 @@
 
 import type * as React from "react";
 import { Home, User, MessageSquare, Bell, LogOut } from "lucide-react";
-import { useRouter } from "next/navigation";
 
 import Link from "next/link";
 
@@ -24,26 +23,17 @@ import {
 } from "@/components/ui/sidebar";
 
 // hooks
-import { useUser } from "@/utils/hooks/useUser";
-import { useToken } from "@/utils/hooks/useToken";
+import { useAuth } from "@/app/auth-provider";
 import { useTranslation } from "react-i18next";
 
 export default function Navbar({
   ...props
-}: React.ComponentProps<typeof Sidebar>) {
-  // Custom hooks to fetch user and token data
-  const { getUser, removeUser } = useUser();
-  const { removeToken } = useToken();
-  const router = useRouter();
-
-  // Fetch user data
-  const user = getUser();
+}: React.ComponentProps<typeof Sidebar>) {  // Custom hooks to fetch user and auth data
+  const { user, logout } = useAuth();
 
   // Handle logout
-  const handleLogout = () => {
-    removeUser();
-    removeToken();
-    router.push("/sign-in");
+  const handleLogout = async () => {
+    await logout();
   };
 
   const { t } = useTranslation("common"); // use the "common" namespace
