@@ -110,7 +110,7 @@ export function CommentComposer({ postId, userProfile }: CommentComposerProps) {
 
   return (
     <div className="flex space-x-3 m-x-5">
-      <Avatar className="w-12 h-12 ring-2 border-none">
+      <Avatar className="w-8 h-8 ring-2 border-none">
         <AvatarImage
           src={userProfile.profilePicture || "/placeholder.svg"}
           alt={userProfile.displayName}

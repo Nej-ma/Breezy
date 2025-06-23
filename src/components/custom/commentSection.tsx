@@ -1,35 +1,52 @@
-import React, { useState } from "react";
-import { Avatar, AvatarImage, AvatarFallback } from "../ui/avatar";
+import React, { useEffect, useState } from "react";
+import {
+  Avatar,
+  AvatarImage,
+  AvatarFallback,
+  UserPlaceholderIcon,
+} from "../ui/avatar";
 import { Button } from "../ui/button";
 
+// hooks
+import { useTranslation } from "react-i18next";
+
+// helpers
+import { getRelativeTime } from "@/utils/helpers/stringFormatter";
+
 // Types
-import type { Post, PostVisibility } from "@/utils/types/postType";
+import type { CommentType } from "@/utils/types/commentType";
 
 type CommentSectionProps = {
-  post: Post;
+  comments: CommentType[];
 };
 
-const CommentSection: React.FC<CommentSectionProps> = ({ post }) => {
+export function CommentSection({ comments }: CommentSectionProps) {
+  const { t } = useTranslation("common");
+
+  // States
   const [showAllComments, setShowAllComments] = useState(false);
 
-  const visibleComments = showAllComments
-    ? post.comments
-    : post.comments.slice(0, 1);
+  const visibleComments = showAllComments ? comments : comments.slice(0, 1);
+
+  useEffect(() => {
+    // Reset to show only the first comment when comments change
+    setShowAllComments(false);
+  }, [comments]);
 
   return (
     <>
       {/* Comments Section */}
-      {post.comments.length > 0 && (
-        <div className="space-y-4">
+      {comments.length > 0 && (
+        <div className="space-y-4 my-5">
           {visibleComments.map((comment) => (
-            <div key={comment.id} className="flex space-x-3">
-              <Avatar className="h-8 w-8 flex-shrink-0">
+            <div key={comment._id} className="flex space-x-3">
+              <Avatar className="h-8 w-8 ring-2 border-none">
                 <AvatarImage
-                  src={comment.avatar || "/placeholder.svg"}
+                  src={comment.authorProfilePicture || "/placeholder.svg"}
                   alt={comment.author}
                 />
-                <AvatarFallback className="bg-gray-500 text-white text-xs">
-                  {comment.author.slice(0, 2).toUpperCase()}
+                <AvatarFallback className="bg-gradient-to-br from-[var(--primary)] to-[var(--primary-light)] text-white">
+                  <UserPlaceholderIcon className="w-8 h-8" />
                 </AvatarFallback>
               </Avatar>
               <div className="flex-1 min-w-0">
@@ -38,11 +55,11 @@ const CommentSection: React.FC<CommentSectionProps> = ({ post }) => {
                     {comment.author}
                   </h4>
                   <span className="text-gray-500 text-xs">
-                    {comment.username}
+                    {comment.authorUsername}
                   </span>
                   <span className="text-gray-500 text-xs">·</span>
                   <span className="text-gray-500 text-xs">
-                    {comment.timestamp}
+                    {getRelativeTime(t, comment.createdAt)}
                   </span>
                 </div>
                 <p className="text-sm text-gray-700 mt-1">{comment.content}</p>
@@ -50,7 +67,7 @@ const CommentSection: React.FC<CommentSectionProps> = ({ post }) => {
             </div>
           ))}
 
-          {post.comments.length > 1 && (
+          {comments.length > 1 && (
             <Button
               variant="ghost"
               size="sm"
@@ -59,8 +76,8 @@ const CommentSection: React.FC<CommentSectionProps> = ({ post }) => {
             >
               {showAllComments
                 ? "Masquer les commentaires"
-                : `Voir ${post.comments.length - 1} commentaire${
-                    post.comments.length - 1 > 1 ? "s" : ""
+                : `Voir ${comments.length - 1} commentaire${
+                    comments.length - 1 > 1 ? "s" : ""
                   } de plus`}
             </Button>
           )}
@@ -68,6 +85,6 @@ const CommentSection: React.FC<CommentSectionProps> = ({ post }) => {
       )}
     </>
   );
-};
+}
 
 export default CommentSection;

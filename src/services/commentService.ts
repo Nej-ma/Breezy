@@ -1,12 +1,14 @@
+import type { CommentType } from "@/utils/types/commentType";
+
 export type CommentRequest = {
   content: string;
   parentComment: string | null; // ID of the parent comment if it's a reply
   mentions: string[]; // List of mentioned users
 };
 
-const getPostComments = async (postId: string): Promise<Comment[]> => {
+const getPostComments = async (postId: string): Promise<CommentType[]> => {
   try {
-    const response = await fetch(`/api/posts/${postId}/comments`, {
+    const response = await fetch(`/api/posts/comments/${postId}`, {
       method: "GET",
       credentials: "include",
     });
