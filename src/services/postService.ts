@@ -1,7 +1,4 @@
-// Breezy Post Service
-// Types
-
-import apiClient from "@/utils/api";
+// src/services/postService.ts - Version avec API routes
 import type { Post, PostVisibility } from "@/utils/types/postType";
 
 export type PostRequest = {
@@ -38,12 +35,19 @@ const extractMentions = (content: string): string[] => {
   return mentions;
 };
 
-// function from API
-
+// ✅ Utilise les API routes Next.js au lieu du backend direct
 const getUserPosts = async (): Promise<Post[]> => {
   try {
-    const response = await apiClient.get(`posts`);
-    return response.data;
+    const response = await fetch("/api/posts", {
+      method: "GET",
+      credentials: 'include',
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch posts: ${response.status}`);
+    }
+
+    return await response.json();
   } catch (error) {
     console.error("Error fetching user posts:", error);
     throw error;
@@ -52,8 +56,16 @@ const getUserPosts = async (): Promise<Post[]> => {
 
 const getUserPostsById = async (postId: string): Promise<Post> => {
   try {
-    const response = await apiClient.get(`posts/${postId}`);
-    return response.data;
+    const response = await fetch(`/api/posts/${postId}`, {
+      method: "GET",
+      credentials: 'include',
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch post: ${response.status}`);
+    }
+
+    return await response.json();
   } catch (error) {
     console.error("Error fetching user posts by ID:", error);
     throw error;
@@ -74,19 +86,29 @@ const postPost = async (content: string, visibility: string, files: File[]) => {
       videos: files.filter((file) => file.type.startsWith("video/")),
     } as PostRequest;
 
-    const response = await apiClient.post("posts", data);
+    console.log("📝 Creating post with data:", data);
 
-    if (response.status == 201) {
-      console.log("Post created successfully");
-    } else if (response.status == 400) {
-      console.error("Bad request: Invalid post data");
+    const response = await fetch("/api/posts", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      credentials: 'include',
+      body: JSON.stringify(data),
+    });
+
+    console.log("📊 Post response status:", response.status);
+
+    if (response.status === 201) {
+      console.log("✅ Post created successfully");
+      return await response.json();
+    } else if (response.status === 400) {
       throw new Error("Bad request: Invalid post data");
-    } else if (response.status == 401) {
-      console.error("Unauthorized: Please log in");
+    } else if (response.status === 401) {
       throw new Error("Unauthorized: Please log in");
     } else {
-      console.error(`Unexpected error: ${response.statusText}`);
-      throw new Error(`Unexpected error: ${response.statusText}`);
+      const errorData = await response.json();
+      throw new Error(errorData.error || `Unexpected error: ${response.statusText}`);
     }
   } catch (error) {
     console.error("Error posting data:", error);
@@ -94,13 +116,16 @@ const postPost = async (content: string, visibility: string, files: File[]) => {
   }
 };
 
-const likePost = async (postId: string, userId: string) => {
+const likePost = async (postId: string) => {
   try {
-    const response = await apiClient.put(`posts/${postId}/like`, { userId });
+    const response = await fetch(`/api/posts/${postId}/like`, {
+      method: "PUT",
+      credentials: 'include',
+    });
+
     if (response.status === 200) {
       console.log("Post liked successfully");
     } else {
-      console.error(`Error liking post: ${response.statusText}`);
       throw new Error(`Error liking post: ${response.statusText}`);
     }
   } catch (error) {
@@ -111,15 +136,22 @@ const likePost = async (postId: string, userId: string) => {
 
 const updatePostContent = async (postId: string, content: string) => {
   try {
-    const response = await apiClient.put(`posts/${postId}`, {
-      content,
-      tags: extractTags(content),
-      mentions: extractMentions(content),
+    const response = await fetch(`/api/posts/${postId}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      credentials: 'include',
+      body: JSON.stringify({
+        content,
+        tags: extractTags(content),
+        mentions: extractMentions(content),
+      }),
     });
+
     if (response.status === 200) {
       console.log("Post modified successfully");
     } else {
-      console.error(`Error modifying post: ${response.statusText}`);
       throw new Error(`Error modifying post: ${response.statusText}`);
     }
   } catch (error) {
@@ -130,13 +162,18 @@ const updatePostContent = async (postId: string, content: string) => {
 
 const updatePostVisibility = async (postId: string, visibility: PostVisibility) => {
   try {
-    const response = await apiClient.put(`posts/${postId}`, {
-      visibility,
+    const response = await fetch(`/api/posts/${postId}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      credentials: 'include',
+      body: JSON.stringify({ visibility }),
     });
+
     if (response.status === 200) {
       console.log("Post visibility updated successfully");
     } else {
-      console.error(`Error updating post visibility: ${response.statusText}`);
       throw new Error(`Error updating post visibility: ${response.statusText}`);
     }
   } catch (error) {
@@ -147,11 +184,14 @@ const updatePostVisibility = async (postId: string, visibility: PostVisibility) 
 
 const deletePost = async (postId: string) => {
   try {
-    const response = await apiClient.delete(`posts/${postId}`);
+    const response = await fetch(`/api/posts/${postId}`, {
+      method: "DELETE",
+      credentials: 'include',
+    });
+
     if (response.status === 200) {
       console.log("Post deleted successfully");
     } else {
-      console.error(`Error deleting post: ${response.statusText}`);
       throw new Error(`Error deleting post: ${response.statusText}`);
     }
   } catch (error) {

@@ -7,6 +7,7 @@ interface HomeLayoutProps {
   children: ReactNode;
 }
 
+// Cette fonction peut être supprimée car elle fait doublon avec MainLayout
 const HomeLayout: React.FC<HomeLayoutProps> = ({ children }) => {
   return (
     <AuthGuard>
@@ -22,4 +23,23 @@ const HomeLayout: React.FC<HomeLayoutProps> = ({ children }) => {
   );
 };
 
-export default HomeLayout;
+export default function MainLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    <AuthGuard>
+      <div className="flex h-screen">
+        <SidebarProvider>
+          <Navbar />
+          <SidebarInset className="bg-gradient-to-br from-blue-50 via-white to-indigo-50">
+            <main className="w-full p-5 overflow-auto h-screen">{children}</main>
+          </SidebarInset>
+        </SidebarProvider>
+      </div>
+    </AuthGuard>
+  );
+};
+
+export { HomeLayout };

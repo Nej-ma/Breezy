@@ -4,7 +4,7 @@ import "./globals.css";
 
 // Context providers
 import I18nProvider from "./helpers/I18nProvider";
-import AuthProvider from "./auth-provider";
+import { AuthProvider } from "./auth-provider";
 
 // components
 import { Toaster } from "sonner";

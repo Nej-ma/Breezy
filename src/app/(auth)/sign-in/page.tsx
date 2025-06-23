@@ -1,8 +1,6 @@
 "use client";
 
-// service
-import { authService } from "@/services/authService";
-import type * as userType from "@/services/authService";
+import { useAuth } from "@/app/auth-provider";
 
 // page
 import RequestPasswordDialog from "../(forgot-password)/page";
@@ -29,6 +27,7 @@ import * as yup from "yup";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 
 // Define the initial schema without translations
 const createSignInSchema = (t: any) =>
@@ -68,6 +67,10 @@ export default function SignInPage() {
   const { t, i18n } = useTranslation();
   const [isLoading, setIsLoading] = useState(false);
   const [signInSchema, setSignInSchema] = useState(() => createSignInSchema(t));
+  
+  // ✅ AJOUT : useAuth hook et router
+  const { login } = useAuth();
+  const router = useRouter();
 
   // Update validation schema when language changes
   useEffect(() => {
@@ -85,37 +88,31 @@ export default function SignInPage() {
     },
   });
 
-  const onSubmit = (data: SignInFormValues) => {
+  // ✅ MODIFICATION PRINCIPALE : Utilise useAuth().login() au lieu d'authService.login()
+  const onSubmit = async (data: SignInFormValues) => {
     setIsLoading(true);
 
-    const loginData: userType.Login = {
-      email: data.email,
-      password: data.password,
-    };
+    try {
+      // ✅ Utilise la méthode login du context d'authentification
+      const success = await login(data.email, data.password);
 
-    authService
-      .login(loginData)
-      .then((response) => {
-        // First check if we have a valid response with user and token
-        if (!response || !response.user || !response.token) {
-          throw new Error(t("auth.signin.errorText"));
-        }
-
-        // If we get here, we have a valid response
-        toast.success(t("auth.signin.successText"));
-
-        // Redirect to home or dashboard
-        window.location.href = "/";
-      })
-      .catch((error) => {
-        console.error("Login error:", error);
-        toast.error(
-          t(error?.response?.data?.message || "auth.signin.errorText")
-        );
-      })
-      .finally(() => {
-        setIsLoading(false);
-      });
+      if (success) {
+        toast.success(t("auth.signin.successText", "Connexion réussie !"));
+        
+        // ✅ Utilise router.push au lieu de window.location.href
+        router.push("/home");
+      } else {
+        // Cette erreur sera gérée par le catch si login rejette
+        toast.error(t("auth.signin.errorText", "Email ou mot de passe incorrect"));
+      }
+    } catch (error) {
+      console.error("Login error:", error);
+      toast.error(
+        t("auth.signin.errorText", "Une erreur est survenue lors de la connexion")
+      );
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -170,7 +167,7 @@ export default function SignInPage() {
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               </>
             ) : null}
-            {t("auth.signin.submit")}
+            {t("auth.signin.signInButton", "Se connecter")}
           </Button>
         </form>
       </Form>

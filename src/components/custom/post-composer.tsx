@@ -3,8 +3,8 @@
 import type React from "react";
 // hooks
 import { useEffect, useState, useRef } from "react";
-import { useUser } from "@/utils/hooks/useUser";
-import { useTranslation } from "react-i18next"; // Add this import
+import { useAuth } from "@/app/auth-provider";
+import { useTranslation } from "react-i18next";
 
 // services
 import { postService } from "@/services/postService";
@@ -45,7 +45,7 @@ import { AutoCompleteUser } from "./auto-completer-user";
 import { useForm, Controller, FormProvider } from "react-hook-form";
 
 interface PostComposerProps {
-  userProfile: UserProfile;
+  userProfile: UserProfile | null;
   refreshPosts?: () => void;
 }
 
@@ -57,26 +57,26 @@ export default function PostComposer({
   userProfile,
   refreshPosts,
 }: PostComposerProps) {
-  const { t } = useTranslation("common"); // Add translation hook
+  const { t } = useTranslation("common");
 
   // Define visibility options with translations
   const visibilityOptions = [
     {
       value: "public",
-      label: t("post.visibility.public"),
-      description: t("post.visibility.publicDescription"),
+      label: t("post.visibility.public", "Public"),
+      description: t("post.visibility.publicDescription", "Visible par tous"),
       icon: Globe,
     },
     {
       value: "friends",
-      label: t("post.visibility.friends"),
-      description: t("post.visibility.friendsDescription"),
+      label: t("post.visibility.friends", "Amis"),
+      description: t("post.visibility.friendsDescription", "Visible par vos amis"),
       icon: Users,
     },
     {
       value: "private",
-      label: t("post.visibility.private"),
-      description: t("post.visibility.privateDescription"),
+      label: t("post.visibility.private", "Privé"),
+      description: t("post.visibility.privateDescription", "Visible par vous seul"),
       icon: Lock,
     },
   ];
@@ -89,8 +89,7 @@ export default function PostComposer({
   const mentionTriggerRef = useRef<HTMLDivElement>(null);
 
   // get user data
-  const { getUser } = useUser();
-  const user = getUser();
+  const { user } = useAuth();
 
   const methods = useForm<FormValues>({
     defaultValues: { content: "" },
@@ -120,17 +119,26 @@ export default function PostComposer({
     // trigger autocomplete when user types @
     const words = content.split(" ");
     const mentionTrigger = words.find((word) => word.startsWith("@"));
-    if (mentionTrigger) {
+    if (mentionTrigger && mentionTrigger.length > 1) {
       console.log("Triggering autocomplete for:", mentionTrigger);
 
-      userService.searchUser(mentionTrigger.slice(1)).then((profiles) => {
-        if (profiles) {
-          console.log("Found user profile:", profiles);
-          setSearchedUsers(profiles);
-        } else {
-          console.log("No user found for:", mentionTrigger);
-        }
-      });
+      // Vérifier si userService.searchUser existe
+      if (userService.searchUsers) {
+        userService.searchUsers(mentionTrigger.slice(1)).then((profiles) => {
+          if (profiles) {
+            console.log("Found user profiles:", profiles);
+            setSearchedUsers(profiles);
+          } else {
+            console.log("No users found for:", mentionTrigger);
+            setSearchedUsers([]);
+          }
+        }).catch((error) => {
+          console.error("Error searching users:", error);
+          setSearchedUsers([]);
+        });
+      }
+    } else {
+      setSearchedUsers([]);
     }
   }, [content]);
 
@@ -139,21 +147,31 @@ export default function PostComposer({
 
     try {
       // Submit post with files
-      postService
-        .postPost(data.content, visibility.value, attachedFiles)
-        .finally(() => {
-          // Reset the form and attached files after posting
-          reset();
-          setAttachedFiles([]);
-          setSearchedUsers([]);
-          refreshPosts?.();
-        });
+      await postService.postPost(data.content, visibility.value, attachedFiles);
+
+      // Reset the form and attached files after posting
+      reset();
+      setAttachedFiles([]);
+      setSearchedUsers([]);
+      refreshPosts?.();
     } catch (error) {
       console.error("Error creating post:", error);
     } finally {
       setIsPosting(false);
     }
   };
+
+  // Don't render if no userProfile yet
+  if (!userProfile) {
+    return (
+      <div className="w-full max-w-2xl mx-auto bg-white rounded-lg border shadow-sm p-4">
+        <div className="animate-pulse">
+          <div className="h-4 bg-gray-200 rounded w-1/4 mb-2"></div>
+          <div className="h-20 bg-gray-200 rounded"></div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="w-full max-w-2xl mx-auto bg-white rounded-lg border shadow-sm p-4">
@@ -172,10 +190,10 @@ export default function PostComposer({
         </div>
         <div className="flex-1">
           <h3 className="font-semibold text-sm">
-            {t("postComposer.createPost")}
+            {t("postComposer.createPost", "Créer une publication")}
           </h3>
           <p className="text-xs text-muted-foreground">
-            {t("postComposer.shareThoughts")}
+            {t("postComposer.shareThoughts", `Breeze what's on your mind, ${user?.username || "Guest"}!`)}
           </p>
         </div>
       </div>
@@ -197,7 +215,7 @@ export default function PostComposer({
             render={({ field }) => (
               <div>
                 <Textarea
-                  placeholder={t("postComposer.placeholder")}
+                  placeholder={t("postComposer.placeholder", "Quoi de neuf ?")}
                   {...field}
                   ref={(e) => {
                     // Maintain both refs
@@ -268,7 +286,7 @@ export default function PostComposer({
           {/* Attached Files */}
           {attachedFiles.length > 0 && (
             <div className="space-y-2">
-              <p className="text-sm font-medium">{t("post.attachedFiles")}</p>
+              <p className="text-sm font-medium">{t("post.attachedFiles", "Fichiers joints")}</p>
               <div className="flex flex-wrap gap-2">
                 {attachedFiles.map((file, index) => (
                   <Badge
@@ -315,7 +333,7 @@ export default function PostComposer({
                 >
                   <Paperclip className="w-4 h-4" />
                   <span className="hidden sm:inline">
-                    {t("post.actions.attach")}
+                    {t("post.actions.attach", "Joindre")}
                   </span>
                 </Button>
               </div>
@@ -370,12 +388,12 @@ export default function PostComposer({
               {isPosting ? (
                 <>
                   <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
-                  {t("postComposer.posting")}
+                  {t("postComposer.posting", "Publication...")}
                 </>
               ) : (
                 <>
                   <Send className="w-4 h-4 mr-2" />
-                  {t("common.post")}
+                  {t("common.post", "Publier")}
                 </>
               )}
             </Button>

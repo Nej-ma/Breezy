@@ -2,16 +2,15 @@
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { useUser } from "@/utils/hooks/useUser";
+import { useAuth } from "@/app/auth-provider";
 
 export default function Home() {
   const router = useRouter();
-  const { getUser } = useUser();
+  const { user } = useAuth();
 
   // Route based on authentication status - execute immediately
   useEffect(() => {
-    // Get user directly without useState to avoid render cycle
-    const user = getUser();
+    // Check authentication status
     const isAuthenticated = Boolean(user);
 
     // Use replace instead of push for cleaner history
@@ -20,7 +19,7 @@ export default function Home() {
     } else {
       router.replace("/sign-in");
     }
-  }, [router, getUser]);
+  }, [router, user]);
 
   // Return minimal loading indicator or nothing at all
   // This component will be unmounted immediately after redirect

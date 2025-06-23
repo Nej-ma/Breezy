@@ -1,41 +1,53 @@
 "use client";
-
-import { useUser } from "@/utils/hooks/useUser";
+import { useAuth } from "@/app/auth-provider";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 
 interface AuthGuardProps {
   children: React.ReactNode;
+  roles?: string[];
 }
 
-export function AuthGuard({ children }: AuthGuardProps) {
+export function AuthGuard({ children, roles }: AuthGuardProps) {
   const router = useRouter();
-  const { getUser } = useUser();
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
-  
+  const { user, loading, isInitialized } = useAuth();
+
   useEffect(() => {
-    // Check if user is authenticated immediately
-    const user = getUser();
-    const authenticated = Boolean(user);
-    
-    setIsAuthenticated(authenticated);
-    
-    if (!authenticated) {
-      // If not authenticated, redirect to sign-in page immediately
-      router.replace("/sign-in");
+    // Only redirect after initialization is complete
+    if (!loading && isInitialized && !user) {
+      // If not authenticated, redirect to sign-in
+      router.replace("/sign-in"); // Utiliser replace au lieu de push
+      return;
     }
-  }, [router, getUser]);
-  
-  // Show minimal loading state only if still checking
-  if (isAuthenticated === null) {
+
+    // If roles are specified and user doesn't have the required role
+    if (!loading && isInitialized && user && roles && !roles.includes(user.role)) {
+      // Redirect to unauthorized or home page
+      router.replace("/home");
+      return;
+    }
+  }, [user, loading, isInitialized, router, roles]);
+
+  // Show loading state during initialization
+  if (loading || !isInitialized) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
+      <div className="flex justify-center items-center min-h-screen">
         <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
       </div>
     );
   }
-  
-  // If authenticated (not null, and true), render children
-  return isAuthenticated ? <>{children}</> : null;
+
+  // If not authenticated, don't render children
+  if (!user) {
+    return null;
+  }
+
+  // If roles are specified and user doesn't have the required role, don't render children
+  if (roles && !roles.includes(user.role)) {
+    return null;
+  }
+
+  // If authenticated and has the required role, render children
+  return <>{children}</>;
 }
 

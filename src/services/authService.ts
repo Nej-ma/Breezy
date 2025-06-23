@@ -1,11 +1,5 @@
-import apiClient from "@/utils/api";
+// ===== src/services/authService.ts =====
 import type { User } from "@/utils/types/userType";
-
-// only used here
-export type Login = {
-  email: string;
-  password: string;
-};
 
 export type Register = {
   displayName: string;
@@ -16,82 +10,83 @@ export type Register = {
 
 export type AuthResponse = {
   message: string;
-  token: string;
   user: User;
 };
 
-// Method POST
-const createUser = async (userData: Register) => {
-  console.log("Creating user with data:", userData, JSON.stringify(userData));
+const createUser = async (userData: Register): Promise<boolean> => {
   try {
-    const response = await apiClient.post("auth/register", userData);
-
-    return response.status === 201; // Return true if user creation was successful
-  } catch (error) {
-    console.error("Error creating user:", error);
-    return false; // Return false if there was an error
-  }
-};
-
-const validateEmail = async (token: string) => {
-  try {
-    const response = await apiClient.post(`auth/activate/${token}`);
-    return response.status === 200; // Return true if email validation was successful
-  } catch (error) {
-    console.error("Error validating email:", error);
-    return false; // Return false if there was an error
-  }
-};
-
-const login = async (userData: Login): Promise<AuthResponse> => {
-  try {
-    const response = await apiClient.post("auth/login", userData);
-    if (response.status === 200 && response.data) {
-      // Store token in localStorage (the interceptor will use it for future requests)
-      if (response.data.token) {
-        localStorage.setItem("access_token", response.data.token);
-      }
-
-      // Optionally store user data in localStorage or state management
-      localStorage.setItem("user", JSON.stringify(response.data.user));
-
-      return response.data;
-    } else {
-      throw new Error(response.data?.message || "auth.signin.errorText");
-    }
-  } catch (error: any) {
-    console.error("Error during login:", error);
-    throw error; // Re-throw to be caught by the component
-  }
-};
-
-const requestNewPassword = async (email: string) => {
-  try {
-    const response = await apiClient.post("auth/forgot-password", { email });
-    return response.status === 200; // Return true if request was successful
-  } catch (error) {
-    console.error("Error requesting new password:", error);
-    return false; // Return false if there was an error
-  }
-};
-
-const resetPassword = async (token: string, newPassword: string) => {
-  try {
-    const response = await apiClient.post(`auth/reset-password`, {
-      newPassword: newPassword,
-      token: token,
+    const response = await fetch("/api/auth/register", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      credentials: 'include',
+      body: JSON.stringify(userData),
     });
-    return response.status === 200; // Return true if password reset was successful
+   
+    return response.status === 201;
   } catch (error) {
-    console.error("Error resetting password:", error);
-    return false; // Return false if there was an error
+    console.error("Registration failed:", error);
+    return false;
+  }
+};
+
+const validateEmail = async (token: string): Promise<boolean> => {
+  try {
+    const response = await fetch(`/api/auth/activate/${token}`, {
+      method: "POST",
+      credentials: 'include',
+    });
+   
+    return response.status === 200;
+  } catch (error) {
+    console.error("Email validation failed:", error);
+    return false;
+  }
+};
+
+const requestNewPassword = async (email: string): Promise<boolean> => {
+  try {
+    const response = await fetch("/api/auth/forgot-password", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      credentials: 'include',
+      body: JSON.stringify({ email }),
+    });
+   
+    return response.status === 200;
+  } catch (error) {
+    console.error("Password reset request failed:", error);
+    return false;
+  }
+};
+
+const resetPassword = async (token: string, newPassword: string): Promise<boolean> => {
+  try {
+    const response = await fetch("/api/auth/reset-password", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      credentials: 'include',
+      body: JSON.stringify({
+        newPassword,
+        token,
+      }),
+    });
+   
+    return response.status === 200;
+  } catch (error) {
+    console.error("Password reset failed:", error);
+    return false;
   }
 };
 
 export const authService = {
   createUser,
   validateEmail,
-  login,
   requestNewPassword,
   resetPassword,
 };
