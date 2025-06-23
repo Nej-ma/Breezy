@@ -113,10 +113,12 @@ export function Post({ post, userProfile, refreshPosts }: PostProps) {
   const [isLoading, setIsLoading] = useState(false);
   // post's comments
   const [comments, setComments] = useState<CommentType[]>([]);
+  const [commentsLoading, setCommentsLoading] = useState(true); // loader state
 
   // users
   const { user } = useAuth();
 
+  // === BACKEND INTERACTIONS ===
   const handleToggleLike = () => {
     if (likeTimeout.current) {
       clearTimeout(likeTimeout.current);
@@ -133,19 +135,23 @@ export function Post({ post, userProfile, refreshPosts }: PostProps) {
     }, 400); // 400ms debounce
   };
 
-  // === BACKEND INTERACTIONS ===
+  // Function to fetch comments
+  const fetchComments = async () => {
+    setCommentsLoading(true);
+    try {
+      const fetchedComments = await commentService.getPostComments(post._id);
+      setComments(fetchedComments);
+    } catch (error) {
+      console.error("Error fetching comments:", error);
+    } finally {
+      setCommentsLoading(false);
+    }
+  };
 
   // fetch all cmments for the post
   useEffect(() => {
     if (post._id) {
-      commentService
-        .getPostComments(post._id)
-        .then((fetchedComments) => {
-          setComments(fetchedComments);
-        })
-        .catch((error) => {
-          console.error("Error fetching comments:", error);
-        });
+      fetchComments();
     }
   }, [post._id]);
 
@@ -432,8 +438,16 @@ export function Post({ post, userProfile, refreshPosts }: PostProps) {
 
           {/* Comment Composer */}
           <div className="m-4">
-            {comments.length > 0 && <CommentSection comments={comments} />}
-            <CommentComposer postId={post._id} userProfile={userProfile} />
+            {commentsLoading ? (
+              <Loader />
+            ) : comments.length > 0 ? (
+              <CommentSection comments={comments} />
+            ) : null}
+            <CommentComposer
+              postId={post._id}
+              userProfile={userProfile}
+              refreshComments={fetchComments} // Pass the refresh function
+            />
           </div>
         </CardContent>
       </Card>

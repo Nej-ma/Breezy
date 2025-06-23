@@ -29,9 +29,14 @@ type FormData = {
 interface CommentComposerProps {
   postId: string;
   userProfile: UserProfile;
+  refreshComments?: () => void; // Add this prop
 }
 
-export function CommentComposer({ postId, userProfile }: CommentComposerProps) {
+export function CommentComposer({
+  postId,
+  userProfile,
+  refreshComments,
+}: CommentComposerProps) {
   const [searchedUsers, setSearchedUsers] = useState<UserProfile[]>([]);
   const [mentionned, setMentionned] = useState<string[]>(); // table of user's id
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -94,6 +99,10 @@ export function CommentComposer({ postId, userProfile }: CommentComposerProps) {
       .then(() => {
         // Optionally, you can show a success message or refresh comments
         console.log("Comment added successfully");
+
+        if (refreshComments) {
+          refreshComments(); // Call the refresh function if provided
+        }
       })
       .catch((error) => {
         console.error("Error adding comment:", error);
