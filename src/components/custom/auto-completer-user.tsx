@@ -32,7 +32,7 @@ interface AutoCompleteUserProps {
 export function AutoCompleteUser({
   users = [],
   onSelect,
-  triggerRef
+  triggerRef,
 }: AutoCompleteUserProps) {
   const { t } = useTranslation("common"); // Add translation hook
   const [open, setOpen] = useState(false);

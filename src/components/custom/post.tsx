@@ -34,6 +34,8 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useTranslation } from "react-i18next"; // Add this import
 
+import CommentComposer from "./comment-composer";
+
 // Hooks
 import { useAuth } from "@/app/auth-provider";
 
@@ -425,6 +427,9 @@ export function Post({ post, userProfile, refreshPosts }: PostProps) {
               </div>
             </div>
           </div>
+
+          {/* Comment Composer */}
+          <CommentComposer postId={post._id} userProfile={userProfile} />
         </CardContent>
       </Card>
       {/* Delete Confirmation Dialog */}
