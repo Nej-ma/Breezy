@@ -28,7 +28,7 @@ export default function HomePage() {
       try {
         const response = await postService.getUserPosts();
         setPosts(response);
-        
+
         if (user?.username) {
           const userProfile: UserProfile = await userService.getUserProfile(
             user.username
@@ -39,7 +39,7 @@ export default function HomePage() {
         console.error("Error fetching posts or user profile:", error);
       }
     };
-    
+
     if (user) {
       fetchPosts();
     }
@@ -68,7 +68,7 @@ export default function HomePage() {
             <Post
               key={post._id}
               post={post}
-              user={userProfile}
+              userProfile={userProfile}
               refreshPosts={refreshPosts}
             />
           );
