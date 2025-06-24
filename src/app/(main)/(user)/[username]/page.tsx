@@ -58,9 +58,8 @@ export default function ProfilePage() {
       try {
         const userData = await userService.getUserProfile(params.username as string);
         setUserData(userData);
-        setFollowersCount(userData.followersCount || 0);
-
-        console.log("userId utilisé pour fetch les posts :", userData.userId);
+        setFollowersCount(userData.followersCount || 0);        console.log("userId utilisé pour fetch les posts :", userData.userId);
+        console.log("userData complète :", userData);
         const userPosts = await postService.getPostsByAuthor(userData.userId);
         console.log("Posts récupérés :", userPosts);
         setPosts(userPosts);

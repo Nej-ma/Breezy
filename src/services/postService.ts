@@ -71,18 +71,26 @@ const getUserPostsByUserIds = async (userIds: string[]): Promise<Post[]> => {
 
 const getPostsByAuthor = async (authorId: string): Promise<Post[]> => {
   try {
+    console.log("📊 Fetching posts by author:", authorId);
     const response = await fetch(`/api/posts?author=${authorId}`, {
       method: "GET",
       credentials: 'include',
     });
-    console.log("📊 Fetching posts by author:", authorId);
+    console.log("📊 Response status:", response.status);
+    
     if (!response.ok) {
+      console.error("❌ Response not OK:", response.status, response.statusText);
       throw new Error(`Failed to fetch posts by author: ${response.status}`);
     }
-    console.log("📊 Response status:", response.status);
+    
     const data = await response.json();
-    console.log("📊 Posts data:", data);
-    return Array.isArray(data.posts) ? data.posts : [];
+    console.log("📊 Posts data received:", data);
+    console.log("📊 Data type:", typeof data, "Is array:", Array.isArray(data));
+    
+    const posts = Array.isArray(data) ? data : (Array.isArray(data.posts) ? data.posts : []);
+    console.log("📊 Final posts array:", posts.length, "posts");
+    
+    return posts;
   } catch (error) {
     console.error("Error fetching posts by author:", error);
     throw error;

@@ -2,7 +2,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
     const cookieStore = await cookies();
     const backendToken = cookieStore.get('backend_token')?.value;
@@ -16,7 +16,16 @@ export async function GET() {
 
     const backendUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080/api';
     
-    const response = await fetch(`${backendUrl}/posts`, {
+    // Récupérer les paramètres de requête de l'URL
+    const { searchParams } = new URL(request.url);
+    const queryString = searchParams.toString();
+    
+    // Construire l'URL avec les paramètres de requête
+    const backendApiUrl = queryString 
+      ? `${backendUrl}/posts?${queryString}`
+      : `${backendUrl}/posts`;
+    
+    const response = await fetch(backendApiUrl, {
       method: 'GET',
       headers: {
         'Authorization': `Bearer ${backendToken}`,

@@ -61,11 +61,12 @@ export default function HomePage() {
   return (
     <div className="min-h-screen">
       {/* Header */}
-      <div className="sticky top-0 md:top-16 bg-background/80 backdrop-blur-sm z-10 border-b md:border-0">
+      <header className="bg-white shadow border-b mb-2 ">
         <div className="max-w-2xl mx-auto px-4 py-4">
-          <h1 className="text-xl md:text-2xl font-bold">Accueil</h1>
+          <h1 className="text-2xl font-bold">Breezy</h1>
         </div>
-      </div>
+      </header>
+      
 
       {/* Main Content */}
       <div className="max-w-2xl mx-auto px-4 space-y-6">
