@@ -26,7 +26,7 @@ export default function HomePage() {
   useEffect(() => {
     const fetchPosts = async () => {
       try {
-        const response = await postService.getUserPosts();
+        const response = await postService.getAllPosts();
         setPosts(response);
 
         console.log("Fetched posts:", response);
@@ -50,7 +50,7 @@ export default function HomePage() {
   const refreshPosts = useCallback(() => {
     const fetchPosts = async () => {
       try {
-        const response = await postService.getUserPosts();
+        const response = await postService.getAllPosts();
         setPosts(response);
       } catch (error) {
         console.error("Error refreshing posts:", error);

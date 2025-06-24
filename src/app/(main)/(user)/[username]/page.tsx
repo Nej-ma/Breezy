@@ -33,7 +33,7 @@ import {
   Sparkles,
   StickyNote,
   UserRoundCheck,
-  UserRoundPlus
+  UserRoundPlus,
 } from "lucide-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
@@ -41,6 +41,8 @@ import { useEffect, useState } from "react";
 // types
 import type { Post as PostType } from "@/utils/types/postType";
 import type { UserProfile } from "@/utils/types/userType";
+import { useAuth } from "@/app/auth-provider";
+import { postService } from "@/services/postService";
 
 // // Sample posts data
 // const samplePosts = [
@@ -98,6 +100,7 @@ import type { UserProfile } from "@/utils/types/userType";
 
 export default function ProfilePage() {
   const params = useParams();
+  const { user: currentUser } = useAuth();
 
   const [user, setUserData] = useState<UserProfile>();
   const [loading, setLoading] = useState(true);
@@ -107,20 +110,26 @@ export default function ProfilePage() {
   const [likedPosts, setLikedPosts] = useState<number[]>([]);
 
   useEffect(() => {
-    const fetchUser = async () => {
-      try {
-        const res = await apiClient.get(`/users/username/${params.username}`);
-        setUserData(res.data);
-        setFollowersCount(res.data.followersCount || 0);
-      } catch (err) {
-        setUserData(undefined);
-        setFollowersCount(0);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchUser();
-  }, [params.username]);
+  const fetchUser = async () => {
+    try {
+      const userData = await userService.getUserProfile(params.username as string);
+      setUserData(userData);
+      setFollowersCount(userData.followersCount || 0);
+
+      console.log("userId utilisé pour fetch les posts :", userData.userId);
+      const userPosts = await postService.getPostsByAuthor(userData.userId);
+      console.log("Posts récupérés :", userPosts);
+      setPosts(userPosts);
+    } catch (err) {
+      setUserData(undefined);
+      setFollowersCount(0);
+      setPosts([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+  fetchUser();
+}, [params.username]);
 
   if (loading) {
     return (
@@ -171,6 +180,8 @@ export default function ProfilePage() {
     //   prev.map((p) => (p.id === postId ? { ...p, pinned: !p.pinned } : p))
     // );
   };
+
+  const isCurrentUser = currentUser && currentUser.id === user.userId;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50">
@@ -269,9 +280,11 @@ export default function ProfilePage() {
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
-                  <EditProfile user={user} onSave={handleUpdate} />
-                  <Button
-                    className={`min-w-[120px] rounded-full px-4 py-2 transition-all duration-200 flex items-center gap-2
+                  {isCurrentUser ? (
+                    <EditProfile user={user} onSave={handleUpdate} />
+                  ) : (
+                    <Button
+                      className={`min-w-[120px] rounded-full px-4 py-2 transition-all duration-200 flex items-center gap-2
                       ${
                         isFollowing
                           ? "bg-white text-[var(--primary)] border border-blue-200 hover:bg-[var(--secondary-light)] hover:text-[var(--primary-light)] shadow-sm"
@@ -279,20 +292,21 @@ export default function ProfilePage() {
                       }
                       active:scale-95
                     `}
-                    onClick={handleFollowClick}
-                  >
-                    {isFollowing ? (
-                      <>
-                        <UserRoundCheck className="w-4 h-4 transition-transform duration-200" />
-                        <span>Suivi(e)</span>
-                      </>
-                    ) : (
-                      <>
-                        <UserRoundPlus className="w-4 h-4 transition-transform duration-200" />
-                        <span>Suivre</span>
-                      </>
-                    )}
-                  </Button>
+                      onClick={handleFollowClick}
+                    >
+                      {isFollowing ? (
+                        <>
+                          <UserRoundCheck className="w-4 h-4 transition-transform duration-200" />
+                          <span>Suivi(e)</span>
+                        </>
+                      ) : (
+                        <>
+                          <UserRoundPlus className="w-4 h-4 transition-transform duration-200" />
+                          <span>Suivre</span>
+                        </>
+                      )}
+                    </Button>
+                  )}
                 </div>
               </div>
 
@@ -355,11 +369,15 @@ export default function ProfilePage() {
                 icon: <ImageIcon className="w-4 h-4" />,
                 label: "Médias",
               },
-              {
-                value: "likes",
-                icon: <Heart className="w-4 h-4" />,
-                label: "J'aime",
-              },
+              ...(isCurrentUser
+              ? [
+                  {
+                    value: "likes",
+                    icon: <Heart className="w-4 h-4" />,
+                    label: "J'aime",  
+                  },
+                ]
+              : []),
             ].map(({ value, icon, label }) => (
               <TabsTrigger
                 key={value}
@@ -382,12 +400,24 @@ export default function ProfilePage() {
           </TabsList>
           {/* Posts Tab Content */}
           <TabsContent value="posts" className="mt-6 space-y-4">
-            {[...posts]
-              // .sort((a, b) => (b.pinned ? 1 : 0) - (a.pinned ? 1 : 0))
-              .map((post) => (
-                <Post key={post._id} post={post} userProfile={user} />
-              ))}
-          </TabsContent>
+  {[...posts].length > 0 ? (
+    [...posts]
+      // .sort((a, b) => (b.pinned ? 1 : 0) - (a.pinned ? 1 : 0))
+      .map((post) => (
+        <Post key={post._id} post={post} userProfile={user} />
+      ))
+  ) : (
+    <div className="flex flex-col items-center justify-center bg-card rounded-2xl shadow-lg p-12 text-center">
+      <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mb-4">
+        <StickyNote className="w-8 h-8 text-primary" />
+      </div>
+      <p className="text-gray-500 text-lg">Aucun post pour l'instant</p>
+      <p className="text-gray-400 text-sm mt-2">
+        Quand tu publieras ton premier post, il apparaîtra ici !
+      </p>
+    </div>
+  )}
+</TabsContent>
 
           {/* Replies Tab Content */}
           <TabsContent value="replies" className="mt-6">
@@ -396,11 +426,11 @@ export default function ProfilePage() {
                 <MessageCircle className="w-8 h-8 text-primary" />
               </div>
               <p className="text-gray-500 text-lg">
-                Aucune réponse pour le moment
-              </p>
-              <p className="text-gray-400 text-sm mt-2">
-                Les réponses apparaîtront ici
-              </p>
+  Pas encore de réponses
+</p>
+<p className="text-gray-400 text-sm mt-2">
+  Tes futures réponses s'afficheront ici. N'hésite pas à participer !
+</p>
             </div>
           </TabsContent>
 
@@ -414,6 +444,7 @@ export default function ProfilePage() {
               )
               .map((post) => (
                 <Post key={post._id} post={post} userProfile={user} />
+                <Post key={post._id} post={post} userProfile={user} />
               ))}
             {[...posts].filter(
               (post) =>
@@ -424,10 +455,10 @@ export default function ProfilePage() {
                 <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mb-4">
                   <ImageIcon className="w-8 h-8 text-primary" />
                 </div>
-                <p className="text-gray-500 text-lg">Aucun média partagé</p>
-                <p className="text-gray-400 text-sm mt-2">
-                  Photos et vidéos apparaîtront ici
-                </p>
+                <p className="text-gray-500 text-lg">Aucun média partagé pour l'instant</p>
+<p className="text-gray-400 text-sm mt-2">
+  Partage des photos ou vidéos pour les retrouver ici.
+</p>
               </div>
             )}
           </TabsContent>
@@ -438,6 +469,7 @@ export default function ProfilePage() {
               // .filter((post) => likedPosts.includes(post._id))
               .map((post) => (
                 <Post key={post._id} post={post} userProfile={user} />
+                <Post key={post._id} post={post} userProfile={user} />
               ))}
             {likedPosts.length === 0 && (
               <div className="flex flex-col items-center justify-center bg-card rounded-2xl shadow-lg p-12 text-center">
@@ -445,11 +477,11 @@ export default function ProfilePage() {
                   <Heart className="w-8 h-8 text-primary" />
                 </div>
                 <p className="text-gray-500 text-lg">
-                  Aucun like pour le moment
-                </p>
-                <p className="text-gray-400 text-sm mt-2">
-                  Les posts aimés apparaîtront ici
-                </p>
+  Aucun post liké pour le moment
+</p>
+<p className="text-gray-400 text-sm mt-2">
+  Les posts que tu aimeras s'afficheront ici.
+</p>
               </div>
             )}
           </TabsContent>
