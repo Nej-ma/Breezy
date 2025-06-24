@@ -118,7 +118,9 @@ export function Post({
   const [modifiedContent, setModifiedContent] = useState(post.content);
   const [isLoading, setIsLoading] = useState(false);
   const [authorProfile, setAuthorProfile] = useState<UserProfile | null>(
-    initialAuthorProfile || null
+    post.author === userProfile.userId
+      ? userProfile
+      : initialAuthorProfile || null
   );
 
   const likeTimeout = useRef<NodeJS.Timeout | null>(null);
@@ -237,7 +239,7 @@ export function Post({
                 </span>
 
                 <div className="ml-auto flex items-center gap-1">
-                  {(authorProfile?.userId === post.author ||
+                  {(userProfile.userId === post.author ||
                     user?.role === "moderator" ||
                     user?.role === "admin") && (
                     <DropdownMenu>
