@@ -1,4 +1,7 @@
 
+import { NextRequest, NextResponse } from 'next/server';
+import { cookies } from 'next/headers';
+
 // src/app/api/posts/[id]/route.ts
 export async function GET(
   request: NextRequest,

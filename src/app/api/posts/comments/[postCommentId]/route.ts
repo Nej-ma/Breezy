@@ -1,6 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
 
+// Helper function to handle response errors
+async function handleResponseError(response: Response) {
+  let errorData;
+  try {
+    errorData = await response.json();
+  } catch {
+    const errorText = await response.text();
+    errorData = { error: errorText || `HTTP ${response.status}` };
+  }
+  return NextResponse.json(errorData, { status: response.status });
+}
+
 export async function GET(
   request: NextRequest,
   context: { params: Promise<{ postCommentId: string }> }
@@ -18,9 +30,7 @@ export async function GET(
     }
 
     const backendUrl =
-      process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8080/api";
-
-    const response = await fetch(
+      process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8080/api";    const response = await fetch(
       `${backendUrl}/posts/comments/${params.postCommentId}`,
       {
         method: "GET",
@@ -29,11 +39,8 @@ export async function GET(
           "Content-Type": "application/json",
         },
       }
-    );
-
-    if (!response.ok) {
-      const errorData = await response.json();
-      return NextResponse.json(errorData, { status: response.status });
+    );    if (!response.ok) {
+      return await handleResponseError(response);
     }
 
     const data = await response.json();
@@ -66,9 +73,7 @@ export async function POST(
 
     const body = await request.json();
     const backendUrl =
-      process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8080/api";
-
-    const response = await fetch(
+      process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8080/api";    const response = await fetch(
       `${backendUrl}/posts/comments/${params.postCommentId}`,
       {
         method: "POST",
@@ -81,8 +86,7 @@ export async function POST(
     );
 
     if (!response.ok) {
-      const errorData = await response.json();
-      return NextResponse.json(errorData, { status: response.status });
+      return await handleResponseError(response);
     }
 
     const data = await response.json();
@@ -116,9 +120,7 @@ export async function PUT(
 
     const body = await request.json();
     const backendUrl =
-      process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8080/api";
-
-    const response = await fetch(
+      process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8080/api";    const response = await fetch(
       `${backendUrl}/posts/comments/${params.postCommentId}`,
       {
         method: "PUT",
@@ -131,8 +133,7 @@ export async function PUT(
     );
 
     if (!response.ok) {
-      const errorData = await response.json();
-      return NextResponse.json(errorData, { status: response.status });
+      return await handleResponseError(response);
     }
 
     const data = await response.json();
@@ -164,9 +165,7 @@ export async function DELETE(
     }
 
     const backendUrl =
-      process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8080/api";
-
-    const response = await fetch(
+      process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8080/api";    const response = await fetch(
       `${backendUrl}/posts/comments/${params.postCommentId}`,
       {
         method: "DELETE",
@@ -178,8 +177,7 @@ export async function DELETE(
     );
 
     if (!response.ok) {
-      const errorData = await response.json();
-      return NextResponse.json(errorData, { status: response.status });
+      return await handleResponseError(response);
     }
 
     return NextResponse.json({ message: "Comment deleted successfully" });
