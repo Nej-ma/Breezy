@@ -30,10 +30,24 @@ export type UserUpdate = {
 
 const getUserProfile = async (username: string): Promise<UserProfile> => {
   try {
-    const response = await apiClient.get(`users/username/${username}`);
+    const response = await apiClient.get(`users/${username}`);
 
     if (response.status !== 200) {
       throw new Error(`Failed to fetch user: ${response.statusText}`);
+    }
+    return response.data as UserProfile;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+};
+
+const getUserProfileById = async (userId: string): Promise<UserProfile> => {
+  try {
+    const response = await apiClient.get(`users/id/${userId}`);
+
+    if (response.status !== 200) {
+      throw new Error(`Failed to fetch user profile: ${response.statusText}`);
     }
     return response.data as UserProfile;
   } catch (error) {
