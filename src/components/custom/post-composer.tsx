@@ -91,6 +91,7 @@ export default function PostComposer({
   const [attachedFiles, setAttachedFiles] = useState<File[]>([]);
   const [isPosting, setIsPosting] = useState(false);
   const [searchedUsers, setSearchedUsers] = useState<UserProfile[]>([]);
+  const [mentioned, setMentioned] = useState<string[]>([]); // Array of mentioned user IDs
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const mentionTriggerRef = useRef<HTMLDivElement>(null);
 
@@ -124,28 +125,32 @@ export default function PostComposer({
   useEffect(() => {
     // trigger autocomplete when user types @
     const words = content.split(" ");
-    const mentionTrigger = words.find((word) => word.startsWith("@"));
-    if (mentionTrigger && mentionTrigger.length > 1) {
-      console.log("Triggering autocomplete for:", mentionTrigger);
+    const mentions = words.filter((word) => word.startsWith("@"));
 
-      // Vérifier si userService.searchUser existe
-      if (userService.searchUsers) {
-        userService
-          .searchUsers(mentionTrigger.slice(1))
-          .then((profiles) => {
-            if (profiles) {
-              console.log("Found user profiles:", profiles);
-              setSearchedUsers(profiles);
-            } else {
-              console.log("No users found for:", mentionTrigger);
-              setSearchedUsers([]);
-            }
-          })
-          .catch((error) => {
-            console.error("Error searching users:", error);
+    const mentionTrigger =
+      mentions.length > 0 ? mentions[mentions.length - 1] : "";
+
+    if (
+      mentionTrigger &&
+      mentionTrigger !== "@" &&
+      mentionTrigger === words[words.length - 1]
+    ) {
+
+      userService
+        .searchUser(mentionTrigger.slice(1))
+        .then((profiles) => {
+          if (profiles) {
+            console.log("Found user profiles:", profiles);
+            setSearchedUsers(profiles);
+          } else {
+            console.log("No users found for:", mentionTrigger);
             setSearchedUsers([]);
-          });
-      }
+          }
+        })
+        .catch((error) => {
+          console.error("Error searching users:", error);
+          setSearchedUsers([]);
+        });
     } else {
       setSearchedUsers([]);
     }
@@ -257,7 +262,7 @@ export default function PostComposer({
 
                     if (mentionIndex !== -1) {
                       // Replace the mention with the selected username
-                      words[mentionIndex] = `@${user.username}`;
+                      words[mentionIndex] = `@${user.username} `;
 
                       // Update the content with the new mention
                       methods.setValue("content", words.join(" "), {
@@ -267,6 +272,8 @@ export default function PostComposer({
 
                       // Force a re-render
                       methods.trigger("content");
+                      // Clear the searched users
+                      setSearchedUsers([]);
                     }
                   }}
                   triggerRef={mentionTriggerRef}
