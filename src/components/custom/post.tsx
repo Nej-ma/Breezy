@@ -332,8 +332,25 @@ export function Post({ post, userProfile, refreshPosts }: PostProps) {
               ) : isLoading ? (
                 <Loader />
               ) : (
-                <p className="text-gray-800 leading-relaxed mb-4">
-                  {post.content}
+                <p className="text-sm text-gray-700 mt-1">
+                  {post.content
+                    .split(" ")
+                    .filter((word) => !word.startsWith("#"))
+                    .map((word, idx) => {
+                      if (word.startsWith("@")) {
+                        return (
+                          <Link
+                            href={`/${word.slice(1)}`}
+                            key={idx}
+                            className="text-primary font-semibold mr-1"
+                          >
+                            {word}{" "}
+                          </Link>
+                        );
+                      }
+                      
+                      return word + " ";
+                    })}
                 </p>
               )}
 
@@ -363,7 +380,7 @@ export function Post({ post, userProfile, refreshPosts }: PostProps) {
               )}
 
               {post.tags && post.tags.length > 0 && (
-                <div className="flex flex-wrap gap-2 mb-4">
+                <div className="flex flex-wrap gap-2 mb-4 my-3">
                   {post.tags.map((tag, tagIndex) => (
                     <Badge
                       key={tagIndex}
