@@ -18,7 +18,6 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { userService, type UserUpdate } from "@/services/userService";
-import apiClient from "@/utils/api";
 import {
   ArrowLeft,
   Calendar,
@@ -44,60 +43,6 @@ import type { UserProfile } from "@/utils/types/userType";
 import { useAuth } from "@/app/auth-provider";
 import { postService } from "@/services/postService";
 
-// // Sample posts data
-// const samplePosts = [
-//   {
-//     id: 1,
-//     content:
-//       "Excited to announce that I'll be speaking at the upcoming React Conference! Can't wait to share my insights on modern web development 🚀",
-//     timestamp: "2h",
-//     likes: 89,
-//     comments: 23,
-//     reposts: 12,
-//     tags: ["ReactConf", "WebDev"],
-//     pinned: true,
-//     media: {
-//       type: "image" as const,
-//       url: "https://images.unsplash.com/photo-1461749280684-dccba630e2f6?auto=compress&w=800&q=80", // conference / tech talk
-//     },
-//   },
-//   {
-//     id: 2,
-//     content:
-//       "Just finished building a new feature for our app using Next.js 13. The new app directory is a game changer! The developer experience is incredible.",
-//     timestamp: "1d",
-//     likes: 156,
-//     comments: 34,
-//     reposts: 28,
-//     tags: ["NextJS", "WebDev"],
-//   },
-//   {
-//     _id: 3,
-//     content:
-//       "Working late tonight on some exciting AI integrations. The possibilities are endless when you combine creativity with technology! 🤖✨",
-//     timestamp: "2d",
-//     likes: 203,
-//     comments: 45,
-//     reposts: 31,
-//     tags: ["AI", "Tech"],
-//     pinned: true,
-//   },
-//   {
-//     _id: 4,
-//     content:
-//       "Découvrez ma dernière vidéo sur l'intégration de l'IA dans les applications web !",
-
-//     likes: 67,
-//     comments: 15,
-//     reposts: 7,
-//     tags: ["Video", "AI"],
-//     media: {
-//       type: "video" as const,
-//       url: "https://videos.pexels.com/video-files/857195/857195-sd_640_360_25fps.mp4",
-//     },
-//   },
-// ] as PostType[];
-
 export default function ProfilePage() {
   const params = useParams();
   const { user: currentUser } = useAuth();
@@ -107,46 +52,27 @@ export default function ProfilePage() {
   const [posts, setPosts] = useState<PostType[]>([]);
   const [isFollowing, setIsFollowing] = useState(false);
   const [followersCount, setFollowersCount] = useState<number>(0);
-  const [likedPosts, setLikedPosts] = useState<number[]>([]);
-
+  const [likedPosts] = useState<number[]>([]);
   useEffect(() => {
-<<<<<<< HEAD
-  const fetchUser = async () => {
-    try {
-      const userData = await userService.getUserProfile(params.username as string);
-      setUserData(userData);
-      setFollowersCount(userData.followersCount || 0);
-
-      console.log("userId utilisé pour fetch les posts :", userData.userId);
-      const userPosts = await postService.getPostsByAuthor(userData.userId);
-      console.log("Posts récupérés :", userPosts);
-      setPosts(userPosts);
-    } catch (err) {
-      setUserData(undefined);
-      setFollowersCount(0);
-      setPosts([]);
-    } finally {
-      setLoading(false);
-    }
-  };
-  fetchUser();
-}, [params.username]);
-=======
     const fetchUser = async () => {
       try {
-        const res = await apiClient.get(`/users/username/${params.username}`);
-        setUserData(res.data);
-        setFollowersCount(res.data.followersCount || 0);
-      } catch (err) {
+        const userData = await userService.getUserProfile(params.username as string);
+        setUserData(userData);
+        setFollowersCount(userData.followersCount || 0);
+
+        console.log("userId utilisé pour fetch les posts :", userData.userId);
+        const userPosts = await postService.getPostsByAuthor(userData.userId);
+        console.log("Posts récupérés :", userPosts);
+        setPosts(userPosts);
+      } catch {
         setUserData(undefined);
         setFollowersCount(0);
+        setPosts([]);
       } finally {
         setLoading(false);
       }
-    };
-    fetchUser();
+    };    fetchUser();
   }, [params.username]);
->>>>>>> 2771b8d (feat: refactor authentication services and enhance user profile editing functionality)
 
   if (loading) {
     return (
@@ -191,13 +117,6 @@ export default function ProfilePage() {
       setFollowersCount((count) => count + 1);
     }
   };
-
-  const handleTogglePin = (postId: number) => {
-    // setPosts((prev) =>
-    //   prev.map((p) => (p.id === postId ? { ...p, pinned: !p.pinned } : p))
-    // );
-  };
-
   const isCurrentUser = currentUser && currentUser.id === user.userId;
 
   return (
@@ -295,19 +214,12 @@ export default function ProfilePage() {
                         <Flag className="w-4 h-4" />
                         Signaler
                       </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-<<<<<<< HEAD
+                    </DropdownMenuContent>                  </DropdownMenu>
                   {isCurrentUser ? (
                     <EditProfile user={user} onSave={handleUpdate} />
                   ) : (
                     <Button
                       className={`min-w-[120px] rounded-full px-4 py-2 transition-all duration-200 flex items-center gap-2
-=======
-                  <EditProfile user={user} onSave={handleUpdate} />
-                  <Button
-                    className={`min-w-[120px] rounded-full px-4 py-2 transition-all duration-200 flex items-center gap-2
->>>>>>> 2771b8d (feat: refactor authentication services and enhance user profile editing functionality)
                       ${
                         isFollowing
                           ? "bg-white text-[var(--primary)] border border-blue-200 hover:bg-[var(--secondary-light)] hover:text-[var(--primary-light)] shadow-sm"
@@ -449,15 +361,13 @@ export default function ProfilePage() {
                 <MessageCircle className="w-8 h-8 text-primary" />
               </div>
               <p className="text-gray-500 text-lg">
-  Pas encore de réponses
-</p>
-<p className="text-gray-400 text-sm mt-2">
-  Tes futures réponses s'afficheront ici. N'hésite pas à participer !
-</p>
+                Pas encore de réponses
+              </p>
+              <p className="text-gray-400 text-sm mt-2">
+                Tes futures réponses s'afficheront ici. N'hésite pas à participer !
+              </p>
             </div>
-          </TabsContent>
-
-          {/* Media Tab Content */}
+          </TabsContent>          {/* Media Tab Content */}
           <TabsContent value="media" className="mt-6 space-y-4">
             {[...posts]
               .filter(
@@ -466,7 +376,6 @@ export default function ProfilePage() {
                   (post.videos && post.videos.length > 0)
               )
               .map((post) => (
-                <Post key={post._id} post={post} userProfile={user} />
                 <Post key={post._id} post={post} userProfile={user} />
               ))}
             {[...posts].filter(
@@ -492,7 +401,6 @@ export default function ProfilePage() {
               // .filter((post) => likedPosts.includes(post._id))
               .map((post) => (
                 <Post key={post._id} post={post} userProfile={user} />
-                <Post key={post._id} post={post} userProfile={user} />
               ))}
             {likedPosts.length === 0 && (
               <div className="flex flex-col items-center justify-center bg-card rounded-2xl shadow-lg p-12 text-center">
@@ -500,11 +408,11 @@ export default function ProfilePage() {
                   <Heart className="w-8 h-8 text-primary" />
                 </div>
                 <p className="text-gray-500 text-lg">
-  Aucun post liké pour le moment
-</p>
-<p className="text-gray-400 text-sm mt-2">
-  Les posts que tu aimeras s'afficheront ici.
-</p>
+                  Aucun post liké pour le moment
+                </p>
+                <p className="text-gray-400 text-sm mt-2">
+                  Les posts que tu aimeras s'afficheront ici.
+                </p>
               </div>
             )}
           </TabsContent>
