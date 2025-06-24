@@ -36,7 +36,7 @@ const extractMentions = (content: string): string[] => {
 };
 
 // ✅ Utilise les API routes Next.js au lieu du backend direct
-const getUserPosts = async (): Promise<Post[]> => {
+const getAllPosts = async (): Promise<Post[]> => {
   try {
     const response = await fetch("/api/posts", {
       method: "GET",
@@ -68,6 +68,26 @@ const getUserPostsById = async (postId: string): Promise<Post> => {
     return await response.json();
   } catch (error) {
     console.error("Error fetching user posts by ID:", error);
+    throw error;
+  }
+};
+
+const getPostsByAuthor = async (authorId: string): Promise<Post[]> => {
+  try {
+    const response = await fetch(`/api/posts?author=${authorId}`, {
+      method: "GET",
+      credentials: 'include',
+    });
+    console.log("📊 Fetching posts by author:", authorId);
+    if (!response.ok) {
+      throw new Error(`Failed to fetch posts by author: ${response.status}`);
+    }
+    console.log("📊 Response status:", response.status);
+    const data = await response.json();
+    console.log("📊 Posts data:", data);
+    return Array.isArray(data.posts) ? data.posts : [];
+  } catch (error) {
+    console.error("Error fetching posts by author:", error);
     throw error;
   }
 };
@@ -201,10 +221,11 @@ const deletePost = async (postId: string) => {
 };
 
 export const postService = {
-  getUserPosts,
+  getAllPosts,
   getUserPostsById,
   postPost,
   likePost,
+  getPostsByAuthor,
   updatePostContent,
   updatePostVisibility,
   deletePost,

@@ -26,7 +26,7 @@ export default function HomePage() {
   useEffect(() => {
     const fetchPosts = async () => {
       try {
-        const response = await postService.getUserPosts();
+        const response = await postService.getAllPosts();
         setPosts(response);
 
         if (user?.username) {
@@ -48,7 +48,7 @@ export default function HomePage() {
   const refreshPosts = useCallback(() => {
     const fetchPosts = async () => {
       try {
-        const response = await postService.getUserPosts();
+        const response = await postService.getAllPosts();
         setPosts(response);
       } catch (error) {
         console.error("Error refreshing posts:", error);
@@ -62,17 +62,7 @@ export default function HomePage() {
       <h1 className="text-2xl font-bold mb-4">Welcome to Breezy</h1>
       <PostComposer userProfile={userProfile} refreshPosts={refreshPosts} />
       <div className="w-full max-w-2xl mx-auto flex flex-col gap-4 mt-6">
-        {posts.map((post: PostType) => {
-          if (!userProfile) return null;
-          return (
-            <Post
-              key={post._id}
-              post={post}
-              userProfile={userProfile}
-              refreshPosts={refreshPosts}
-            />
-          );
-        })}
+       
       </div>
     </main>
   );

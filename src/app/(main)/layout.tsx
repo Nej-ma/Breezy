@@ -15,7 +15,7 @@ const HomeLayout: React.FC<HomeLayoutProps> = ({ children }) => {
         <SidebarProvider>
           <Navbar />
           <SidebarInset className="bg-gradient-to-br from-blue-50 via-white to-indigo-50">
-            <main className="w-full p-5 overflow-auto h-screen">{children}</main>
+            <main className="w-full overflow-auto h-screen">{children}</main>
           </SidebarInset>
         </SidebarProvider>
       </div>
@@ -34,7 +34,7 @@ export default function MainLayout({
         <SidebarProvider>
           <Navbar />
           <SidebarInset className="bg-gradient-to-br from-blue-50 via-white to-indigo-50">
-            <main className="w-full p-5 overflow-auto h-screen">{children}</main>
+            <main className="w-full overflow-auto h-screen">{children}</main>
           </SidebarInset>
         </SidebarProvider>
       </div>

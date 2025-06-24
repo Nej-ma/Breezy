@@ -25,7 +25,7 @@ const getUserProfile = async (username: string): Promise<UserProfile> => {
     if (response.status !== 200) {
       throw new Error(`Failed to fetch user: ${response.statusText}`);
     }
-    return response.data.user as UserProfile;
+    return response.data as UserProfile;
   } catch (error) {
     console.error(error);
     throw error;
@@ -39,7 +39,7 @@ const getCurrentUser = async (): Promise<UserProfile> => {
     if (response.status !== 200) {
       throw new Error(`Failed to fetch current user: ${response.statusText}`);
     }
-    return response.data.user as UserProfile;
+    return response.data as UserProfile;
   } catch (error) {
     console.error(error);
     throw error;
