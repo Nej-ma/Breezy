@@ -77,6 +77,18 @@
             "errorMessage": "An error occurred while creating your account. Please try again later or contact support if the problem persists."
         }
     },
+    
+    "comments": {
+    "title": "Comments",
+    "placeholder": "Write your comment...",
+    "send": "Comment",
+    "reply": "Reply",
+    "menu": "Open menu",
+    "delete": "Delete",
+    "deleting": "Deleting...",
+    "showMore": "Show {{count}} more comment(s)",
+    "hide": "Hide comments"
+    },
 
     "suspense": {
         "updating": "Updating...",

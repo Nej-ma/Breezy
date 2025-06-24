@@ -85,7 +85,19 @@
             "successMessage": "Connexion réussie. Bienvenue !",
             "errorMessage": "Nom d'utilisateur ou mot de passe incorrect. Veuillez réessayer."
         }
-        },
+    },
+
+    "comments": {
+    "title": "Commentaires",
+    "placeholder": "Écrivez votre commentaire...",
+    "send": "Commenter",
+    "reply": "Répondre",
+    "menu": "Ouvrir le menu",
+    "delete": "Supprimer",
+    "deleting": "Suppression...",
+    "showMore": "Voir {{count}} commentaire(s) de plus",
+    "hide": "Masquer les commentaires"
+    },
 
     "suspense": {
         "updating": "Mise à jour en cours...",

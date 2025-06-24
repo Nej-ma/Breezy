@@ -114,6 +114,7 @@ export function Post({ post, userProfile, refreshPosts }: PostProps) {
   const [isLoading, setIsLoading] = useState(false);
   // post's comments
   const [comments, setComments] = useState<CommentType[]>([]);
+  const [commentComposerOpen, setCommentComposerOpen] = useState(false);
   const [commentsLoading, setCommentsLoading] = useState(true); // loader state
 
   // users
@@ -377,6 +378,7 @@ export function Post({ post, userProfile, refreshPosts }: PostProps) {
                   variant="ghost"
                   size="sm"
                   className="text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-full"
+                  onClick={() => setCommentComposerOpen(!commentComposerOpen)}
                 >
                   <MessageCircle className="w-4 h-4" />
                   {post.commentsCount}
@@ -450,11 +452,13 @@ export function Post({ post, userProfile, refreshPosts }: PostProps) {
                 userProfile={userProfile}
               />
             ) : null}
-            <CommentComposer
-              postId={post._id}
-              userProfile={userProfile}
-              refreshComments={fetchComments} // Pass the refresh function
-            />
+            {commentComposerOpen ? (
+              <CommentComposer
+                postId={post._id}
+                userProfile={userProfile}
+                refreshComments={fetchComments} // Pass the refresh function
+              />
+            ) : null}
           </div>
         </CardContent>
       </Card>

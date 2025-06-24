@@ -149,7 +149,7 @@ export function Comment({
                 onClick={() => setToggledReply(!toggledReply)}
               >
                 <MessageCircle className="w-4 h-4" />
-                {comment.repliesCount}
+                {t("comments.reply", "Répondre")}
               </Button>
             )}
           </div>
@@ -162,7 +162,9 @@ export function Comment({
                 size="sm"
                 className="h-8 w-8 p-0 text-gray-500"
               >
-                <span className="sr-only">Ouvrir le menu</span>
+                <span className="sr-only">
+                  {t("comments.menu", "Ouvrir le menu")}
+                </span>
                 <MoreVertical className="h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
@@ -173,7 +175,7 @@ export function Comment({
                 disabled={deletingId === comment._id}
               >
                 <Trash2 className="w-4 h-4 text-red-600 mr-2" />
-                {deletingId === comment._id ? "Suppression..." : "Supprimer"}
+                {t("comments.delete", "Supprimer")}
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

@@ -46,7 +46,7 @@ export function CommentSection({
       {mainComments.length > 0 && (
         <div className="space-y-4 my-5">
           <h3 className="text-gray-400">
-            {t("comments.title", { count: comments.length })}
+            {t("comments.title")}
           </h3>
           {visibleComments.map((comment) => (
             <div key={comment._id} className="mb-4">
@@ -70,10 +70,13 @@ export function CommentSection({
               className="text-blue-500 hover:text-blue-600 p-0 h-auto font-normal"
             >
               {showAllComments
-                ? "Masquer les commentaires"
-                : `Voir ${mainComments.length - 1} commentaire${
-                    mainComments.length - 1 > 1 ? "s" : ""
-                  } de plus`}
+                ? t("comments.hide", "Masquer les commentaires")
+                : t("comments.showMore", {
+                    count: mainComments.length - 1,
+                    defaultValue: `Voir ${mainComments.length - 1} commentaire${
+                      mainComments.length - 1 > 1 ? "s" : ""
+                    } de plus`,
+                  })}
             </Button>
           )}
         </div>
