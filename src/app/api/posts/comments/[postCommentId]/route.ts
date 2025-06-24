@@ -114,17 +114,19 @@ export async function PUT(
       );
     }
 
+    const body = await request.json();
     const backendUrl =
       process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8080/api";
 
     const response = await fetch(
       `${backendUrl}/posts/comments/${params.postCommentId}`,
       {
-        method: "GET",
+        method: "PUT",
         headers: {
           Authorization: `Bearer ${backendToken}`,
           "Content-Type": "application/json",
         },
+        body: JSON.stringify(body),
       }
     );
 

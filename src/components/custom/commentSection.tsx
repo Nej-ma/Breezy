@@ -13,7 +13,7 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
 } from "@/components/ui/dropdown-menu";
-import { Trash2, MoreVertical } from "lucide-react";
+import { Trash2, MoreVertical, Heart, MessageCircle } from "lucide-react";
 
 // hooks
 import { useTranslation } from "react-i18next";
@@ -67,6 +67,22 @@ export function CommentSection({
     }
   };
 
+  const handleToggleLike = async (commentId: string, isLiked: boolean) => {
+    if (!user) return;
+
+    const likeState = isLiked ? "like" : "unlike";
+
+    try {
+      await commentService.likeComment(commentId, likeState);
+
+      if (refreshComments) {
+        refreshComments();
+      }
+    } catch (error) {
+      console.error("Erreur lors de l'ajout du like :", error);
+    }
+  };
+
   return (
     <>
       {/* Comments Section */}
@@ -76,7 +92,7 @@ export function CommentSection({
             {t("comments.title", { count: comments.length })}
           </h3>
           {visibleComments.map((comment) => (
-            <div key={comment._id} className="flex space-x-3">
+            <div className="flex space-x-3">
               <Avatar className="h-8 w-8 ring-2 border-none">
                 <AvatarImage
                   src={comment.authorProfilePicture || "/placeholder.svg"}
@@ -100,6 +116,42 @@ export function CommentSection({
                   </span>
                 </div>
                 <p className="text-sm text-gray-700 mt-1">{comment.content}</p>
+
+                <div className="flex items-center space-x-2 mt-2">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className={`rounded-full transition-all
+                    ${
+                      user?.id && comment.likes.includes(user.id)
+                        ? "text-red-500 hover:text-red-600 hover:bg-red-50"
+                        : "text-gray-500 hover:text-red-500 hover:bg-red-50"
+                    }`}
+                    onClick={() =>
+                      handleToggleLike(
+                        comment._id,
+                        !!(user?.id && comment.likes.includes(user.id))
+                      )
+                    }
+                  >
+                    <Heart
+                      className={`w-4 h-4 ${
+                        user?.id && comment.likes.includes(user.id)
+                          ? "fill-current"
+                          : "fill-none"
+                      }`}
+                    />
+                    {comment.likes.length}
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-full"
+                  >
+                    <MessageCircle className="w-4 h-4" />
+                    {comment.repliesCount}
+                  </Button>
+                </div>
               </div>
               {user?.id === comment.author && (
                 <DropdownMenu>

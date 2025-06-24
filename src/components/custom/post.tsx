@@ -29,6 +29,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Separator } from "@/components/ui/separator";
 import { Textarea } from "../ui/textarea";
 import { useEffect, useState } from "react";
 import Link from "next/link";
@@ -438,6 +439,8 @@ export function Post({ post, userProfile, refreshPosts }: PostProps) {
 
           {/* Comment Composer */}
           <div className="m-4">
+            <Separator className="my-4" />
+
             {commentsLoading ? (
               <Loader />
             ) : comments.length > 0 ? (

@@ -81,6 +81,25 @@ const updateComment = async (
   }
 };
 
+const likeComment = async (
+  commentId: string,
+  likeState: "like" | "unlike"
+): Promise<void> => {
+  try {
+    const response = await fetch(`/api/posts/comments/${commentId}/like`, {
+      method: "PUT",
+      credentials: "include",
+      body: JSON.stringify({ action: likeState }),
+    });
+    if (!response.ok) {
+      throw new Error(`Failed to like comment: ${response.status}`);
+    }
+  } catch (error) {
+    console.error("Error liking comment:", error);
+    throw error;
+  }
+};
+
 const deleteComment = async (commentId: string): Promise<void> => {
   try {
     const response = await fetch(`/api/posts/comments/${commentId}`, {
@@ -100,5 +119,6 @@ export const commentService = {
   getPostComments,
   createComment,
   updateComment,
+  likeComment,
   deleteComment,
 };
