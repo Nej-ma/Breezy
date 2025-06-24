@@ -29,6 +29,8 @@ export default function HomePage() {
         const response = await postService.getUserPosts();
         setPosts(response);
 
+        console.log("Fetched posts:", response);
+
         if (user?.username) {
           const userProfile: UserProfile = await userService.getUserProfile(
             user.username
