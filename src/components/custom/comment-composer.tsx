@@ -40,7 +40,7 @@ export function CommentComposer({
   refreshComments,
 }: CommentComposerProps) {
   const [searchedUsers, setSearchedUsers] = useState<UserProfile[]>([]);
-  const [mentionned, setMentionned] = useState<string[]>(); // table of user's id
+  const [mentioned, setMentioned] = useState<string[]>(); // table of user's id
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const mentionTriggerRef = useRef<HTMLDivElement>(null);
 
@@ -97,7 +97,7 @@ export function CommentComposer({
     // e.g., send data.comment to API
 
     commentService
-      .createComment(postId, data.content, parentCommentId, mentionned)
+      .createComment(postId, data.content, parentCommentId, mentioned)
       .then(() => {
         // Optionally, you can show a success message or refresh comments
         console.log("Comment added successfully");
@@ -161,7 +161,7 @@ export function CommentComposer({
 
                 // Clear the searched users
                 setSearchedUsers([]);
-                setMentionned((prev) => [...(prev || []), user.id]);
+                setMentioned((prev) => [...(prev || []), user.id]);
 
                 // Force a re-render
                 methods.trigger("content");

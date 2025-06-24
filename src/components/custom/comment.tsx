@@ -15,8 +15,6 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Trash2, MoreVertical, Heart, MessageCircle } from "lucide-react";
 
-import { Separator } from "@radix-ui/react-separator";
-
 import { CommentComposer } from "@/components/custom/comment-composer";
 
 // Types

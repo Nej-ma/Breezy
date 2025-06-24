@@ -29,7 +29,7 @@ const createComment = async (
   comment: string,
   parentCommentId: string | null = null,
   mentions: string[] = []
-): Promise<Comment> => {
+): Promise<void> => {
   const request = {
     content: comment,
     parentComment: parentCommentId, // Assuming this is a top-level comment
