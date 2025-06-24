@@ -502,7 +502,7 @@ export default function ProfilePage() {
             {[...posts]
               // .sort((a, b) => (b.pinned ? 1 : 0) - (a.pinned ? 1 : 0))
               .map((post) => (
-                <Post key={post._id} post={post} user={user} />
+                <Post key={post._id} post={post} userProfile={user} />
               ))}
           </TabsContent>
 
@@ -530,7 +530,7 @@ export default function ProfilePage() {
                   (post.videos && post.videos.length > 0)
               )
               .map((post) => (
-                <Post key={post._id} post={post} user={user} />
+                <Post key={post._id} post={post} userProfile={user} />
               ))}
             {[...posts].filter(
               (post) =>
@@ -554,7 +554,7 @@ export default function ProfilePage() {
             {[...posts]
               // .filter((post) => likedPosts.includes(post._id))
               .map((post) => (
-                <Post key={post._id} post={post} user={user} />
+                <Post key={post._id} post={post} userProfile={user} />
               ))}
             {likedPosts.length === 0 && (
               <div className="flex flex-col items-center justify-center bg-card rounded-2xl shadow-lg p-12 text-center">

@@ -29,20 +29,29 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Separator } from "@/components/ui/separator";
 import { Textarea } from "../ui/textarea";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useTranslation } from "react-i18next"; // Add this import
 
+import CommentSection from "./commentSection";
+import CommentComposer from "./comment-composer";
+
 // Hooks
 import { useAuth } from "@/app/auth-provider";
+
+// helpers
+import { getRelativeTime } from "@/utils/helpers/stringFormatter";
 
 // Types
 import type { Post, PostVisibility } from "@/utils/types/postType";
 import type { UserProfile } from "@/utils/types/userType";
+import type { CommentType } from "@/utils/types/commentType";
 
 // Services
 import { postService } from "@/services/postService";
+import { commentService } from "@/services/commentService";
 import { useRef } from "react";
 
 // Add this import if not already present
@@ -103,10 +112,15 @@ export function Post({ post, userProfile, refreshPosts }: PostProps) {
   const [modifiedContent, setModifiedContent] = useState(post.content);
   // Add loading state for update operations
   const [isLoading, setIsLoading] = useState(false);
+  // post's comments
+  const [comments, setComments] = useState<CommentType[]>([]);
+  const [commentComposerOpen, setCommentComposerOpen] = useState(false);
+  const [commentsLoading, setCommentsLoading] = useState(true); // loader state
 
   // users
   const { user } = useAuth();
 
+  // === BACKEND INTERACTIONS ===
   const handleToggleLike = () => {
     if (likeTimeout.current) {
       clearTimeout(likeTimeout.current);
@@ -123,6 +137,26 @@ export function Post({ post, userProfile, refreshPosts }: PostProps) {
     }, 400); // 400ms debounce
   };
 
+  // Function to fetch comments
+  const fetchComments = async () => {
+    setCommentsLoading(true);
+    try {
+      const fetchedComments = await commentService.getPostComments(post._id);
+      setComments(fetchedComments);
+    } catch (error) {
+      console.error("Error fetching comments:", error);
+    } finally {
+      setCommentsLoading(false);
+    }
+  };
+
+  // fetch all cmments for the post
+  useEffect(() => {
+    if (post._id) {
+      fetchComments();
+    }
+  }, [post._id]);
+
   useEffect(() => {
     if (userProfile.userId && post.likes.includes(userProfile.userId)) {
       setLikedState(true);
@@ -133,28 +167,6 @@ export function Post({ post, userProfile, refreshPosts }: PostProps) {
     console.log("Post likes updated:", post.likes);
     console.log("User profile ID:", userProfile.userId);
   }, [userProfile.userId, post.likes]);
-
-  function getRelativeTime(dateString: string): string {
-    const date = new Date(dateString);
-    const now = new Date();
-    const diff = (now.getTime() - date.getTime()) / 1000; // seconds
-
-    if (diff < 60) return t("post.time.now");
-    if (diff < 3600) return `${Math.floor(diff / 60)}${t("post.time.minute")}`;
-    if (diff < 86400) return `${Math.floor(diff / 3600)}${t("post.time.hour")}`;
-    if (diff < 604800)
-      return `${Math.floor(diff / 86400)}${t("post.time.day")}`;
-
-    // If more than a week, show date (e.g., Jun 18)
-    const options: Intl.DateTimeFormatOptions = {
-      month: "short",
-      day: "numeric",
-    };
-    if (date.getFullYear() !== now.getFullYear()) {
-      options.year = "numeric";
-    }
-    return date.toLocaleDateString(undefined, options);
-  }
 
   const updatePost = (newContent: string) => {
     setIsLoading(true);
@@ -224,7 +236,7 @@ export function Post({ post, userProfile, refreshPosts }: PostProps) {
                 <span className="text-gray-500">@{userProfile.username}</span>
                 <span className="text-gray-400">·</span>
                 <span className="text-gray-500 text-sm">
-                  {getRelativeTime(post.createdAt)}
+                  {getRelativeTime(t, post.createdAt)}
                 </span>
 
                 <div className="ml-auto flex items-center gap-1">
@@ -366,6 +378,7 @@ export function Post({ post, userProfile, refreshPosts }: PostProps) {
                   variant="ghost"
                   size="sm"
                   className="text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-full"
+                  onClick={() => setCommentComposerOpen(!commentComposerOpen)}
                 >
                   <MessageCircle className="w-4 h-4" />
                   {post.commentsCount}
@@ -424,6 +437,28 @@ export function Post({ post, userProfile, refreshPosts }: PostProps) {
                 )}
               </div>
             </div>
+          </div>
+
+          {/* Comment Composer */}
+          <div className="m-4">
+            <Separator className="my-4" />
+
+            {commentsLoading ? (
+              <Loader />
+            ) : comments.length > 0 ? (
+              <CommentSection
+                comments={comments}
+                refreshComments={fetchComments}
+                userProfile={userProfile}
+              />
+            ) : null}
+            {commentComposerOpen ? (
+              <CommentComposer
+                postId={post._id}
+                userProfile={userProfile}
+                refreshComments={fetchComments} // Pass the refresh function
+              />
+            ) : null}
           </div>
         </CardContent>
       </Card>
