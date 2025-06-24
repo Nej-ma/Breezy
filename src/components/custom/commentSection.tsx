@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+
 import {
   Avatar,
   AvatarImage,
@@ -6,9 +7,17 @@ import {
   UserPlaceholderIcon,
 } from "../ui/avatar";
 import { Button } from "../ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+} from "@/components/ui/dropdown-menu";
+import { Trash2, MoreVertical } from "lucide-react";
 
 // hooks
 import { useTranslation } from "react-i18next";
+import { useAuth } from "@/app/auth-provider";
 
 // helpers
 import { getRelativeTime } from "@/utils/helpers/stringFormatter";
@@ -16,12 +25,22 @@ import { getRelativeTime } from "@/utils/helpers/stringFormatter";
 // Types
 import type { CommentType } from "@/utils/types/commentType";
 
+// services
+import { commentService } from "@/services/commentService";
+
 type CommentSectionProps = {
   comments: CommentType[];
+  refreshComments?: () => void; // Add this prop
 };
 
-export function CommentSection({ comments }: CommentSectionProps) {
+export function CommentSection({
+  comments,
+  refreshComments,
+}: CommentSectionProps) {
   const { t } = useTranslation("common");
+
+  const { user } = useAuth();
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   // States
   const [showAllComments, setShowAllComments] = useState(false);
@@ -33,17 +52,35 @@ export function CommentSection({ comments }: CommentSectionProps) {
     setShowAllComments(false);
   }, [comments]);
 
+  const handleDelete = async (commentId: string) => {
+    setDeletingId(commentId);
+    try {
+      await commentService.deleteComment(commentId);
+
+      if (refreshComments) {
+        refreshComments();
+      }
+    } catch (error) {
+      console.error("Erreur lors de la suppression du commentaire :", error);
+    } finally {
+      setDeletingId(null);
+    }
+  };
+
   return (
     <>
       {/* Comments Section */}
       {comments.length > 0 && (
         <div className="space-y-4 my-5">
+          <h3 className="text-gray-400">
+            {t("comments.title", { count: comments.length })}
+          </h3>
           {visibleComments.map((comment) => (
             <div key={comment._id} className="flex space-x-3">
               <Avatar className="h-8 w-8 ring-2 border-none">
                 <AvatarImage
                   src={comment.authorProfilePicture || "/placeholder.svg"}
-                  alt={comment.author}
+                  alt={comment.authorUsername}
                 />
                 <AvatarFallback className="bg-gradient-to-br from-[var(--primary)] to-[var(--primary-light)] text-white">
                   <UserPlaceholderIcon className="w-8 h-8" />
@@ -52,7 +89,7 @@ export function CommentSection({ comments }: CommentSectionProps) {
               <div className="flex-1 min-w-0">
                 <div className="flex items-center space-x-2">
                   <h4 className="font-medium text-sm text-gray-900">
-                    {comment.author}
+                    {comment.authorUsername}
                   </h4>
                   <span className="text-gray-500 text-xs">
                     {comment.authorUsername}
@@ -64,6 +101,32 @@ export function CommentSection({ comments }: CommentSectionProps) {
                 </div>
                 <p className="text-sm text-gray-700 mt-1">{comment.content}</p>
               </div>
+              {user?.id === comment.author && (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-8 w-8 p-0 text-gray-500"
+                    >
+                      <span className="sr-only">Ouvrir le menu</span>
+                      <MoreVertical className="h-4 w-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem
+                      className="cursor-pointer text-red-600 focus:text-red-600 focus:bg-red-50"
+                      onClick={() => handleDelete(comment._id)}
+                      disabled={deletingId === comment._id}
+                    >
+                      <Trash2 className="w-4 h-4 text-red-600 mr-2" />
+                      {deletingId === comment._id
+                        ? "Suppression..."
+                        : "Supprimer"}
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              )}
             </div>
           ))}
 

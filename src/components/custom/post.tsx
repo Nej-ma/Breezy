@@ -441,7 +441,10 @@ export function Post({ post, userProfile, refreshPosts }: PostProps) {
             {commentsLoading ? (
               <Loader />
             ) : comments.length > 0 ? (
-              <CommentSection comments={comments} />
+              <CommentSection
+                comments={comments}
+                refreshComments={fetchComments}
+              />
             ) : null}
             <CommentComposer
               postId={post._id}

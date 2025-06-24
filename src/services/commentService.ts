@@ -57,7 +57,48 @@ const createComment = async (
   }
 };
 
+const updateComment = async (
+  commentId: string,
+  comment: string,
+  mentions: string[] = []
+): Promise<Comment> => {
+  try {
+    const response = await fetch(`/api/posts/comments/${commentId}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      credentials: "include",
+      body: JSON.stringify({ comment, mentions }),
+    });
+    if (!response.ok) {
+      throw new Error(`Failed to update comment: ${response.status}`);
+    }
+    return await response.json();
+  } catch (error) {
+    console.error("Error updating comment:", error);
+    throw error;
+  }
+};
+
+const deleteComment = async (commentId: string): Promise<void> => {
+  try {
+    const response = await fetch(`/api/posts/comments/${commentId}`, {
+      method: "DELETE",
+      credentials: "include",
+    });
+    if (!response.ok) {
+      throw new Error(`Failed to delete comment: ${response.status}`);
+    }
+  } catch (error) {
+    console.error("Error deleting comment:", error);
+    throw error;
+  }
+};
+
 export const commentService = {
   getPostComments,
   createComment,
+  updateComment,
+  deleteComment,
 };
