@@ -114,7 +114,7 @@ export function CommentComposer({
 
   return (
     <div className="flex space-x-3 mx-5">
-      <Avatar className="w-8 h-8 ring-2 border-none">
+      <Avatar className="w-8 h-8 ring-2 border-none hidden md:inline">
         <AvatarImage
           src={userProfile.profilePicture || "/placeholder.svg"}
           alt={userProfile.displayName}

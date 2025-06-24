@@ -86,10 +86,12 @@ export function Comment({
 
   return (
     <div
-      className={`${!canReply ? "ml-6 border-l-2 border-gray-100 pl-4" : ""}`}
+      className={`${
+        !canReply ? "md:ml-6 ml-2 border-l-2 border-gray-100 pl-4" : ""
+      }`}
     >
       <div className="flex space-x-3">
-        <Avatar className="h-8 w-8 ring-2 border-none">
+        <Avatar className="h-8 w-8 ring-2 border-none hidden md:inline">
           <AvatarImage
             src={comment.authorProfilePicture || "/placeholder.svg"}
             alt={comment.authorUsername}
@@ -196,7 +198,7 @@ export function Comment({
 
       {/* form to reply to the comment*/}
       {toggledReply && (
-        <div className="ml-6 border-l-2 border-gray-100 pl-4 m-y-4">
+        <div className="md:ml-6 md:border-l-2 border-gray-100 md:pl-4 md:m-y-4">
           <CommentComposer
             postId={comment.post}
             parentCommentId={comment._id}

@@ -213,17 +213,17 @@ export function Post({ post, userProfile, refreshPosts }: PostProps) {
       >
         <CardContent>
           <div className="flex items-start gap-4">
-            <Avatar className="w-12 h-12 ring-2 border-none">
+            <Avatar className="ring-2 border-none w-8 h-8 md:w-12 md:h-12">
               <Link
                 href={`/${userProfile.username}`}
-                className="block w-12 h-12 rounded-full overflow-hidden focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
+                className="block w-8 h-8 md:w-12 md:h-12 rounded-full overflow-hidden focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
               >
                 <AvatarImage
                   src={userProfile.profilePicture || "/placeholder.svg"}
                   alt={userProfile.displayName}
                 />
                 <AvatarFallback className="bg-gradient-to-br from-[var(--primary)] to-[var(--primary-light)] text-white">
-                  <UserPlaceholderIcon className="w-8 h-8" />
+                  <UserPlaceholderIcon className="w-8 h-8 sm:w-6 sm:h-6 xs:w-5 xs:h-5" />
                 </AvatarFallback>
               </Link>
             </Avatar>
@@ -354,89 +354,89 @@ export function Post({ post, userProfile, refreshPosts }: PostProps) {
                   ))}
                 </div>
               )}
+            </div>
+          </div>
 
-              <div className="flex items-center gap-6">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className={`rounded-full transition-all
+          <div className="flex items-center gap-4 mt-2 mb-4">
+            <Button
+              variant="ghost"
+              size="sm"
+              className={`rounded-full transition-all
                     ${
                       likedState
                         ? "text-red-500 hover:text-red-600 hover:bg-red-50"
                         : "text-gray-500 hover:text-red-500 hover:bg-red-50"
                     }`}
-                  onClick={handleToggleLike}
-                >
-                  <Heart
-                    className={`w-4 h-4 ${
-                      likedState ? "fill-current" : "fill-none"
-                    }`}
-                  />
-                  {post.likes.length}
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-full"
-                  onClick={() => setCommentComposerOpen(!commentComposerOpen)}
-                >
-                  <MessageCircle className="w-4 h-4" />
-                  {post.commentsCount}
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-full"
-                >
-                  <Share className="w-4 h-4" />
-                </Button>
+              onClick={handleToggleLike}
+            >
+              <Heart
+                className={`w-4 h-4 ${
+                  likedState ? "fill-current" : "fill-none"
+                }`}
+              />
+              {post.likes.length}
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-full"
+              onClick={() => setCommentComposerOpen(!commentComposerOpen)}
+            >
+              <MessageCircle className="w-4 h-4" />
+              {post.commentsCount}
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-full"
+            >
+              <Share className="w-4 h-4" />
+            </Button>
 
-                {userProfile.userId === post.author && (
-                  <div>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-full"
-                          type="button"
-                        >
-                          {(() => {
-                            const Icon = visibilityOptions.find(
-                              (option) => option.value === post.visibility
-                            )?.icon;
-                            return Icon ? <Icon className="w-4 h-4" /> : null;
-                          })()}
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="start" className="w-56">
-                        {visibilityOptions.map((option) => (
-                          <DropdownMenuItem
-                            key={option.value}
-                            onClick={() =>
-                              updateVisibility(option.value as PostVisibility)
-                            }
-                            className="flex items-start gap-3 p-3"
-                          >
-                            <option.icon className="w-4 h-4 mt-0.5" />
-                            <div className="flex-1">
-                              <div className="font-medium">{option.label}</div>
-                              <div className="text-xs text-muted-foreground">
-                                {option.description}
-                              </div>
-                            </div>
-                            {post.visibility ===
-                              (option.value as PostVisibility) && (
-                              <div className="w-2 h-2 rounded-full bg-primary" />
-                            )}
-                          </DropdownMenuItem>
-                        ))}
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </div>
-                )}
+            {userProfile.userId === post.author && (
+              <div>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-full"
+                      type="button"
+                    >
+                      {(() => {
+                        const Icon = visibilityOptions.find(
+                          (option) => option.value === post.visibility
+                        )?.icon;
+                        return Icon ? <Icon className="w-4 h-4" /> : null;
+                      })()}
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="start" className="w-56">
+                    {visibilityOptions.map((option) => (
+                      <DropdownMenuItem
+                        key={option.value}
+                        onClick={() =>
+                          updateVisibility(option.value as PostVisibility)
+                        }
+                        className="flex items-start gap-3 p-3"
+                      >
+                        <option.icon className="w-4 h-4 mt-0.5" />
+                        <div className="flex-1">
+                          <div className="font-medium">{option.label}</div>
+                          <div className="text-xs text-muted-foreground">
+                            {option.description}
+                          </div>
+                        </div>
+                        {post.visibility ===
+                          (option.value as PostVisibility) && (
+                          <div className="w-2 h-2 rounded-full bg-primary" />
+                        )}
+                      </DropdownMenuItem>
+                    ))}
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </div>
-            </div>
+            )}
           </div>
 
           {/* Comment Composer */}
