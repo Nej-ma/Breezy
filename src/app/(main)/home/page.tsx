@@ -56,24 +56,33 @@ export default function HomePage() {
     };
     fetchPosts();
   }, []);
-
   return (
-    <main className="flex flex-col items-center min-h-screen p-4">
-      <h1 className="text-2xl font-bold mb-4">Welcome to Breezy</h1>
-      <PostComposer userProfile={userProfile} refreshPosts={refreshPosts} />
-      <div className="w-full max-w-2xl mx-auto flex flex-col gap-4 mt-6">
-        {posts.map((post: PostType) => {
-          if (!userProfile) return null;
-          return (
-            <Post
-              key={post._id}
-              post={post}
-              userProfile={userProfile}
-              refreshPosts={refreshPosts}
-            />
-          );
-        })}
+    <div className="min-h-screen">
+      {/* Header */}
+      <div className="sticky top-0 md:top-16 bg-background/80 backdrop-blur-sm z-10 border-b md:border-0">
+        <div className="max-w-2xl mx-auto px-4 py-4">
+          <h1 className="text-xl md:text-2xl font-bold">Accueil</h1>
+        </div>
       </div>
-    </main>
+
+      {/* Main Content */}
+      <div className="max-w-2xl mx-auto px-4 space-y-6">
+        <PostComposer userProfile={userProfile} refreshPosts={refreshPosts} />
+        
+        <div className="space-y-4">
+          {posts.map((post: PostType) => {
+            if (!userProfile) return null;
+            return (
+              <Post
+                key={post._id}
+                post={post}
+                userProfile={userProfile}
+                refreshPosts={refreshPosts}
+              />
+            );
+          })}
+        </div>
+      </div>
+    </div>
   );
 }

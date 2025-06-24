@@ -112,9 +112,8 @@ export default function SearchPage() {
   }, [debouncedSearchQuery, searchType, performSearch]);
 
   return (
-    <div className="min-h-screen p-4 max-w-4xl mx-auto">
-      {/* Search Header */}
-      <div className="sticky top-0 bg-background/80 backdrop-blur-sm z-10 pb-4 mb-6">
+    <div className="min-h-screen p-4 max-w-4xl mx-auto">      {/* Mobile Search Header */}
+      <div className="md:hidden sticky top-0 bg-background/80 backdrop-blur-sm z-10 pb-4 mb-6">
         <div className="flex items-center gap-2 mb-4">
           <Button 
             variant="ghost" 
@@ -126,10 +125,10 @@ export default function SearchPage() {
           </Button>
           <h1 className="text-xl font-bold">Recherche</h1>
         </div>
-        
-        {/* Search Input */}
+          {/* Search Input */}
         <div className="relative">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />          <Input
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+          <Input
             type="text"
             placeholder="Rechercher des utilisateurs ou des tags (#javascript #react)..."
             value={searchQuery}
@@ -147,6 +146,16 @@ export default function SearchPage() {
             </Button>
           )}
         </div>
+      </div>
+
+      {/* Desktop Search Header */}
+      <div className="hidden md:block mb-6">
+        <h1 className="text-2xl font-bold mb-4">Recherche</h1>
+        {searchQuery && (
+          <p className="text-muted-foreground">
+            Résultats pour &ldquo;{searchQuery}&rdquo;
+          </p>
+        )}
       </div>
 
       {/* Search Results */}
