@@ -1,4 +1,5 @@
 // src/services/postService.ts - Version avec API routes
+import apiClient from "@/utils/api";
 import type { Post, PostVisibility } from "@/utils/types/postType";
 import { extractTags, extractMentions } from "@/utils/helpers/stringFormatter";
 
@@ -14,16 +15,13 @@ export type PostRequest = {
 // ✅ Utilise les API routes Next.js au lieu du backend direct
 const getAllPosts = async (): Promise<Post[]> => {
   try {
-    const response = await fetch("/api/posts", {
-      method: "GET",
-      credentials: "include",
-    });
+    const response = await apiClient.get("posts");
 
-    if (!response.ok) {
-      throw new Error(`Failed to fetch posts: ${response.status}`);
+    if (response.status !== 200) {
+      throw new Error(`Failed to fetch posts: ${response.statusText}`);
     }
 
-    return await response.json();
+    return response.data;
   } catch (error) {
     console.error("Error fetching user posts:", error);
     throw error;
@@ -32,16 +30,13 @@ const getAllPosts = async (): Promise<Post[]> => {
 
 const getUserPostsById = async (postId: string): Promise<Post> => {
   try {
-    const response = await fetch(`/api/posts/${postId}`, {
-      method: "GET",
-      credentials: "include",
-    });
+    const response = await apiClient.get(`posts/${postId}`);
 
-    if (!response.ok) {
-      throw new Error(`Failed to fetch post: ${response.status}`);
+    if (response.status !== 200) {
+      throw new Error(`Failed to fetch post: ${response.statusText}`);
     }
 
-    return await response.json();
+    return response.data;
   } catch (error) {
     console.error("Error fetching user posts by ID:", error);
     throw error;
@@ -53,16 +48,13 @@ const getUserPostsByUserIds = async (userIds: string[]): Promise<Post[]> => {
     const queryParams = new URLSearchParams();
     userIds.forEach(id => queryParams.append('userIds', id));
     
-    const response = await fetch(`/api/posts/users?${queryParams.toString()}`, {
-      method: "GET",
-      credentials: 'include',
-    });
+    const response = await apiClient.get(`posts/users?${queryParams.toString()}`);
 
-    if (!response.ok) {
-      throw new Error(`Failed to fetch posts for users: ${response.status}`);
+    if (response.status !== 200) {
+      throw new Error(`Failed to fetch posts for users: ${response.statusText}`);
     }
 
-    return await response.json();
+    return response.data;
   } catch (error) {
     console.error("Error fetching posts for users:", error);
     throw error;
@@ -72,18 +64,15 @@ const getUserPostsByUserIds = async (userIds: string[]): Promise<Post[]> => {
 const getPostsByAuthor = async (authorId: string): Promise<Post[]> => {
   try {
     console.log("📊 Fetching posts by author:", authorId);
-    const response = await fetch(`/api/posts?author=${authorId}`, {
-      method: "GET",
-      credentials: 'include',
-    });
+    const response = await apiClient.get(`posts?author=${authorId}`);
     console.log("📊 Response status:", response.status);
     
-    if (!response.ok) {
+    if (response.status !== 200) {
       console.error("❌ Response not OK:", response.status, response.statusText);
-      throw new Error(`Failed to fetch posts by author: ${response.status}`);
+      throw new Error(`Failed to fetch posts by author: ${response.statusText}`);
     }
     
-    const data = await response.json();
+    const data = response.data;
     console.log("📊 Posts data received:", data);
     console.log("📊 Data type:", typeof data, "Is array:", Array.isArray(data));
     
@@ -113,28 +102,20 @@ const postPost = async (content: string, visibility: string, files: File[]) => {
 
     console.log("📝 Creating post with data:", data);
 
-    const response = await fetch("/api/posts", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      credentials: "include",
-      body: JSON.stringify(data),
-    });
+    const response = await apiClient.post("posts", data);
 
     console.log("📊 Post response status:", response.status);
 
     if (response.status === 201) {
       console.log("✅ Post created successfully");
-      return await response.json();
+      return response.data;
     } else if (response.status === 400) {
       throw new Error("Bad request: Invalid post data");
     } else if (response.status === 401) {
       throw new Error("Unauthorized: Please log in");
     } else {
-      const errorData = await response.json();
       throw new Error(
-        errorData.error || `Unexpected error: ${response.statusText}`
+        response.data?.error || `Unexpected error: ${response.statusText}`
       );
     }
   } catch (error) {
@@ -145,10 +126,7 @@ const postPost = async (content: string, visibility: string, files: File[]) => {
 
 const likePost = async (postId: string) => {
   try {
-    const response = await fetch(`/api/posts/${postId}/like`, {
-      method: "PUT",
-      credentials: "include",
-    });
+    const response = await apiClient.put(`posts/${postId}/like`);
 
     if (response.status === 200) {
       console.log("Post liked successfully");
@@ -163,17 +141,10 @@ const likePost = async (postId: string) => {
 
 const updatePostContent = async (postId: string, content: string) => {
   try {
-    const response = await fetch(`/api/posts/${postId}`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      credentials: "include",
-      body: JSON.stringify({
-        content,
-        tags: extractTags(content),
-        mentions: extractMentions(content),
-      }),
+    const response = await apiClient.put(`posts/${postId}`, {
+      content,
+      tags: extractTags(content),
+      mentions: extractMentions(content),
     });
 
     if (response.status === 200) {
@@ -192,14 +163,7 @@ const updatePostVisibility = async (
   visibility: PostVisibility
 ) => {
   try {
-    const response = await fetch(`/api/posts/${postId}`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      credentials: "include",
-      body: JSON.stringify({ visibility }),
-    });
+    const response = await apiClient.put(`posts/${postId}`, { visibility });
 
     if (response.status === 200) {
       console.log("Post visibility updated successfully");
@@ -214,10 +178,7 @@ const updatePostVisibility = async (
 
 const deletePost = async (postId: string) => {
   try {
-    const response = await fetch(`/api/posts/${postId}`, {
-      method: "DELETE",
-      credentials: "include",
-    });
+    const response = await apiClient.delete(`posts/${postId}`);
 
     if (response.status === 200) {
       console.log("Post deleted successfully");
@@ -249,16 +210,13 @@ const getPostsByTags = async (tags: string[], limit?: number, skip?: number): Pr
     if (limit) queryParams.append('limit', limit.toString());
     if (skip) queryParams.append('skip', skip.toString());
     
-    const response = await fetch(`/api/posts/search/tags?${queryParams.toString()}`, {
-      method: "GET",
-      credentials: 'include',
-    });
+    const response = await apiClient.get(`posts/search/tags?${queryParams.toString()}`);
 
-    if (!response.ok) {
-      throw new Error(`Failed to fetch posts by tags: ${response.status}`);
+    if (response.status !== 200) {
+      throw new Error(`Failed to fetch posts by tags: ${response.statusText}`);
     }
 
-    return await response.json();
+    return response.data;
   } catch (error) {
     console.error("Error fetching posts by tags:", error);
     throw error;

@@ -1,3 +1,4 @@
+import apiClient from "@/utils/api";
 import type { CommentType } from "@/utils/types/commentType";
 
 export type CommentRequest = {
@@ -8,16 +9,13 @@ export type CommentRequest = {
 
 const getPostComments = async (postId: string): Promise<CommentType[]> => {
   try {
-    const response = await fetch(`/api/posts/comments/${postId}`, {
-      method: "GET",
-      credentials: "include",
-    });
+    const response = await apiClient.get(`posts/comments/${postId}`);
 
-    if (!response.ok) {
-      throw new Error(`Failed to fetch comments: ${response.status}`);
+    if (response.status !== 200) {
+      throw new Error(`Failed to fetch comments: ${response.statusText}`);
     }
 
-    return await response.json();
+    return response.data;
   } catch (error) {
     console.error("Error fetching post comments:", error);
     throw error;
@@ -32,25 +30,18 @@ const createComment = async (
 ): Promise<void> => {
   const request = {
     content: comment,
-    parentComment: parentCommentId, // Assuming this is a top-level comment
-    mentions: mentions, // Assuming no mentions for simplicity
+    parentComment: parentCommentId,
+    mentions: mentions,
   };
 
   try {
-    const response = await fetch(`/api/posts/comments/${postId}`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      credentials: "include",
-      body: JSON.stringify(request),
-    });
+    const response = await apiClient.post(`posts/comments/${postId}`, request);
 
-    if (!response.ok) {
-      throw new Error(`Failed to create comment: ${response.status}`);
+    if (response.status !== 201) {
+      throw new Error(`Failed to create comment: ${response.statusText}`);
     }
 
-    return await response.json();
+    return response.data;
   } catch (error) {
     console.error("Error creating comment:", error);
     throw error;
@@ -63,18 +54,13 @@ const updateComment = async (
   mentions: string[] = []
 ): Promise<Comment> => {
   try {
-    const response = await fetch(`/api/posts/comments/${commentId}`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      credentials: "include",
-      body: JSON.stringify({ comment, mentions }),
-    });
-    if (!response.ok) {
-      throw new Error(`Failed to update comment: ${response.status}`);
+    const response = await apiClient.put(`posts/comments/${commentId}`, { comment, mentions });
+    
+    if (response.status !== 200) {
+      throw new Error(`Failed to update comment: ${response.statusText}`);
     }
-    return await response.json();
+    
+    return response.data;
   } catch (error) {
     console.error("Error updating comment:", error);
     throw error;
@@ -86,13 +72,10 @@ const likeComment = async (
   likeState: "like" | "unlike"
 ): Promise<void> => {
   try {
-    const response = await fetch(`/api/posts/comments/${commentId}/like`, {
-      method: "PUT",
-      credentials: "include",
-      body: JSON.stringify({ action: likeState }),
-    });
-    if (!response.ok) {
-      throw new Error(`Failed to like comment: ${response.status}`);
+    const response = await apiClient.put(`posts/comments/${commentId}/like`, { action: likeState });
+    
+    if (response.status !== 200) {
+      throw new Error(`Failed to like comment: ${response.statusText}`);
     }
   } catch (error) {
     console.error("Error liking comment:", error);
@@ -102,12 +85,10 @@ const likeComment = async (
 
 const deleteComment = async (commentId: string): Promise<void> => {
   try {
-    const response = await fetch(`/api/posts/comments/${commentId}`, {
-      method: "DELETE",
-      credentials: "include",
-    });
-    if (!response.ok) {
-      throw new Error(`Failed to delete comment: ${response.status}`);
+    const response = await apiClient.delete(`posts/comments/${commentId}`);
+    
+    if (response.status !== 200) {
+      throw new Error(`Failed to delete comment: ${response.statusText}`);
     }
   } catch (error) {
     console.error("Error deleting comment:", error);

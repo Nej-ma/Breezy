@@ -1,4 +1,5 @@
 // ===== src/services/authService.ts =====
+import apiClient from "@/utils/api";
 import type { User } from "@/utils/types/userType";
 
 export type Register = {
@@ -15,14 +16,7 @@ export type AuthResponse = {
 
 const createUser = async (userData: Register): Promise<boolean> => {
   try {
-    const response = await fetch("/api/auth/register", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      credentials: 'include',
-      body: JSON.stringify(userData),
-    });
+    const response = await apiClient.post("auth/register", userData);
    
     return response.status === 201;
   } catch (error) {
@@ -33,10 +27,7 @@ const createUser = async (userData: Register): Promise<boolean> => {
 
 const validateEmail = async (token: string): Promise<boolean> => {
   try {
-    const response = await fetch(`/api/auth/activate/${token}`, {
-      method: "POST",
-      credentials: 'include',
-    });
+    const response = await apiClient.post(`auth/activate/${token}`);
    
     return response.status === 200;
   } catch (error) {
@@ -47,14 +38,7 @@ const validateEmail = async (token: string): Promise<boolean> => {
 
 const requestNewPassword = async (email: string): Promise<boolean> => {
   try {
-    const response = await fetch("/api/auth/forgot-password", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      credentials: 'include',
-      body: JSON.stringify({ email }),
-    });
+    const response = await apiClient.post("auth/forgot-password", { email });
    
     return response.status === 200;
   } catch (error) {
@@ -65,16 +49,9 @@ const requestNewPassword = async (email: string): Promise<boolean> => {
 
 const resetPassword = async (token: string, newPassword: string): Promise<boolean> => {
   try {
-    const response = await fetch("/api/auth/reset-password", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      credentials: 'include',
-      body: JSON.stringify({
-        newPassword,
-        token,
-      }),
+    const response = await apiClient.post("auth/reset-password", {
+      newPassword,
+      token,
     });
    
     return response.status === 200;

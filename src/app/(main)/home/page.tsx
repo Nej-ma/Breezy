@@ -5,7 +5,6 @@ import React, { useCallback, useEffect, useState } from "react";
 import { userService } from "@/services/userService";
 import { postService } from "@/services/postService";
 import type { Post as PostType } from "@/utils/types/postType";
-
 // components
 import PostComposer from "@/components/custom/post-composer";
 
@@ -61,8 +60,7 @@ export default function HomePage() {
   return (
     <div className="min-h-screen">
       {/* Header */}
-      <header className="bg-white shadow border-b mb-2 ">
-        <div className="max-w-2xl mx-auto px-4 py-4">
+      <header className="bg-white shadow border-b mb-2 ">        <div className="max-w-2xl mx-auto px-4 py-4">
           <h1 className="text-2xl font-bold">Breezy</h1>
         </div>
       </header>

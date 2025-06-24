@@ -3,17 +3,18 @@ import apiClient from "@/utils/api";
 import type { UserProfile } from "@/utils/types/userType";
 
 const searchUser = async (query: string): Promise<UserProfile[]> => {
-  const response = await fetch(`/api/users/search?q=${encodeURIComponent(query)}`, {
-    method: 'GET',
-    credentials: 'include',
-  });
-  
-  if (!response.ok) {
-    throw new Error(`Failed to search users: ${response.status}`);
+  try {
+    const response = await apiClient.get(`users/search?q=${encodeURIComponent(query)}`);
+    
+    if (response.status !== 200) {
+      throw new Error(`Failed to search users: ${response.statusText}`);
+    }
+    
+    return response.data.users || [];
+  } catch (error) {
+    console.error(error);
+    throw error;
   }
-  
-  const data = await response.json();
-  return data.users || [];
 };
 
 export type UserUpdate = {
@@ -33,7 +34,7 @@ const getUserProfile = async (username: string): Promise<UserProfile> => {
       throw new Error(`Failed to fetch user: ${response.statusText}`);
     }
     return response.data as UserProfile;
-  } catch (error) {
+  } catch (error) { 
     console.error(error);
     throw error;
   }

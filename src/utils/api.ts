@@ -2,32 +2,33 @@
 import axios from "axios";
 
 const apiClient = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8080/api/",
-  withCredentials: true, // ✅ CRITIQUE : doit être true
+  baseURL: "/api/",  // ✅ Utilise les API routes Next.js
+  withCredentials: true,
   headers: {
     "Content-Type": "application/json",
     Accept: "application/json",
   },
 });
 
-// Debug intercepteur pour voir les cookies
+// Debug intercepteur (à commenter en production)
+/*
 apiClient.interceptors.request.use((config) => {
   console.log("🔍 API Request:", {
     url: config.url,
+    fullURL: (config.baseURL || '') + (config.url || ''),
     method: config.method,
-    cookies: document.cookie, // Voir les cookies envoyés
+    cookies: document.cookie,
     withCredentials: config.withCredentials
   });
   return config;
 });
-
+*/
 // Intercepteur pour gérer les erreurs 401 et refresh automatique
 apiClient.interceptors.response.use(
   (response) => {
     return response;
   },
   async (error) => {
-    
     const originalRequest = error.config;
    
     if (error.response?.status === 401 && !originalRequest._retry) {
