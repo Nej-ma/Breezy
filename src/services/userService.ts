@@ -25,6 +25,15 @@ export type UserUpdate = {
   website?: string;
 };
 
+export type UserUpdate = {
+  displayName?: string;
+  bio?: string;
+  profilePicture?: string;
+  coverPicture?: string;
+  location?: string;
+  website?: string;
+};
+
 const getUserProfile = async (username: string): Promise<UserProfile> => {
   try {
     const response = await apiClient.get(`users/username/${username}`);
@@ -32,7 +41,11 @@ const getUserProfile = async (username: string): Promise<UserProfile> => {
     if (response.status !== 200) {
       throw new Error(`Failed to fetch user: ${response.statusText}`);
     }
+<<<<<<< HEAD
     return response.data as UserProfile;
+=======
+    return response.data.user as UserProfile;
+>>>>>>> 2771b8d (feat: refactor authentication services and enhance user profile editing functionality)
   } catch (error) {
     console.error(error);
     throw error;
@@ -46,7 +59,11 @@ const getCurrentUser = async (): Promise<UserProfile> => {
     if (response.status !== 200) {
       throw new Error(`Failed to fetch current user: ${response.statusText}`);
     }
+<<<<<<< HEAD
     return response.data as UserProfile;
+=======
+    return response.data.user as UserProfile;
+>>>>>>> 2771b8d (feat: refactor authentication services and enhance user profile editing functionality)
   } catch (error) {
     console.error(error);
     throw error;

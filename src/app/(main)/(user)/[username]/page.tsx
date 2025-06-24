@@ -33,7 +33,7 @@ import {
   Sparkles,
   StickyNote,
   UserRoundCheck,
-  UserRoundPlus,
+  UserRoundPlus
 } from "lucide-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
@@ -110,6 +110,7 @@ export default function ProfilePage() {
   const [likedPosts, setLikedPosts] = useState<number[]>([]);
 
   useEffect(() => {
+<<<<<<< HEAD
   const fetchUser = async () => {
     try {
       const userData = await userService.getUserProfile(params.username as string);
@@ -130,6 +131,22 @@ export default function ProfilePage() {
   };
   fetchUser();
 }, [params.username]);
+=======
+    const fetchUser = async () => {
+      try {
+        const res = await apiClient.get(`/users/username/${params.username}`);
+        setUserData(res.data);
+        setFollowersCount(res.data.followersCount || 0);
+      } catch (err) {
+        setUserData(undefined);
+        setFollowersCount(0);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchUser();
+  }, [params.username]);
+>>>>>>> 2771b8d (feat: refactor authentication services and enhance user profile editing functionality)
 
   if (loading) {
     return (
@@ -280,11 +297,17 @@ export default function ProfilePage() {
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
+<<<<<<< HEAD
                   {isCurrentUser ? (
                     <EditProfile user={user} onSave={handleUpdate} />
                   ) : (
                     <Button
                       className={`min-w-[120px] rounded-full px-4 py-2 transition-all duration-200 flex items-center gap-2
+=======
+                  <EditProfile user={user} onSave={handleUpdate} />
+                  <Button
+                    className={`min-w-[120px] rounded-full px-4 py-2 transition-all duration-200 flex items-center gap-2
+>>>>>>> 2771b8d (feat: refactor authentication services and enhance user profile editing functionality)
                       ${
                         isFollowing
                           ? "bg-white text-[var(--primary)] border border-blue-200 hover:bg-[var(--secondary-light)] hover:text-[var(--primary-light)] shadow-sm"
