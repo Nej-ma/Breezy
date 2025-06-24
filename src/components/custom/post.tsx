@@ -447,6 +447,7 @@ export function Post({ post, userProfile, refreshPosts }: PostProps) {
               <CommentSection
                 comments={comments}
                 refreshComments={fetchComments}
+                userProfile={userProfile}
               />
             ) : null}
             <CommentComposer

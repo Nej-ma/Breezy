@@ -28,12 +28,14 @@ type FormData = {
 
 interface CommentComposerProps {
   postId: string;
+  parentCommentId?: string; // Optional, if you want to reply to a specific comment
   userProfile: UserProfile;
   refreshComments?: () => void; // Add this prop
 }
 
 export function CommentComposer({
   postId,
+  parentCommentId, // Optional, if you want to reply to a specific comment
   userProfile,
   refreshComments,
 }: CommentComposerProps) {
@@ -95,7 +97,7 @@ export function CommentComposer({
     // e.g., send data.comment to API
 
     commentService
-      .createComment(postId, data.content)
+      .createComment(postId, data.content, parentCommentId, mentionned)
       .then(() => {
         // Optionally, you can show a success message or refresh comments
         console.log("Comment added successfully");
@@ -108,13 +110,6 @@ export function CommentComposer({
         console.error("Error adding comment:", error);
       });
     reset();
-  };
-
-  const handleKeyPress = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault();
-      handleSubmit(onSubmit)();
-    }
   };
 
   return (
@@ -133,7 +128,7 @@ export function CommentComposer({
           <Textarea
             placeholder="Écrivez votre commentaire..."
             {...register("content", { required: true })}
-            onKeyPress={handleKeyPress}
+            maxLength={maxCharacters}
             className="min-h-[80px] resize-none border-gray-200 focus:border-blue-500 focus:ring-blue-500"
           />
           {/* Mention Trigger */}
