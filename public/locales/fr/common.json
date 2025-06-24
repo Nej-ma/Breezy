@@ -51,7 +51,8 @@
             "confirmation": "Êtes-vous sûr de vouloir supprimer ce post ? Cette action est irréversible."
         },
         "image": "Image",
-        "attachedFiles": "Fichiers attachés:"
+        "attachedFiles": "Fichiers attachés:",
+        "noComments": "Aucun commentaire pour le moment"
     },
 
     "postComposer": {

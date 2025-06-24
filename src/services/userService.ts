@@ -4,12 +4,14 @@ import type { UserProfile } from "@/utils/types/userType";
 
 const searchUser = async (query: string): Promise<UserProfile[]> => {
   try {
-    const response = await apiClient.get(`users/search?q=${encodeURIComponent(query)}`);
-    
+    const response = await apiClient.get(
+      `users/search?q=${encodeURIComponent(query)}`
+    );
+
     if (response.status !== 200) {
       throw new Error(`Failed to search users: ${response.statusText}`);
     }
-    
+
     return response.data.users || [];
   } catch (error) {
     console.error(error);
@@ -28,13 +30,13 @@ export type UserUpdate = {
 
 const getUserProfile = async (username: string): Promise<UserProfile> => {
   try {
-    const response = await apiClient.get(`users/${username}`);
+    const response = await apiClient.get(`users/username/${username}`);
 
     if (response.status !== 200) {
       throw new Error(`Failed to fetch user: ${response.statusText}`);
     }
     return response.data as UserProfile;
-  } catch (error) { 
+  } catch (error) {
     console.error(error);
     throw error;
   }

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 import Link from "next/link";
 
@@ -27,6 +27,7 @@ import { getRelativeTime } from "@/utils/helpers/stringFormatter";
 
 // services
 import { commentService } from "@/services/commentService";
+import { userService } from "@/services/userService";
 
 // hooks
 import { useAuth } from "@/app/auth-provider";

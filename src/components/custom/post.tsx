@@ -40,6 +40,7 @@ import CommentComposer from "./comment-composer";
 
 // Hooks
 import { useAuth } from "@/app/auth-provider";
+import { useComments } from "@/hooks/use-comments";
 
 // helpers
 import { getRelativeTime } from "@/utils/helpers/stringFormatter";
@@ -51,8 +52,6 @@ import type { CommentType } from "@/utils/types/commentType";
 
 // Services
 import { postService } from "@/services/postService";
-import { commentService } from "@/services/commentService";
-import { userService } from "@/services/userService";
 import { useRef } from "react";
 
 // Add this import if not already present
@@ -71,109 +70,94 @@ import {
 interface PostProps {
   post: Post;
   userProfile: UserProfile;
+  authorProfile?: UserProfile;
   refreshPosts?: () => void; // Optional prop to refresh posts after actions
 }
 
-export function Post({ post, userProfile, refreshPosts }: PostProps) {
-  // Add translation hook
+export function Post({
+  post,
+  userProfile,
+  authorProfile: initialAuthorProfile,
+  refreshPosts,
+}: PostProps) {
   const { t } = useTranslation("common");
+  const { commentsCache, getPostComments } = useComments();
 
-  // Define visibility options with translations
+  // Define visibility options
   const visibilityOptions = [
     {
-      value: "public",
+      value: "public" as const,
       label: t("post.visibility.public"),
       description: t("post.visibility.publicDescription"),
       icon: Globe,
     },
     {
-      value: "friends",
+      value: "friends" as const,
       label: t("post.visibility.friends"),
       description: t("post.visibility.friendsDescription"),
       icon: Users,
     },
     {
-      value: "private",
+      value: "private" as const,
       label: t("post.visibility.private"),
       description: t("post.visibility.privateDescription"),
       icon: Lock,
     },
   ];
 
-  // post's author profile
-  const [authorProfile, setAuthorProfile] = useState<UserProfile | null>(null);
-
-  // Existing state variables
+  // States
   const [likedState, setLikedState] = useState(
     post.likes.includes(userProfile.userId)
   );
-  const likeTimeout = useRef<NodeJS.Timeout | null>(null);
-
-  // Add new state for dialog
-  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-  // add state to modify the content
-  const [modifyContentState, setModifyContentState] = useState(false);
-  const [modifiedContent, setModifiedContent] = useState(post.content);
-  // Add loading state for update operations
-  const [isLoading, setIsLoading] = useState(false);
-  // post's comments
+  const [showComments, setShowComments] = useState(false);
+  const [commentsLoading, setCommentsLoading] = useState(false);
   const [comments, setComments] = useState<CommentType[]>([]);
   const [commentComposerOpen, setCommentComposerOpen] = useState(false);
-  const [commentsLoading, setCommentsLoading] = useState(true); // loader state
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [modifyContentState, setModifyContentState] = useState(false);
+  const [modifiedContent, setModifiedContent] = useState(post.content);
+  const [isLoading, setIsLoading] = useState(false);
+  const [authorProfile, setAuthorProfile] = useState<UserProfile | null>(
+    initialAuthorProfile || null
+  );
 
-  // users
+  const likeTimeout = useRef<NodeJS.Timeout | null>(null);
   const { user } = useAuth();
 
-  // === BACKEND INTERACTIONS ===
   const handleToggleLike = () => {
     if (likeTimeout.current) {
       clearTimeout(likeTimeout.current);
     }
     likeTimeout.current = setTimeout(() => {
       postService.likePost(post._id).then(() => {
-        // Optionally handle success or update local state
         postService.getUserPostsById(post._id).then((updatedPost: Post) => {
-          // Update the post with the new likes count
           post.likes = updatedPost.likes;
           setLikedState(updatedPost.likes.includes(userProfile.userId));
         });
       });
-    }, 400); // 400ms debounce
+    }, 400);
   };
 
-  // Function to fetch comments
   const fetchComments = async () => {
+    if (!showComments) return;
+
     setCommentsLoading(true);
     try {
-      const fetchedComments = await commentService.getPostComments(post._id);
+      const fetchedComments = await getPostComments(post._id);
       setComments(fetchedComments);
-    } catch (error) {
-      console.error("Error fetching comments:", error);
     } finally {
       setCommentsLoading(false);
     }
   };
 
-  const fetchAuthorProfile = async () => {
-    if (post.author) {
-      try {
-        const profile = await userService.getUserProfileById(post.author);
-        setAuthorProfile(profile);
-      } catch (error) {
-        console.error("Error fetching author profile:", error);
-      }
-    }
+  const handleCommentClick = () => {
+    setShowComments(!showComments);
+    setCommentComposerOpen(!commentComposerOpen);
   };
 
-  // fetch all cmments for the post
   useEffect(() => {
-    if (post._id) {
-      fetchComments();
-    }
-
-    // Fetch author profile when post._id changes
-    fetchAuthorProfile();
-  }, [post._id]);
+    fetchComments();
+  }, [showComments]);
 
   useEffect(() => {
     if (userProfile.userId && post.likes.includes(userProfile.userId)) {
@@ -181,21 +165,16 @@ export function Post({ post, userProfile, refreshPosts }: PostProps) {
     } else {
       setLikedState(false);
     }
-
-    console.log("Post likes updated:", post.likes);
-    console.log("User profile ID:", userProfile.userId);
   }, [userProfile.userId, post.likes]);
 
   const updatePost = (newContent: string) => {
     setIsLoading(true);
-
     postService
       .updatePostContent(post._id, newContent)
       .then(() => {
         setModifyContentState(false);
         setModifiedContent(newContent);
         refreshPosts?.();
-        return true;
       })
       .finally(() => {
         setTimeout(() => {
@@ -206,13 +185,11 @@ export function Post({ post, userProfile, refreshPosts }: PostProps) {
 
   const updateVisibility = (newVisibility: PostVisibility) => {
     setIsLoading(true);
-
     postService
       .updatePostVisibility(post._id, newVisibility)
       .then(() => {
         post.visibility = newVisibility;
         refreshPosts?.();
-        return true;
       })
       .finally(() => {
         setTimeout(() => {
@@ -419,7 +396,7 @@ export function Post({ post, userProfile, refreshPosts }: PostProps) {
               variant="ghost"
               size="sm"
               className="text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-full"
-              onClick={() => setCommentComposerOpen(!commentComposerOpen)}
+              onClick={handleCommentClick}
             >
               <MessageCircle className="w-4 h-4" />
               {post.commentsCount}
@@ -478,27 +455,32 @@ export function Post({ post, userProfile, refreshPosts }: PostProps) {
             )}
           </div>
 
-          {/* Comment Composer */}
-          <div className="m-4">
-            <Separator className="my-4" />
+          {/* Comment Section */}
+          {showComments && (
+            <div className="m-4">
+              <Separator className="my-4" />
 
-            {commentsLoading ? (
-              <Loader />
-            ) : comments.length > 0 ? (
-              <CommentSection
-                comments={comments}
-                refreshComments={fetchComments}
-                userProfile={userProfile}
-              />
-            ) : null}
-            {commentComposerOpen ? (
-              <CommentComposer
-                postId={post._id}
-                userProfile={userProfile}
-                refreshComments={fetchComments} // Pass the refresh function
-              />
-            ) : null}
-          </div>
+              {commentsLoading ? (
+                <Loader />
+              ) : comments.length > 0 ? (
+                <CommentSection
+                  comments={comments}
+                  refreshComments={fetchComments}
+                  userProfile={userProfile}
+                />
+              ) : (
+                <p className="text-gray-500 mb-4">{t("post.noComments")}</p>
+              )}
+
+              {commentComposerOpen && (
+                <CommentComposer
+                  postId={post._id}
+                  userProfile={userProfile}
+                  refreshComments={fetchComments}
+                />
+              )}
+            </div>
+          )}
         </CardContent>
       </Card>
       {/* Delete Confirmation Dialog */}

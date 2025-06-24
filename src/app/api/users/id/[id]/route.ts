@@ -1,10 +1,10 @@
-// src/app/api/users/username/[username]/route.ts
+// src/app/api/users/id/[id]/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
 
 interface RouteParams {
   params: Promise<{
-    username: string;
+    id: string;
   }>;
 }
 
@@ -20,9 +20,9 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       );
     }
 
-    const { username } = await params;
+    const { id } = await params;
 
-    if (!username) {
+    if (!id) {
       return NextResponse.json(
         { error: "Username is required" },
         { status: 400 }
@@ -33,7 +33,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8080/api";
 
     const response = await fetch(
-      `${backendUrl}/users/username/${encodeURIComponent(username)}`,
+      `${backendUrl}/users/id/${encodeURIComponent(id)}`,
       {
         method: "GET",
         headers: {
@@ -60,6 +60,3 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     );
   }
 }
-
-
-  

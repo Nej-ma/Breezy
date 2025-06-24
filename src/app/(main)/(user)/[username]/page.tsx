@@ -32,7 +32,7 @@ import {
   Sparkles,
   StickyNote,
   UserRoundCheck,
-  UserRoundPlus
+  UserRoundPlus,
 } from "lucide-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
@@ -41,11 +41,13 @@ import { useEffect, useState } from "react";
 import type { Post as PostType } from "@/utils/types/postType";
 import type { UserProfile } from "@/utils/types/userType";
 import { useAuth } from "@/app/auth-provider";
+import { useAuthorProfiles } from "@/hooks/use-author";
 import { postService } from "@/services/postService";
 
 export default function ProfilePage() {
   const params = useParams();
   const { user: currentUser } = useAuth();
+  const { authorProfiles, getAuthorProfile } = useAuthorProfiles();
 
   const [user, setUserData] = useState<UserProfile>();
   const [loading, setLoading] = useState(true);
@@ -53,12 +55,16 @@ export default function ProfilePage() {
   const [isFollowing, setIsFollowing] = useState(false);
   const [followersCount, setFollowersCount] = useState<number>(0);
   const [likedPosts] = useState<number[]>([]);
+
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const userData = await userService.getUserProfile(params.username as string);
+        const userData = await userService.getUserProfile(
+          params.username as string
+        );
         setUserData(userData);
-        setFollowersCount(userData.followersCount || 0);        console.log("userId utilisé pour fetch les posts :", userData.userId);
+        setFollowersCount(userData.followersCount || 0);
+        console.log("userId utilisé pour fetch les posts :", userData.userId);
         console.log("userData complète :", userData);
         const userPosts = await postService.getPostsByAuthor(userData.userId);
         console.log("Posts récupérés :", userPosts);
@@ -70,7 +76,8 @@ export default function ProfilePage() {
       } finally {
         setLoading(false);
       }
-    };    fetchUser();
+    };
+    fetchUser();
   }, [params.username]);
 
   if (loading) {
@@ -213,7 +220,8 @@ export default function ProfilePage() {
                         <Flag className="w-4 h-4" />
                         Signaler
                       </DropdownMenuItem>
-                    </DropdownMenuContent>                  </DropdownMenu>
+                    </DropdownMenuContent>{" "}
+                  </DropdownMenu>
                   {isCurrentUser ? (
                     <EditProfile user={user} onSave={handleUpdate} />
                   ) : (
@@ -304,14 +312,14 @@ export default function ProfilePage() {
                 label: "Médias",
               },
               ...(isCurrentUser
-              ? [
-                  {
-                    value: "likes",
-                    icon: <Heart className="w-4 h-4" />,
-                    label: "J'aime",  
-                  },
-                ]
-              : []),
+                ? [
+                    {
+                      value: "likes",
+                      icon: <Heart className="w-4 h-4" />,
+                      label: "J'aime",
+                    },
+                  ]
+                : []),
             ].map(({ value, icon, label }) => (
               <TabsTrigger
                 key={value}
@@ -334,39 +342,45 @@ export default function ProfilePage() {
           </TabsList>
           {/* Posts Tab Content */}
           <TabsContent value="posts" className="mt-6 space-y-4">
-  {[...posts].length > 0 ? (
-    [...posts]
-      // .sort((a, b) => (b.pinned ? 1 : 0) - (a.pinned ? 1 : 0))
-      .map((post) => (
-        <Post key={post._id} post={post} userProfile={user} />
-      ))
-  ) : (
-    <div className="flex flex-col items-center justify-center bg-card rounded-2xl shadow-lg p-12 text-center">
-      <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mb-4">
-        <StickyNote className="w-8 h-8 text-primary" />
-      </div>
-      <p className="text-gray-500 text-lg">Aucun post pour l'instant</p>
-      <p className="text-gray-400 text-sm mt-2">
-        Quand tu publieras ton premier post, il apparaîtra ici !
-      </p>
-    </div>
-  )}
-</TabsContent>
-
+            {[...posts].length > 0 ? (
+              [...posts]
+                // .sort((a, b) => (b.pinned ? 1 : 0) - (a.pinned ? 1 : 0))
+                .map((post) => (
+                  <Post
+                    key={post._id}
+                    post={post}
+                    userProfile={user}
+                    authorProfile={authorProfiles[post.author]}
+                  />
+                ))
+            ) : (
+              <div className="flex flex-col items-center justify-center bg-card rounded-2xl shadow-lg p-12 text-center">
+                <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mb-4">
+                  <StickyNote className="w-8 h-8 text-primary" />
+                </div>
+                <p className="text-gray-500 text-lg">
+                  Aucun post pour l'instant
+                </p>
+                <p className="text-gray-400 text-sm mt-2">
+                  Quand tu publieras ton premier post, il apparaîtra ici !
+                </p>
+              </div>
+            )}
+          </TabsContent>
           {/* Replies Tab Content */}
           <TabsContent value="replies" className="mt-6">
             <div className="flex flex-col items-center justify-center bg-card rounded-2xl shadow-lg p-12 text-center">
               <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mb-4">
                 <MessageCircle className="w-8 h-8 text-primary" />
               </div>
-              <p className="text-gray-500 text-lg">
-                Pas encore de réponses
-              </p>
+              <p className="text-gray-500 text-lg">Pas encore de réponses</p>
               <p className="text-gray-400 text-sm mt-2">
-                Tes futures réponses s'afficheront ici. N'hésite pas à participer !
+                Tes futures réponses s'afficheront ici. N'hésite pas à
+                participer !
               </p>
             </div>
-          </TabsContent>          {/* Media Tab Content */}
+          </TabsContent>{" "}
+          {/* Media Tab Content */}
           <TabsContent value="media" className="mt-6 space-y-4">
             {[...posts]
               .filter(
@@ -375,7 +389,12 @@ export default function ProfilePage() {
                   (post.videos && post.videos.length > 0)
               )
               .map((post) => (
-                <Post key={post._id} post={post} userProfile={user} />
+                <Post
+                  key={post._id}
+                  post={post}
+                  userProfile={user}
+                  authorProfile={authorProfiles[post.author]}
+                />
               ))}
             {[...posts].filter(
               (post) =>
@@ -386,20 +405,26 @@ export default function ProfilePage() {
                 <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mb-4">
                   <ImageIcon className="w-8 h-8 text-primary" />
                 </div>
-                <p className="text-gray-500 text-lg">Aucun média partagé pour l'instant</p>
-<p className="text-gray-400 text-sm mt-2">
-  Partage des photos ou vidéos pour les retrouver ici.
-</p>
+                <p className="text-gray-500 text-lg">
+                  Aucun média partagé pour l'instant
+                </p>
+                <p className="text-gray-400 text-sm mt-2">
+                  Partage des photos ou vidéos pour les retrouver ici.
+                </p>
               </div>
             )}
           </TabsContent>
-
           {/* Likes Tab Content */}
           <TabsContent value="likes" className="mt-6 space-y-4">
             {[...posts]
               // .filter((post) => likedPosts.includes(post._id))
               .map((post) => (
-                <Post key={post._id} post={post} userProfile={user} />
+                <Post
+                  key={post._id}
+                  post={post}
+                  userProfile={user}
+                  authorProfile={authorProfiles[post.author]}
+                />
               ))}
             {likedPosts.length === 0 && (
               <div className="flex flex-col items-center justify-center bg-card rounded-2xl shadow-lg p-12 text-center">

@@ -17,11 +17,12 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Post } from "@/components/custom/post";
+import { PostsSection } from "@/components/custom/post-section";
 
 // hooks
 import { useAuth } from "@/app/auth-provider";
 import { useDebounce } from "@/hooks/use-debounce";
+import { useAuthorProfiles } from "@/hooks/use-author";
 
 type SearchType = "users" | "tags" | "all";
 
@@ -29,14 +30,15 @@ export default function SearchPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const { user } = useAuth();
-  
+
   const [searchQuery, setSearchQuery] = useState(searchParams.get("q") || "");
   const [searchType, setSearchType] = useState<SearchType>("all");
-  const [users, setUsers] = useState<UserProfile[]>([]);  const [posts, setPosts] = useState<PostType[]>([]);
+  const [users, setUsers] = useState<UserProfile[]>([]);
+  const [posts, setPosts] = useState<PostType[]>([]);
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [searchedTags, setSearchedTags] = useState<string[]>([]);
-  
+
   const debouncedSearchQuery = useDebounce(searchQuery, 300);
 
   // Fetch user profile
@@ -52,7 +54,7 @@ export default function SearchPage() {
       }
     };
     fetchUserProfile();
-  }, [user]);  // Search function
+  }, [user]); // Search function
   const performSearch = useCallback(async (query: string, type: SearchType) => {
     if (query.length < 2) {
       setUsers([]);
@@ -71,9 +73,9 @@ export default function SearchPage() {
         // Extraire les tags du query (supporte #tag1 #tag2 ou tag1 tag2)
         const tags = query
           .split(/[\s,]+/) // Split par espaces ou virgules
-          .map(tag => tag.replace('#', '').trim()) // Enlever les # et trim
-          .filter(tag => tag.length > 0); // Filtrer les tags vides
-          if (tags.length > 0) {
+          .map((tag) => tag.replace("#", "").trim()) // Enlever les # et trim
+          .filter((tag) => tag.length > 0); // Filtrer les tags vides
+        if (tags.length > 0) {
           const tagResults = await postService.getPostsByTags(tags, 10, 0);
           setPosts(tagResults.posts);
           setSearchedTags(tags);
@@ -98,6 +100,7 @@ export default function SearchPage() {
       router.replace(newUrl, { scroll: false });
     }
   }, [searchQuery, router]);
+
   const handleClear = () => {
     setSearchQuery("");
     setUsers([]);
@@ -106,18 +109,15 @@ export default function SearchPage() {
     router.replace("/search", { scroll: false });
   };
 
-  const refreshPosts = useCallback(() => {
-    // Refresh posts if needed
-    performSearch(debouncedSearchQuery, searchType);
-  }, [debouncedSearchQuery, searchType, performSearch]);
-
   return (
-    <div className="min-h-screen p-4 max-w-4xl mx-auto">      {/* Mobile Search Header */}
+    <div className="min-h-screen p-4 max-w-4xl mx-auto">
+      {" "}
+      {/* Mobile Search Header */}
       <div className="md:hidden sticky top-0 bg-background/80 backdrop-blur-sm z-10 pb-4 mb-6">
         <div className="flex items-center gap-2 mb-4">
-          <Button 
-            variant="ghost" 
-            size="sm" 
+          <Button
+            variant="ghost"
+            size="sm"
             onClick={() => router.back()}
             className="shrink-0"
           >
@@ -125,7 +125,7 @@ export default function SearchPage() {
           </Button>
           <h1 className="text-xl font-bold">Recherche</h1>
         </div>
-          {/* Search Input */}
+        {/* Search Input */}
         <div className="relative">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
           <Input
@@ -146,10 +146,11 @@ export default function SearchPage() {
             </Button>
           )}
         </div>
-      </div>      {/* Desktop Search Header */}
+      </div>{" "}
+      {/* Desktop Search Header */}
       <div className="hidden md:block mb-6">
         <h1 className="text-2xl font-bold mb-4">Recherche</h1>
-        
+
         {/* Desktop Search Input */}
         <div className="relative max-w-md mb-4">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
@@ -171,17 +172,19 @@ export default function SearchPage() {
             </Button>
           )}
         </div>
-        
+
         {searchQuery && (
           <p className="text-muted-foreground">
             Résultats pour &ldquo;{searchQuery}&rdquo;
           </p>
         )}
       </div>
-
       {/* Search Results */}
       {searchQuery.length >= 2 && (
-        <Tabs value={searchType} onValueChange={(value) => setSearchType(value as SearchType)}>
+        <Tabs
+          value={searchType}
+          onValueChange={(value) => setSearchType(value as SearchType)}
+        >
           <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="all" className="flex items-center gap-2">
               <Search className="h-4 w-4" />
@@ -211,8 +214,8 @@ export default function SearchPage() {
                       <UserCard key={user.id} user={user} />
                     ))}
                     {users.length > 3 && (
-                      <Button 
-                        variant="outline" 
+                      <Button
+                        variant="outline"
                         onClick={() => setSearchType("users")}
                         className="w-full"
                       >
@@ -221,7 +224,8 @@ export default function SearchPage() {
                     )}
                   </div>
                 </div>
-              )}              {/* Posts Section */}
+              )}{" "}
+              {/* Posts Section */}
               {posts.length > 0 && (
                 <div>
                   <h2 className="text-lg font-semibold mb-3 flex items-center gap-2">
@@ -229,24 +233,21 @@ export default function SearchPage() {
                     Posts avec tags
                     {searchedTags.length > 0 && (
                       <span className="text-sm font-normal text-muted-foreground">
-                        ({searchedTags.map(tag => `#${tag}`).join(', ')})
+                        ({searchedTags.map((tag) => `#${tag}`).join(", ")})
                       </span>
                     )}
                   </h2>
                   <div className="space-y-4">
-                    {posts.slice(0, 3).map((post) => (
-                      userProfile && (
-                        <Post
-                          key={post._id}
-                          post={post}
-                          userProfile={userProfile}
-                          refreshPosts={refreshPosts}
-                        />
-                      )
-                    ))}
+                    {userProfile && (
+                      <PostsSection
+                        posts={posts.slice(0, 3)}
+                        userProfile={userProfile}
+                        isLoading={isLoading}
+                      />
+                    )}
                     {posts.length > 3 && (
-                      <Button 
-                        variant="outline" 
+                      <Button
+                        variant="outline"
                         onClick={() => setSearchType("tags")}
                         className="w-full"
                       >
@@ -256,7 +257,6 @@ export default function SearchPage() {
                   </div>
                 </div>
               )}
-
               {/* No Results */}
               {!isLoading && users.length === 0 && posts.length === 0 && (
                 <div className="text-center text-muted-foreground py-8">
@@ -272,9 +272,7 @@ export default function SearchPage() {
               {isLoading ? (
                 <div className="text-center py-8">Recherche en cours...</div>
               ) : users.length > 0 ? (
-                users.map((user) => (
-                  <UserCard key={user.id} user={user} />
-                ))
+                users.map((user) => <UserCard key={user.id} user={user} />)
               ) : (
                 <div className="text-center text-muted-foreground py-8">
                   <Users className="h-12 w-12 mx-auto mb-4 opacity-50" />
@@ -289,27 +287,26 @@ export default function SearchPage() {
               {isLoading ? (
                 <div className="text-center py-8">Recherche en cours...</div>
               ) : posts.length > 0 ? (
-                posts.map((post) => (
-                  userProfile && (
-                    <Post
-                      key={post._id}
-                      post={post}
-                      userProfile={userProfile}
-                      refreshPosts={refreshPosts}
-                    />
-                  )
-                ))
-              ) : (                <div className="text-center text-muted-foreground py-8">
+                userProfile && (
+                  <PostsSection
+                    posts={posts}
+                    userProfile={userProfile}
+                    isLoading={isLoading}
+                  />
+                )
+              ) : (
+                <div className="text-center text-muted-foreground py-8">
                   <Hash className="h-12 w-12 mx-auto mb-4 opacity-50" />
                   <p>Aucun post trouvé avec ces tags</p>
-                  <p className="text-sm mt-2">Essayez #javascript, #react, #frontend...</p>
+                  <p className="text-sm mt-2">
+                    Essayez #javascript, #react, #frontend...
+                  </p>
                 </div>
               )}
             </div>
           </TabsContent>
         </Tabs>
       )}
-
       {/* Loading State */}
       {isLoading && (
         <div className="flex justify-center py-8">
@@ -323,7 +320,7 @@ export default function SearchPage() {
 // User Card Component
 function UserCard({ user }: { user: UserProfile }) {
   const router = useRouter();
-  
+
   const handleUserClick = () => {
     router.push(`/${user.username}`);
   };
