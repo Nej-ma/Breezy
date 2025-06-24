@@ -3,10 +3,17 @@ import apiClient from "@/utils/api";
 import type { UserProfile } from "@/utils/types/userType";
 
 const searchUser = async (query: string): Promise<UserProfile[]> => {
-  const response = await apiClient.get(`/users/search`, {
-    params: { q: query },
+  const response = await fetch(`/api/users/search?q=${encodeURIComponent(query)}`, {
+    method: 'GET',
+    credentials: 'include',
   });
-  return response.data.users || [];
+  
+  if (!response.ok) {
+    throw new Error(`Failed to search users: ${response.status}`);
+  }
+  
+  const data = await response.json();
+  return data.users || [];
 };
 
 const getUserProfile = async (username: string): Promise<UserProfile> => {

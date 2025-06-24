@@ -1,27 +1,8 @@
-import React, { ReactNode } from "react";
-import Navbar from "@/components/custom/navbar";
-import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
+import React from "react";
 import { AuthGuard } from "@/components/auth/auth-guard";
-
-interface HomeLayoutProps {
-  children: ReactNode;
-}
-
-// Cette fonction peut être supprimée car elle fait doublon avec MainLayout
-const HomeLayout: React.FC<HomeLayoutProps> = ({ children }) => {
-  return (
-    <AuthGuard>
-      <div className="flex h-screen">
-        <SidebarProvider>
-          <Navbar />
-          <SidebarInset className="bg-gradient-to-br from-blue-50 via-white to-indigo-50">
-            <main className="w-full p-5 overflow-auto h-screen">{children}</main>
-          </SidebarInset>
-        </SidebarProvider>
-      </div>
-    </AuthGuard>
-  );
-};
+import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
+import Navbar from "@/components/custom/navbar";
+import { MobileBottomNav } from "@/components/custom/mobile-bottom-nav";
 
 export default function MainLayout({
   children,
@@ -30,16 +11,23 @@ export default function MainLayout({
 }) {
   return (
     <AuthGuard>
-      <div className="flex h-screen">
-        <SidebarProvider>
+      <SidebarProvider>
+        {/* Desktop Sidebar - hidden on mobile */}
+        <div className="hidden md:block">
           <Navbar />
-          <SidebarInset className="bg-gradient-to-br from-blue-50 via-white to-indigo-50">
-            <main className="w-full p-5 overflow-auto h-screen">{children}</main>
-          </SidebarInset>
-        </SidebarProvider>
-      </div>
+        </div>
+        
+        {/* Main Content */}
+        <SidebarInset className="flex flex-col min-h-screen">
+          <main className="flex-1 pb-16 md:pb-0">
+            {children}
+          </main>
+            {/* Mobile Bottom Navigation - hidden on desktop */}
+          <div className="md:hidden">
+            <MobileBottomNav />
+          </div>
+        </SidebarInset>
+      </SidebarProvider>
     </AuthGuard>
   );
-};
-
-export { HomeLayout };
+}

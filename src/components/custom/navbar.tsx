@@ -1,7 +1,7 @@
 "use client";
 
 import type * as React from "react";
-import { Home, User, MessageSquare, Bell, LogOut } from "lucide-react";
+import { Home, User, MessageSquare, Bell, LogOut, Search } from "lucide-react";
 
 import Link from "next/link";
 
@@ -37,13 +37,17 @@ export default function Navbar({
   };
 
   const { t } = useTranslation("common"); // use the "common" namespace
-
   // Navigation items
   const items = [
     {
       title: t("navbar.home"),
       url: "/home",
       icon: Home,
+    },
+    {
+      title: "Recherche",
+      url: "/search",
+      icon: Search,
     },
     {
       title: t("navbar.profile"),

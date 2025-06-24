@@ -48,6 +48,27 @@ const getUserPostsById = async (postId: string): Promise<Post> => {
   }
 };
 
+const getUserPostsByUserIds = async (userIds: string[]): Promise<Post[]> => {
+  try {
+    const queryParams = new URLSearchParams();
+    userIds.forEach(id => queryParams.append('userIds', id));
+    
+    const response = await fetch(`/api/posts/users?${queryParams.toString()}`, {
+      method: "GET",
+      credentials: 'include',
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch posts for users: ${response.status}`);
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("Error fetching posts for users:", error);
+    throw error;
+  }
+};
+
 const postPost = async (content: string, visibility: string, files: File[]) => {
   try {
     const tags = extractTags(content);
@@ -181,12 +202,50 @@ const deletePost = async (postId: string) => {
   }
 };
 
+const getPostsByTags = async (tags: string[], limit?: number, skip?: number): Promise<{
+  posts: Post[], 
+  pagination: {
+    currentPage: number,
+    totalPages: number,
+    totalResults: number,
+    limit: number,
+    skip: number
+  }, 
+  searchCriteria: {
+    tags: string[]
+  }
+}> => {
+  try {
+    const queryParams = new URLSearchParams();
+    tags.forEach(tag => queryParams.append('tags', tag));
+    if (limit) queryParams.append('limit', limit.toString());
+    if (skip) queryParams.append('skip', skip.toString());
+    
+    const response = await fetch(`/api/posts/search/tags?${queryParams.toString()}`, {
+      method: "GET",
+      credentials: 'include',
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch posts by tags: ${response.status}`);
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("Error fetching posts by tags:", error);
+    throw error;
+  }
+};
+
 export const postService = {
   getUserPosts,
   getUserPostsById,
+  getUserPostsByUserIds,
   postPost,
   likePost,
   updatePostContent,
   updatePostVisibility,
   deletePost,
+  getPostsByTags,
 };
+
