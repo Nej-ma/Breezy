@@ -1,18 +1,11 @@
-// src/app/api/users/username/[username]/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 
-interface RouteParams {
-  params: Promise<{
-    username: string;
-  }>;
-}
-
-export async function GET(request: NextRequest, { params }: RouteParams) {
+export async function PUT(request: NextRequest) {
   try {
     const cookieStore = await cookies();
     const backendToken = cookieStore.get('backend_token')?.value;
-    
+
     if (!backendToken) {
       return NextResponse.json(
         { error: 'Authentication required' },
@@ -20,23 +13,16 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       );
     }
 
-    const { username } = await params;
-    
-    if (!username) {
-      return NextResponse.json(
-        { error: 'Username is required' },
-        { status: 400 }
-      );
-    }
-
     const backendUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080/api';
-    
-    const response = await fetch(`${backendUrl}/users/username/${encodeURIComponent(username)}`, {
-      method: 'GET',
+    const requestBody = await request.json();
+
+    const response = await fetch(`${backendUrl}/users/profile`, {
+      method: 'PUT',
       headers: {
         'Authorization': `Bearer ${backendToken}`,
         'Content-Type': 'application/json',
       },
+      body: JSON.stringify(requestBody),
     });
 
     if (!response.ok) {
@@ -51,15 +37,12 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
 
     const data = await response.json();
     return NextResponse.json(data);
-    
+
   } catch (error) {
-    console.error('Get user by username error:', error);
+    console.error('Update user profile error:', error);
     return NextResponse.json(
-      { error: 'Failed to fetch user profile' },
+      { error: 'Failed to update user profile' },
       { status: 500 }
     );
   }
 }
-
-
-  
