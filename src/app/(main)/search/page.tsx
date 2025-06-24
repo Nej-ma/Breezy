@@ -146,11 +146,32 @@ export default function SearchPage() {
             </Button>
           )}
         </div>
-      </div>
-
-      {/* Desktop Search Header */}
+      </div>      {/* Desktop Search Header */}
       <div className="hidden md:block mb-6">
         <h1 className="text-2xl font-bold mb-4">Recherche</h1>
+        
+        {/* Desktop Search Input */}
+        <div className="relative max-w-md mb-4">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+          <Input
+            type="text"
+            placeholder="Rechercher des utilisateurs ou des tags (#javascript #react)..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="pl-10 pr-10"
+          />
+          {searchQuery && (
+            <Button
+              variant="ghost"
+              size="sm"
+              className="absolute right-1 top-1/2 transform -translate-y-1/2 h-7 w-7 p-0"
+              onClick={handleClear}
+            >
+              <X className="h-4 w-4" />
+            </Button>
+          )}
+        </div>
+        
         {searchQuery && (
           <p className="text-muted-foreground">
             Résultats pour &ldquo;{searchQuery}&rdquo;
