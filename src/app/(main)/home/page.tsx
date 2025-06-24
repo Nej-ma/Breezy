@@ -64,12 +64,11 @@ export default function HomePage() {
           <h1 className="text-2xl font-bold">Breezy</h1>
         </div>
       </header>
-      
 
       {/* Main Content */}
       <div className="max-w-2xl mx-auto px-4 space-y-6">
         <PostComposer userProfile={userProfile} refreshPosts={refreshPosts} />
-        
+
         <div className="space-y-4">
           {posts.map((post: PostType) => {
             if (!userProfile) return null;

@@ -52,6 +52,7 @@ import type { CommentType } from "@/utils/types/commentType";
 // Services
 import { postService } from "@/services/postService";
 import { commentService } from "@/services/commentService";
+import { userService } from "@/services/userService";
 import { useRef } from "react";
 
 // Add this import if not already present
@@ -98,6 +99,9 @@ export function Post({ post, userProfile, refreshPosts }: PostProps) {
       icon: Lock,
     },
   ];
+
+  // post's author profile
+  const [authorProfile, setAuthorProfile] = useState<UserProfile | null>(null);
 
   // Existing state variables
   const [likedState, setLikedState] = useState(
@@ -150,11 +154,25 @@ export function Post({ post, userProfile, refreshPosts }: PostProps) {
     }
   };
 
+  const fetchAuthorProfile = async () => {
+    if (post.author) {
+      try {
+        const profile = await userService.getUserProfileById(post.author);
+        setAuthorProfile(profile);
+      } catch (error) {
+        console.error("Error fetching author profile:", error);
+      }
+    }
+  };
+
   // fetch all cmments for the post
   useEffect(() => {
     if (post._id) {
       fetchComments();
     }
+
+    // Fetch author profile when post._id changes
+    fetchAuthorProfile();
   }, [post._id]);
 
   useEffect(() => {
@@ -215,12 +233,12 @@ export function Post({ post, userProfile, refreshPosts }: PostProps) {
           <div className="flex items-start gap-4">
             <Avatar className="ring-2 border-none w-8 h-8 md:w-12 md:h-12">
               <Link
-                href={`/${userProfile.username}`}
+                href={`/${authorProfile?.username}`}
                 className="block w-8 h-8 md:w-12 md:h-12 rounded-full overflow-hidden focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
               >
                 <AvatarImage
-                  src={userProfile.profilePicture || "/placeholder.svg"}
-                  alt={userProfile.displayName}
+                  src={authorProfile?.profilePicture || "/placeholder.svg"}
+                  alt={authorProfile?.displayName}
                 />
                 <AvatarFallback className="bg-gradient-to-br from-[var(--primary)] to-[var(--primary-light)] text-white">
                   <UserPlaceholderIcon className="w-8 h-8 sm:w-6 sm:h-6 xs:w-5 xs:h-5" />
@@ -230,17 +248,19 @@ export function Post({ post, userProfile, refreshPosts }: PostProps) {
             <div className="flex-1">
               <div className="flex items-center gap-2 mb-2">
                 <span className="font-semibold text-gray-900 transition-colors">
-                  {userProfile.username}
+                  {authorProfile?.username}
                 </span>
                 <Sparkles className="w-4 h-4 text-[var(--primary-light)]" />
-                <span className="text-gray-500">@{userProfile.username}</span>
+                <span className="text-gray-500">
+                  @{authorProfile?.username}
+                </span>
                 <span className="text-gray-400">·</span>
                 <span className="text-gray-500 text-sm">
                   {getRelativeTime(t, post.createdAt)}
                 </span>
 
                 <div className="ml-auto flex items-center gap-1">
-                  {(userProfile.userId === post.author ||
+                  {(authorProfile?.userId === post.author ||
                     user?.role === "moderator" ||
                     user?.role === "admin") && (
                     <DropdownMenu>
