@@ -103,7 +103,7 @@ export default function SignInPage() {
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit)}
-          className="flex flex-col max-w-md space-y-6"
+          className="flex flex-col max-w-md space-y-6 w-full"
         >
           <FormField
             control={form.control}
