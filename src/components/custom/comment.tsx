@@ -116,24 +116,33 @@ export function Comment({
             </span>
           </div>
           <p className="text-sm text-gray-700 mt-1">
-            {comment.content
-              .split(" ")
-              .filter((word) => !word.startsWith("#"))
-              .map((word, idx) => {
-                if (word.startsWith("@")) {
-                  return (
-                    <Link
-                      href={`/${word.slice(1)}`}
-                      key={idx}
-                      className="text-primary font-semibold mr-1"
-                    >
-                      {word}{" "}
-                    </Link>
-                  );
-                }
-                
-                return word + " ";
-              })}
+            {comment.content.split(" ").map((word, idx) => {
+              if (word.startsWith("@")) {
+                return (
+                  <Link
+                    href={`/${word.slice(1)}`}
+                    key={idx}
+                    className="text-primary font-semibold mr-1"
+                  >
+                    {word}{" "}
+                  </Link>
+                );
+              }
+
+              if (word.startsWith("#")) {
+                return (
+                  <Link
+                    href={`/search?q=${word.slice(1)}`}
+                    key={idx}
+                    className="text-primary font-semibold mr-1"
+                  >
+                    {word}{" "}
+                  </Link>
+                );
+              }
+
+              return word + " ";
+            })}
           </p>
 
           <div className="flex items-center space-x-2 mt-2">

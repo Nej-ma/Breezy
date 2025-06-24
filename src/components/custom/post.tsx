@@ -348,7 +348,7 @@ export function Post({ post, userProfile, refreshPosts }: PostProps) {
                           </Link>
                         );
                       }
-                      
+
                       return word + " ";
                     })}
                 </p>
@@ -382,12 +382,14 @@ export function Post({ post, userProfile, refreshPosts }: PostProps) {
               {post.tags && post.tags.length > 0 && (
                 <div className="flex flex-wrap gap-2 mb-4 my-3">
                   {post.tags.map((tag, tagIndex) => (
-                    <Badge
-                      key={tagIndex}
-                      className="bg-[var(--secondary-light)] text-[var(--primary-light)] hover:bg-[var(--secondary)] hover:text-[var(--primary)] border-0 rounded-full font-semibold"
-                    >
-                      #{tag}
-                    </Badge>
+                    <Link href={`/search?q=${tag}`} key={tagIndex}>
+                      <Badge
+                        key={tagIndex}
+                        className="bg-[var(--secondary-light)] text-[var(--primary-light)] hover:bg-[var(--secondary)] hover:text-[var(--primary)] border-0 rounded-full font-semibold"
+                      >
+                        #{tag}
+                      </Badge>
+                    </Link>
                   ))}
                 </div>
               )}
