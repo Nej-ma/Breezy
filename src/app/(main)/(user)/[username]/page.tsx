@@ -1,6 +1,5 @@
 "use client";
 import { EditProfile, EditProfileData } from "@/components/custom/edit-profile";
-import { Post } from "@/components/custom/post";
 import { Stats } from "@/components/custom/stats";
 import {
   Avatar,
@@ -22,15 +21,11 @@ import {
   ArrowLeft,
   Calendar,
   Flag,
-  Heart,
-  ImageIcon,
   LinkIcon,
   MapPin,
-  MessageCircle,
   MoreHorizontal,
   Send,
   Sparkles,
-  StickyNote,
   UserRoundCheck,
   UserRoundPlus,
 } from "lucide-react";
@@ -41,13 +36,11 @@ import { useEffect, useState } from "react";
 import type { Post as PostType } from "@/utils/types/postType";
 import type { UserProfile } from "@/utils/types/userType";
 import { useAuth } from "@/app/auth-provider";
-import { useAuthorProfiles } from "@/hooks/use-author";
 import { postService } from "@/services/postService";
 
 export default function ProfilePage() {
   const params = useParams();
   const { user: currentUser } = useAuth();
-  const { authorProfiles, getAuthorProfile } = useAuthorProfiles();
 
   const [user, setUserData] = useState<UserProfile>();
   const [loading, setLoading] = useState(true);
@@ -58,16 +51,17 @@ export default function ProfilePage() {
 
   const fetchUserAndPosts = async () => {
     try {
-      const userData = await userService.getUserProfile(params.username as string);
+      const userData = await userService.getUserProfile(
+        params.username as string
+      );
       setUserData(userData);
-      setFollowersCount(userData.followersCount || 0); 
-      
+      setFollowersCount(userData.followersCount || 0);
+
       const userPosts = await postService.getPostsByAuthor(userData.userId);
       setUserPosts(userPosts);
 
       const allPosts = await postService.getAllPosts();
       setPosts(allPosts);
-
     } catch {
       setUserData(undefined);
       setFollowersCount(0);
