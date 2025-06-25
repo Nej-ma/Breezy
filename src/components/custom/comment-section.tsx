@@ -16,13 +16,11 @@ type CommentSectionProps = {
   comments: CommentType[];
   userProfile: UserProfile;
   refreshComments?: () => void; // Add this prop
-  refreshPost?: () => void; // Optional, if you want to refresh the post after actions
 };
 
 export function CommentSection({
   comments,
   refreshComments,
-  refreshPost = () => {}, // Default to a no-op function
   userProfile,
 }: CommentSectionProps) {
   const { t } = useTranslation("common");

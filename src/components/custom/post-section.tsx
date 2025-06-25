@@ -30,6 +30,7 @@ interface PostsSectionProps {
 export const PostsSection = forwardRef<PostsSectionRef, PostsSectionProps>(
   ({ posts: initialPosts, userProfile, filter, isLoading }, ref) => {
     const { authorProfiles, getAuthorProfile } = useAuthorProfiles();
+    const [loadingAuthors, setLoadingAuthors] = useState(false);
 
     const [posts, setPosts] = useState<PostType[]>(initialPosts || []);
 
@@ -41,14 +42,17 @@ export const PostsSection = forwardRef<PostsSectionRef, PostsSectionProps>(
         const response = await postService.getAllPosts();
         setPosts(response);
 
-        // Pre-fetch author profiles
-        response.forEach((post) => {
-          if (post.author && !authorProfiles[post.author]) {
-            getAuthorProfile(post.author);
-          }
-        });
+        // Fetch all author profiles in parallel
+        setLoadingAuthors(true);
+        const authorPromises = response
+          .filter((post) => post.author && !authorProfiles[post.author])
+          .map((post) => getAuthorProfile(post.author));
+
+        await Promise.all(authorPromises);
+        setLoadingAuthors(false);
       } catch (error) {
         console.error("Error refreshing posts:", error);
+        setLoadingAuthors(false);
       }
     };
 
@@ -57,26 +61,26 @@ export const PostsSection = forwardRef<PostsSectionRef, PostsSectionProps>(
     }));
 
     useEffect(() => {
-      // Only fetch posts if no initial posts were provided
       if (!initialPosts || initialPosts.length === 0) {
         console.log("No initial posts, fetching posts...");
         fetchPosts();
       } else {
         console.log("Using initial posts:", initialPosts.length);
-        // Pre-fetch author profiles for initial posts
-        initialPosts.forEach((post) => {
-          if (post.author && !authorProfiles[post.author]) {
-            getAuthorProfile(post.author);
-          }
-        });
+        // Pre-fetch author profiles in parallel
+        setLoadingAuthors(true);
+        const authorPromises = initialPosts
+          .filter((post) => post.author && !authorProfiles[post.author])
+          .map((post) => getAuthorProfile(post.author));
+
+        Promise.all(authorPromises).finally(() => setLoadingAuthors(false));
       }
-    }, [initialPosts]); // Depend on initialPosts
+    }, [initialPosts]);
 
     const refreshPosts = async () => {
       await fetchPosts();
     };
 
-    if (isLoading) {
+    if (isLoading || loadingAuthors) {
       return (
         <div className="flex justify-center py-8">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>

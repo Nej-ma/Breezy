@@ -15,7 +15,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Loader2 } from "lucide-react";
+import { Loader2, Eye, EyeOff } from "lucide-react";
 import Link from "next/link";
 
 // hooks
@@ -72,6 +72,8 @@ export default function ResetPasswordPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [isTokenValid, setIsTokenValid] = useState<boolean | null>(null);
   const [isTokenChecking, setIsTokenChecking] = useState(true);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [resetPasswordSchema, setResetPasswordSchema] = useState(() =>
     createResetPasswordSchema(t)
   );
@@ -243,14 +245,27 @@ export default function ResetPasswordPage() {
                     {t("auth.signup.password", "Mot de passe")}
                   </FormLabel>
                   <FormControl>
-                    <Input
-                      type="password"
-                      placeholder={t(
-                        "auth.resetPassword.newPasswordPlaceholder",
-                        "Nouveau mot de passe"
-                      )}
-                      {...field}
-                    />
+                    <div className="relative">
+                      <Input
+                        type={showPassword ? "text" : "password"}
+                        placeholder={t(
+                          "auth.resetPassword.newPasswordPlaceholder",
+                          "Nouveau mot de passe"
+                        )}
+                        {...field}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 cursor-pointer"
+                      >
+                        {showPassword ? (
+                          <EyeOff className="h-4 w-4" />
+                        ) : (
+                          <Eye className="h-4 w-4" />
+                        )}
+                      </button>
+                    </div>
                   </FormControl>
                   <FormDescription>
                     {t("auth.signup.passwordDescription")}
@@ -272,14 +287,29 @@ export default function ResetPasswordPage() {
                     )}
                   </FormLabel>
                   <FormControl>
-                    <Input
-                      type="password"
-                      placeholder={t(
-                        "auth.resetPassword.confirmPasswordPlaceholder",
-                        "Confirmer le nouveau mot de passe"
-                      )}
-                      {...field}
-                    />
+                    <div className="relative">
+                      <Input
+                        type={showConfirmPassword ? "text" : "password"}
+                        placeholder={t(
+                          "auth.resetPassword.confirmPasswordPlaceholder",
+                          "Confirmer le nouveau mot de passe"
+                        )}
+                        {...field}
+                      />
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setShowConfirmPassword(!showConfirmPassword)
+                        }
+                        className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 cursor-pointer"
+                      >
+                        {showConfirmPassword ? (
+                          <EyeOff className="h-4 w-4" />
+                        ) : (
+                          <Eye className="h-4 w-4" />
+                        )}
+                      </button>
+                    </div>
                   </FormControl>
                   <FormMessage />
                 </FormItem>

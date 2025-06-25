@@ -16,7 +16,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Loader2 } from "lucide-react";
+import { Loader2, Eye, EyeOff } from "lucide-react";
 import Link from "next/link";
 
 // hooks
@@ -31,50 +31,30 @@ import { useState, useEffect } from "react";
 const createSignUpSchema = (t: any) =>
   yup.object().shape({
     displayName: yup.string().required(t("auth.form.required")),
-
     username: yup.string().required(t("auth.form.required")),
-
     email: yup
       .string()
       .email(t("auth.form.invalidEmail"))
       .required(t("auth.form.required")),
-
     password: yup
       .string()
       .required(t("auth.form.required"))
-      .min(8, t("auth.form.minLength"))
-      .matches(
-        /[a-z]/,
-        t("auth.signup.passwordLowercase", "Doit contenir une lettre minuscule")
-      )
-      .matches(
-        /[A-Z]/,
-        t("auth.signup.passwordUppercase", "Doit contenir une lettre majuscule")
-      )
-      .matches(
-        /[0-9]/,
-        t("auth.signup.passwordNumber", "Doit contenir un chiffre")
-      )
-      .matches(
-        /[@$!%*?&#]/,
-        t("auth.signup.passwordSpecial", "Doit contenir un caractère spécial")
-      ),
-
+      .min(8, t("auth.form.minLength", { min: 8 }))
+      .matches(/[a-z]/, t("auth.form.passwordLowercase"))
+      .matches(/[A-Z]/, t("auth.form.passwordUppercase"))
+      .matches(/[0-9]/, t("auth.form.passwordNumber"))
+      .matches(/[@$!%*?&#]/, t("auth.form.passwordSpecial")),
     confirmPassword: yup
       .string()
-      .oneOf(
-        [yup.ref("password")],
-        t(
-          "auth.form.passwordMismatch",
-          "Les mots de passe ne correspondent pas"
-        )
-      )
+      .oneOf([yup.ref("password")], t("auth.form.passwordMismatch"))
       .required(t("auth.form.required")),
   });
 
 export default function SignUpPage() {
   const { t, i18n } = useTranslation();
   const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [signUpSchema, setSignUpSchema] = useState(() => createSignUpSchema(t));
 
   // Update validation schema when language changes
@@ -192,11 +172,36 @@ export default function SignUpPage() {
               <FormItem>
                 <FormLabel>{t("auth.signup.password")}</FormLabel>
                 <FormControl>
-                  <Input
-                    type="password"
-                    placeholder={t("auth.signup.password")}
-                    {...field}
-                  />
+                  <div className="relative">
+                    <Input
+                      type={showPassword ? "text" : "password"}
+                      placeholder={t("auth.signup.password")}
+                      {...field}
+                    />
+                    <button
+                      type="button"
+                      className="absolute inset-y-0 right-0 flex items-center px-3 text-gray-500"
+                      tabIndex={-1}
+                      onClick={() => setShowPassword((prev) => !prev)}
+                      aria-label={
+                        showPassword
+                          ? t(
+                              "auth.signup.hidePassword",
+                              "Cacher le mot de passe"
+                            )
+                          : t(
+                              "auth.signup.showPassword",
+                              "Afficher le mot de passe"
+                            )
+                      }
+                    >
+                      {showPassword ? (
+                        <EyeOff className="h-4 w-4" aria-hidden="true" />
+                      ) : (
+                        <Eye className="h-4 w-4" aria-hidden="true" />
+                      )}
+                    </button>
+                  </div>
                 </FormControl>
                 <FormDescription>
                   {t("auth.signup.passwordDescription")}
@@ -213,11 +218,36 @@ export default function SignUpPage() {
               <FormItem>
                 <FormLabel>{t("auth.signup.confirmPassword")}</FormLabel>
                 <FormControl>
-                  <Input
-                    type="password"
-                    placeholder={t("auth.signup.password")}
-                    {...field}
-                  />
+                  <div className="relative">
+                    <Input
+                      type={showConfirmPassword ? "text" : "password"}
+                      placeholder={t("auth.signup.password")}
+                      {...field}
+                    />
+                    <button
+                      type="button"
+                      className="absolute inset-y-0 right-0 flex items-center px-3 text-gray-500"
+                      tabIndex={-1}
+                      onClick={() => setShowConfirmPassword((prev) => !prev)}
+                      aria-label={
+                        showConfirmPassword
+                          ? t(
+                              "auth.signup.hidePassword",
+                              "Cacher le mot de passe"
+                            )
+                          : t(
+                              "auth.signup.showPassword",
+                              "Afficher le mot de passe"
+                            )
+                      }
+                    >
+                      {showConfirmPassword ? (
+                        <EyeOff className="h-4 w-4" aria-hidden="true" />
+                      ) : (
+                        <Eye className="h-4 w-4" aria-hidden="true" />
+                      )}
+                    </button>
+                  </div>
                 </FormControl>
                 <FormMessage />
               </FormItem>
