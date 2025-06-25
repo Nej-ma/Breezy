@@ -22,6 +22,7 @@ export type UserProfile = {
   coverPicture: string;
   location: string;
   website: string;
+  isVerified?: boolean;
   followersCount: number;
   followingCount: number;
   postsCount: number;
