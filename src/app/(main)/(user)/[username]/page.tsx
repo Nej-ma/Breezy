@@ -105,7 +105,8 @@ export default function ProfilePage() {
         bio: data.bio,
         location: data.location,
         website: data.website,
-        // Optionally handle banner, avatar, location, website if needed
+        profilePicture: data.avatar,
+        coverPicture: data.banner,
       };
 
       const newUserData = await userService.updateUser(updatedUser);
