@@ -2,14 +2,14 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Post } from "@/components/custom/post";
 import { Heart, ImageIcon, MessageCircle, StickyNote } from "lucide-react";
 import type { Post as PostType } from "@/utils/types/postType";
-import type { UserProfile } from "@/utils/types/userType";
+import type { User, UserProfile } from "@/utils/types/userType";
 import React, { useState, useEffect } from "react";
 
 interface UserProfileTabsProps {
   userPosts: PostType[];
   posts: PostType[];
   user: UserProfile;
-  currentUser: UserProfile;
+  currentUser: any;
   refresh?: () => void;
 }
 
@@ -99,10 +99,11 @@ export const UserProfileTabs: React.FC<UserProfileTabsProps> = ({ userPosts, pos
       </TabsContent>
       {/* Media Tab Content */}
       <TabsContent value="media" className="mt-6 space-y-4">
-        {mediaPosts.map((post) => (
+        {/* TODO: Afficher les posts contenant des médias (images/vidéos) ici */}
+        {/* {mediaPosts.map((post) => (
           <Post key={post._id} post={post} userProfile={user} refreshPosts={refresh}/>
         ))}
-        {mediaPosts.length === 0 && (
+        {mediaPosts.length === 0 && ( */}
           <div className="flex flex-col items-center justify-center bg-card rounded-2xl shadow-lg p-12 text-center">
             <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mb-4">
               <ImageIcon className="w-8 h-8 text-primary" />
@@ -112,7 +113,7 @@ export const UserProfileTabs: React.FC<UserProfileTabsProps> = ({ userPosts, pos
               Partage des photos ou vidéos pour les retrouver ici.
             </p>
           </div>
-        )}
+        {/* )} */}
       </TabsContent>
       {/* Likes Tab Content */}
       <TabsContent value="likes" className="mt-6 space-y-4">
