@@ -141,7 +141,7 @@ export function Post({ post, userProfile, refreshPosts }: PostProps) {
       // Here, we just assume the optimistic update is correct
     } catch (error) {
       // Rollback optimistic update on error
-      setLikesState(likesState);
+      setLikesState(previousLikes);
       setLikedState(isLiked);
       console.error("Error updating like:", error);
     }
