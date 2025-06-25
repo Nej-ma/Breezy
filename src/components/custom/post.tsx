@@ -34,7 +34,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useTranslation } from "react-i18next"; // Add this import
 
-import CommentSection from "./commentSection";
+import CommentSection from "./comment-section";
 import CommentComposer from "./comment-composer";
 
 // Hooks
