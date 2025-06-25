@@ -54,7 +54,6 @@ export default function ProfilePage() {
   const [likedPosts] = useState<number[]>([]);
   const [showFollowersModal, setShowFollowersModal] = useState(false);
   const [followersModalTab, setFollowersModalTab] = useState<"followers" | "following">("followers");
-  const [followLoading, setFollowLoading] = useState(false);
 
   const fetchUserAndPosts = async () => {
     try {
@@ -137,13 +136,12 @@ export default function ProfilePage() {
       ? user.followersCount - 1 
       : user.followersCount + 1;
     
-    // ✅ Mise à jour optimiste immédiate
+    // ✅ Mise à jour immédiate de l'UI
     setIsFollowing(!wasFollowing);
     setUserData(prev => prev ? { 
       ...prev, 
       followersCount: newFollowersCount 
     } : prev);
-    setFollowLoading(true);
     
     try {
       if (wasFollowing) {
@@ -152,20 +150,18 @@ export default function ProfilePage() {
         await userService.followUser(user.userId);
       }
       
-      // ✅ Validation optionnelle avec les vraies données du serveur
+      // ✅ Validation optionnelle avec les vraies données
       const updatedUserData = await userService.getUserProfile(params.username as string);
       setUserData(updatedUserData);
       
     } catch (error) {
-      console.error("Error following/unfollowing user:", error);
       // ✅ Rollback en cas d'erreur
       setIsFollowing(wasFollowing);
       setUserData(prev => prev ? { 
         ...prev, 
         followersCount: user.followersCount 
       } : prev);
-    } finally {
-      setFollowLoading(false);
+      console.error("Error:", error);
     }
   };
 
@@ -302,11 +298,8 @@ export default function ProfilePage() {
                       active:scale-95
                     `}
                       onClick={handleFollowClick}
-                      disabled={followLoading}
                     >
-                      {followLoading ? (
-                        <span className="animate-spin rounded-full h-4 w-4 border-b-2 border-current"></span>
-                      ) : isFollowing ? (
+                      {isFollowing ? (
                         <>
                           <UserRoundCheck className="w-4 h-4 transition-transform duration-200" />
                           <span>Suivi(e)</span>
