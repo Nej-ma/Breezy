@@ -28,11 +28,8 @@ export default function ValidateEmailPage() {
       }
 
       try {
-        // get token from URL
-        console.log("Token from URL:", token);
 
-        const result = await authService.validateEmail(token);
-        console.log("Validation result:", result);
+        await authService.validateEmail(token);
         setIsValid(true);
       } catch (error) {
         console.error("Error validating email:", error);

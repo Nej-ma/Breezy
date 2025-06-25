@@ -20,7 +20,6 @@ export function useAuthorProfiles() {
     // Vérifier si une requête est déjà en cours pour cet auteur
     const pendingFetch = pendingFetches.current.get(authorId);
     if (pendingFetch) {
-      console.log("Using pending fetch for author:", authorId);
       return pendingFetch;
     }
 

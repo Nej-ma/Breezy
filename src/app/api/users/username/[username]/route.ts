@@ -12,7 +12,6 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
   try {
     const cookieStore = await cookies();
     const backendToken = cookieStore.get("backend_token")?.value;
-
     if (!backendToken) {
       return NextResponse.json(
         { error: "Authentication required" },
@@ -21,7 +20,6 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     }
 
     const { username } = await params;
-
     if (!username) {
       return NextResponse.json(
         { error: "Username is required" },
@@ -31,7 +29,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
 
     const backendUrl =
       process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8080/api";
-
+   
     const response = await fetch(
       `${backendUrl}/users/username/${encodeURIComponent(username)}`,
       {
@@ -43,11 +41,17 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       }
     );
 
+    
     if (!response.ok) {
       if (response.status === 404) {
-        return NextResponse.json({ error: "User not found" }, { status: 404 });
+        return NextResponse.json(
+          { error: "User not found" },
+          { status: 404 }
+        );
       }
-      throw new Error(`Backend responded with ${response.status}`);
+      const errorText = await response.text();
+      console.error(`❌ Backend error (${response.status}):`, errorText);
+      throw new Error(`Backend responded with ${response.status}: ${errorText}`);
     }
 
     const data = await response.json();
@@ -60,6 +64,3 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     );
   }
 }
-
-
-  

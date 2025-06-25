@@ -1,5 +1,7 @@
 "use client";
 import { EditProfile, EditProfileData } from "@/components/custom/edit-profile";
+import { FollowersModal } from "@/components/custom/followers-modal";
+import { Post } from "@/components/custom/post";
 import { Stats } from "@/components/custom/stats";
 import {
   Avatar,
@@ -30,6 +32,7 @@ import {
   UserRoundPlus,
 } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 // types
@@ -48,6 +51,9 @@ export default function ProfilePage() {
   const [posts, setPosts] = useState<PostType[]>([]);
   const [isFollowing, setIsFollowing] = useState(false);
   const [followersCount, setFollowersCount] = useState<number>(0);
+  const [likedPosts] = useState<number[]>([]);
+  const [showFollowersModal, setShowFollowersModal] = useState(false);
+  const [followersModalTab, setFollowersModalTab] = useState<"followers" | "following">("followers");
 
   const fetchUserAndPosts = async () => {
     try {
@@ -55,13 +61,24 @@ export default function ProfilePage() {
         params.username as string
       );
       setUserData(userData);
-      setFollowersCount(userData.followersCount || 0);
+      setFollowersCount(userData.followersCount || 0); 
 
       const userPosts = await postService.getPostsByAuthor(userData.userId);
       setUserPosts(userPosts);
 
       const allPosts = await postService.getAllPosts();
       setPosts(allPosts);
+
+      // Check if current user is following this user
+      if (currentUser && currentUser.id !== userData.userId) {
+        try {
+          const followingStatus = await userService.isFollowing(userData.userId);
+          setIsFollowing(followingStatus);
+        } catch (error) {
+          console.error("Error checking follow status:", error);
+        }
+      }
+
     } catch {
       setUserData(undefined);
       setFollowersCount(0);
@@ -74,7 +91,7 @@ export default function ProfilePage() {
 
   useEffect(() => {
     fetchUserAndPosts();
-  }, [params.username]);
+  }, [params.username, currentUser]);
 
   if (loading) {
     return (
@@ -111,15 +128,59 @@ export default function ProfilePage() {
     }
   };
 
-  const handleFollowClick = () => {
-    if (isFollowing) {
-      setIsFollowing(false);
-      setFollowersCount((count) => count - 1);
-    } else {
-      setIsFollowing(true);
-      setFollowersCount((count) => count + 1);
+  const handleFollowClick = async () => {
+    if (!currentUser || !user) return;
+    
+    const wasFollowing = isFollowing;
+    const newFollowersCount = wasFollowing 
+      ? user.followersCount - 1 
+      : user.followersCount + 1;
+    
+    // ✅ Mise à jour immédiate de l'UI
+    setIsFollowing(!wasFollowing);
+    setUserData(prev => prev ? { 
+      ...prev, 
+      followersCount: newFollowersCount 
+    } : prev);
+    
+    try {
+      if (wasFollowing) {
+        await userService.unfollowUser(user.userId);
+      } else {
+        await userService.followUser(user.userId);
+      }
+      
+      // ✅ Validation optionnelle avec les vraies données
+      const updatedUserData = await userService.getUserProfile(params.username as string);
+      setUserData(updatedUserData);
+      
+    } catch (error) {
+      // ✅ Rollback en cas d'erreur
+      setIsFollowing(wasFollowing);
+      setUserData(prev => prev ? { 
+        ...prev, 
+        followersCount: user.followersCount 
+      } : prev);
+      console.error("Error:", error);
     }
   };
+
+  const handleStatsClick = (type: "followers" | "following") => {
+    setFollowersModalTab(type);
+    setShowFollowersModal(true);
+  };
+
+  const handleModalClose = async () => {
+    setShowFollowersModal(false);
+    // Rafraîchir les counts après fermeture de la modal au cas où il y aurait eu des changements
+    try {
+      const updatedUserData = await userService.getUserProfile(params.username as string);
+      setUserData(updatedUserData); // Mettre à jour l'objet user complet
+    } catch (error) {
+      console.error("Error refreshing user data:", error);
+    }
+  };
+  
   const isCurrentUser = currentUser && currentUser.id === user.userId;
 
   return (
@@ -147,10 +208,11 @@ export default function ProfilePage() {
 
       {/* Banner */}
       <div className="relative h-64 overflow-hidden ">
-        <img
+        <Image
           src={user.coverPicture || "/placeholder.svg"}
           alt="Banner"
-          className="w-full h-full object-cover"
+          fill
+          className="object-cover"
         />
       </div>
 
@@ -179,8 +241,12 @@ export default function ProfilePage() {
               {/* Stats Cards */}
               <div className="flex gap-4 mt-4">
                 <Stats label="Posts" value={user.postsCount} />
-                <Stats label="Followers" value={followersCount} />
-                <Stats label="Following" value={user.followingCount} />
+                <div onClick={() => handleStatsClick("followers")} className="cursor-pointer">
+                  <Stats label="Followers" value={user.followersCount || 0} />
+                </div>
+                <div onClick={() => handleStatsClick("following")} className="cursor-pointer">
+                  <Stats label="Following" value={user.followingCount || 0} />
+                </div>
               </div>
             </div>
 
@@ -298,6 +364,16 @@ export default function ProfilePage() {
           refresh={() => fetchUserAndPosts()}
         />
       </div>
+
+      {/* Followers Modal */}
+      {user && (
+        <FollowersModal
+          user={user}
+          isOpen={showFollowersModal}
+          onClose={handleModalClose}
+          defaultTab={followersModalTab}
+        />
+      )}
     </div>
   );
 }
