@@ -148,6 +148,12 @@ export default function SignUpPage() {
                     {...field}
                   />
                 </FormControl>
+                <FormDescription>
+                  {t(
+                    "auth.signup.displayNameDescription",
+                    "Ce nom sera affiché sur votre profil"
+                  )}
+                </FormDescription>
                 <FormMessage />
               </FormItem>
             )}
@@ -162,6 +168,9 @@ export default function SignUpPage() {
                 <FormControl>
                   <Input placeholder={t("auth.signup.username")} {...field} />
                 </FormControl>
+                <FormDescription>
+                  {t("auth.signup.usernameDescription", "Identifiant unique")}
+                </FormDescription>
                 <FormMessage />
               </FormItem>
             )}

@@ -47,7 +47,7 @@ export default function ValidateEmailPage() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-screen bg-secondary">
+      <div className="flex items-center justify-center">
         <div className="max-w-md w-full p-6 flex flex-col text-center gap-5">
           <p className="font-bold">
             {t("auth.validateEmail.loading", "Validating your email...")}
@@ -66,7 +66,7 @@ export default function ValidateEmailPage() {
     <>
       {/* Display success message after validation */}
       {isValid && (
-        <div className="flex items-center justify-center h-screen bg-secondary">
+        <div className="flex items-center justify-center">
           <div className="max-w-md w-full p-6 flex flex-col text-center gap-5">
             <p className="font-bold">
               {t("auth.validateEmail.successText", "Email validé avec succès!")}
@@ -87,7 +87,7 @@ export default function ValidateEmailPage() {
 
       {/* Display error message if validation fails */}
       {isValid === false && (
-        <div className="flex items-center justify-center h-screen bg-secondary">
+        <div className="flex items-center justify-center">
           <div className="max-w-md w-full p-6 flex flex-col text-center gap-5">
             <p className="font-bold">
               {t("auth.validateEmail.errorText", "La validation a échoué")}

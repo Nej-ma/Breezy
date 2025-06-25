@@ -68,7 +68,9 @@
     "auth": {
         "signup": {
             "displayName": "Nom",
+            "displayNameDescription": "Ce nom sera affiché sur votre profil",
             "username": "Nom d'utilisateur",
+            "usernameDescription": "Identifiant unique",
             "email": "Courriel",
             "password": "Mot de passe",
             "passwordDescription": "Le mot de passe doit contenir au moins 8 caractères, une majuscule, une minuscule, un chiffre et un caractère spécial [@$!%*?&#].",
