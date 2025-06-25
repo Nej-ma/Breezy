@@ -2,7 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Camera, Pencil, X } from "lucide-react";
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
@@ -149,16 +149,12 @@ function EditProfileForm({ user, onSave }: EditProfileProps) {
     user.coverPicture || null
   );
 
-  // Refs
-  const avatarInputRef = useRef<HTMLInputElement>(null);
-  const bannerInputRef = useRef<HTMLInputElement>(null);
-
   // Configuration du formulaire
   const form = useForm<EditProfileData>({
     resolver: zodResolver(editProfileSchema),
     defaultValues: {
-      avatar: undefined as any,
-      banner: undefined as any,
+      avatar: avatarPreview || null,
+      banner: bannerPreview || null,
       displayName: user.displayName || "",
       bio: user.bio || "",
       location: user.location || "",
@@ -169,7 +165,7 @@ function EditProfileForm({ user, onSave }: EditProfileProps) {
   const {
     handleSubmit,
     control,
-    formState: { errors, isSubmitting },
+    formState: { isSubmitting },
   } = form;
 
   // Configuration des champs
@@ -194,31 +190,21 @@ function EditProfileForm({ user, onSave }: EditProfileProps) {
   // Handlers
   const onSubmit = handleSubmit(onSave);
 
-  const createPreviewSetter =
-    (setter: (value: string | null) => void) => (file?: File) => {
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setter(reader.result as string);
-      };
-      reader.readAsDataURL(file);
-    };
+  const handleAvatarUrl = useCallback(() => {
+    const url = window.prompt("Entrez l'URL de votre avatar :", avatarPreview || "");
+    if (url && url.trim()) {
+      setAvatarPreview(url.trim());
+      form.setValue("avatar", url.trim());
+    }
+  }, [avatarPreview, form]);
 
-  const handleAvatarChange = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      const file = e.target.files?.[0];
-      createPreviewSetter(setAvatarPreview)(file);
-    },
-    []
-  );
-
-  const handleBannerChange = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      const file = e.target.files?.[0];
-      createPreviewSetter(setBannerPreview)(file);
-    },
-    []
-  );
+  const handleBannerUrl = useCallback(() => {
+    const url = window.prompt("Entrez l'URL de votre bannière :", bannerPreview || "");
+    if (url && url.trim()) {
+      setBannerPreview(url.trim());
+      form.setValue("banner", url.trim());
+    }
+  }, [bannerPreview, form]);
 
   return (
     <>
@@ -250,7 +236,7 @@ function EditProfileForm({ user, onSave }: EditProfileProps) {
         {/* Overlay pour changer la bannière - visible sur mobile, hover sur desktop */}
         <div
           className="absolute inset-0 bg-black/20 flex items-center justify-center opacity-100 md:opacity-0 md:hover:opacity-100 transition-opacity cursor-pointer z-10"
-          onClick={() => bannerInputRef.current?.click()}
+          onClick={handleBannerUrl}
         >
           <div className="flex flex-col items-center justify-center h-full">
             <div className="mb-12">
@@ -271,7 +257,7 @@ function EditProfileForm({ user, onSave }: EditProfileProps) {
         <div className="absolute left-1/2 -translate-x-1/2 bottom-0 translate-y-[50%] z-30">
           <div
             className="relative group cursor-pointer"
-            onClick={() => avatarInputRef.current?.click()}
+            onClick={handleAvatarUrl}
           >
             <Avatar className="w-24 h-24 sm:w-32 sm:h-32 border-4 border-white shadow-lg">
               <AvatarImage src={avatarPreview || undefined} alt="Avatar" />
@@ -308,18 +294,14 @@ function EditProfileForm({ user, onSave }: EditProfileProps) {
             >
               {/* Inputs cachés pour les fichiers */}
               <Input
-                ref={avatarInputRef}
-                type="file"
-                accept="image/*"
-                className="hidden"
-                onChange={handleAvatarChange}
+                type="hidden"
+                value={avatarPreview || ""}
+                {...form.register("avatar")}
               />
               <Input
-                ref={bannerInputRef}
-                type="file"
-                accept="image/*"
-                className="hidden"
-                onChange={handleBannerChange}
+                type="hidden"
+                value={bannerPreview || ""}
+                {...form.register("banner")}
               />
 
               {/* Champs de formulaire principaux */}
