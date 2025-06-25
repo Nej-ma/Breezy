@@ -100,8 +100,9 @@ export function Post({ post, userProfile, refreshPosts }: PostProps) {
   ];
 
   // Existing state variables
+  const [likesState, setLikesState] = useState<Array<string>>(post.likes ?? []);
   const [likedState, setLikedState] = useState(
-    post.likes.includes(userProfile.userId)
+    (post.likes ?? []).includes(userProfile.userId)
   );
   const likeTimeout = useRef<NodeJS.Timeout | null>(null);
 
@@ -121,20 +122,29 @@ export function Post({ post, userProfile, refreshPosts }: PostProps) {
   const { user } = useAuth();
 
   // === BACKEND INTERACTIONS ===
-  const handleToggleLike = () => {
-    if (likeTimeout.current) {
-      clearTimeout(likeTimeout.current);
+  const handleToggleLike = async () => {
+    // Optimistic update
+    const isLiked = likesState.includes(userProfile.userId);
+    const newLikes = isLiked
+      ? likesState.filter((id) => id !== userProfile.userId)
+      : [...likesState, userProfile.userId];
+
+    setLikesState(newLikes);
+    setLikedState(!isLiked);
+
+    try {
+      // Call the API which toggles like/unlike
+      await postService.likePost(post._id, userProfile.userId);
+
+      // Optionally, fetch the latest likes from backend to ensure sync
+      // (if your API returns the updated post, use that instead)
+      // Here, we just assume the optimistic update is correct
+    } catch (error) {
+      // Rollback optimistic update on error
+      setLikesState(likesState);
+      setLikedState(isLiked);
+      console.error("Error updating like:", error);
     }
-    likeTimeout.current = setTimeout(() => {
-      postService.likePost(post._id).then(() => {
-        // Optionally handle success or update local state
-        postService.getUserPostsById(post._id).then((updatedPost: Post) => {
-          // Update the post with the new likes count
-          post.likes = updatedPost.likes;
-          setLikedState(updatedPost.likes.includes(userProfile.userId));
-        });
-      });
-    }, 400); // 400ms debounce
   };
 
   // Function to fetch comments
@@ -158,15 +168,15 @@ export function Post({ post, userProfile, refreshPosts }: PostProps) {
   }, [post._id]);
 
   useEffect(() => {
-    if (userProfile.userId && post.likes.includes(userProfile.userId)) {
+    if (userProfile.userId && likesState.includes(userProfile.userId)) {
       setLikedState(true);
     } else {
       setLikedState(false);
     }
 
-    console.log("Post likes updated:", post.likes);
+    console.log("Post likes updated:", likesState);
     console.log("User profile ID:", userProfile.userId);
-  }, [userProfile.userId, post.likes]);
+  }, [userProfile.userId, likesState]);
 
   const updatePost = (newContent: string) => {
     setIsLoading(true);
@@ -372,7 +382,7 @@ export function Post({ post, userProfile, refreshPosts }: PostProps) {
                       likedState ? "fill-current" : "fill-none"
                     }`}
                   />
-                  {post.likes.length}
+                  {likesState.length}
                 </Button>
                 <Button
                   variant="ghost"
