@@ -30,7 +30,7 @@ const getAllPosts = async (): Promise<Post[]> => {
 
 const getUserPostsById = async (postId: string): Promise<Post> => {
   try {
-    const response = await apiClient.get(`posts/${postId}`);
+    const response = await apiClient.get(`posts/?id=${postId}`);
 
     if (response.status !== 200) {
       throw new Error(`Failed to fetch post: ${response.statusText}`);
@@ -124,9 +124,9 @@ const postPost = async (content: string, visibility: string, files: File[]) => {
   }
 };
 
-const likePost = async (postId: string) => {
+const likePost = async (postId: string, userId: string) => {
   try {
-    const response = await apiClient.put(`posts/${postId}/like`);
+    const response = await apiClient.put(`posts/${postId}/like`, { userId });
 
     if (response.status === 200) {
       console.log("Post liked successfully");
