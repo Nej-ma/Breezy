@@ -16,7 +16,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { UserProfileTabs } from "@/components/custom/user-profile-tabs";
 import { userService, type UserUpdate } from "@/services/userService";
 import {
   ArrowLeft,
@@ -51,33 +51,34 @@ export default function ProfilePage() {
 
   const [user, setUserData] = useState<UserProfile>();
   const [loading, setLoading] = useState(true);
+  const [userPosts, setUserPosts] = useState<PostType[]>([]);
   const [posts, setPosts] = useState<PostType[]>([]);
   const [isFollowing, setIsFollowing] = useState(false);
   const [followersCount, setFollowersCount] = useState<number>(0);
-  const [likedPosts] = useState<number[]>([]);
+
+  const fetchUserAndPosts = async () => {
+    try {
+      const userData = await userService.getUserProfile(params.username as string);
+      setUserData(userData);
+      setFollowersCount(userData.followersCount || 0); 
+      
+      const userPosts = await postService.getPostsByAuthor(userData.userId);
+      setUserPosts(userPosts);
+
+      const allPosts = await postService.getAllPosts();
+      setPosts(allPosts);
+
+    } catch {
+      setUserData(undefined);
+      setFollowersCount(0);
+      setUserPosts([]);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchUser = async () => {
-      try {
-        const userData = await userService.getUserProfile(
-          params.username as string
-        );
-        setUserData(userData);
-        setFollowersCount(userData.followersCount || 0);
-        console.log("userId utilisé pour fetch les posts :", userData.userId);
-        console.log("userData complète :", userData);
-        const userPosts = await postService.getPostsByAuthor(userData.userId);
-        console.log("Posts récupérés :", userPosts);
-        setPosts(userPosts);
-      } catch {
-        setUserData(undefined);
-        setFollowersCount(0);
-        setPosts([]);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchUser();
+    fetchUserAndPosts();
   }, [params.username]);
 
   if (loading) {
@@ -293,154 +294,13 @@ export default function ProfilePage() {
         </div>
 
         {/* Tabs for Posts, Replies, Media, Likes */}
-        <Tabs defaultValue="posts" className="pb-8">
-          <TabsList className="w-full bg-white rounded-2xl shadow border border-blue-100 flex gap-2">
-            {[
-              {
-                value: "posts",
-                icon: <StickyNote className="w-4 h-4" />,
-                label: "Posts",
-              },
-              {
-                value: "replies",
-                icon: <MessageCircle className="w-4 h-4" />,
-                label: "Réponses",
-              },
-              {
-                value: "media",
-                icon: <ImageIcon className="w-4 h-4" />,
-                label: "Médias",
-              },
-              ...(isCurrentUser
-                ? [
-                    {
-                      value: "likes",
-                      icon: <Heart className="w-4 h-4" />,
-                      label: "J'aime",
-                    },
-                  ]
-                : []),
-            ].map(({ value, icon, label }) => (
-              <TabsTrigger
-                key={value}
-                value={value}
-                className={[
-                  "flex-1 py-3 rounded-xl font-semibold transition-all duration-200 animate-fade-in",
-                  "hover:bg-blue-50",
-                  "data-[state=active]:bg-gradient-to-r",
-                  "data-[state=active]:from-[var(--primary)]",
-                  "data-[state=active]:to-[var(--primary-light)]",
-                  "data-[state=active]:text-white",
-                  "data-[state=inactive]:text-gray-500",
-                  "data-[state=inactive]:bg-transparent",
-                ].join(" ")}
-              >
-                {icon}
-                {label}
-              </TabsTrigger>
-            ))}
-          </TabsList>
-          {/* Posts Tab Content */}
-          <TabsContent value="posts" className="mt-6 space-y-4">
-            {[...posts].length > 0 ? (
-              [...posts]
-                // .sort((a, b) => (b.pinned ? 1 : 0) - (a.pinned ? 1 : 0))
-                .map((post) => (
-                  <Post
-                    key={post._id}
-                    post={post}
-                    userProfile={user}
-                    authorProfile={authorProfiles[post.author]}
-                  />
-                ))
-            ) : (
-              <div className="flex flex-col items-center justify-center bg-card rounded-2xl shadow-lg p-12 text-center">
-                <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mb-4">
-                  <StickyNote className="w-8 h-8 text-primary" />
-                </div>
-                <p className="text-gray-500 text-lg">
-                  Aucun post pour l'instant
-                </p>
-                <p className="text-gray-400 text-sm mt-2">
-                  Quand tu publieras ton premier post, il apparaîtra ici !
-                </p>
-              </div>
-            )}
-          </TabsContent>
-          {/* Replies Tab Content */}
-          <TabsContent value="replies" className="mt-6">
-            <div className="flex flex-col items-center justify-center bg-card rounded-2xl shadow-lg p-12 text-center">
-              <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mb-4">
-                <MessageCircle className="w-8 h-8 text-primary" />
-              </div>
-              <p className="text-gray-500 text-lg">Pas encore de réponses</p>
-              <p className="text-gray-400 text-sm mt-2">
-                Tes futures réponses s'afficheront ici. N'hésite pas à
-                participer !
-              </p>
-            </div>
-          </TabsContent>{" "}
-          {/* Media Tab Content */}
-          <TabsContent value="media" className="mt-6 space-y-4">
-            {[...posts]
-              .filter(
-                (post) =>
-                  (post.images && post.images.length > 0) ||
-                  (post.videos && post.videos.length > 0)
-              )
-              .map((post) => (
-                <Post
-                  key={post._id}
-                  post={post}
-                  userProfile={user}
-                  authorProfile={authorProfiles[post.author]}
-                />
-              ))}
-            {[...posts].filter(
-              (post) =>
-                (post.images && post.images.length > 0) ||
-                (post.videos && post.videos.length > 0)
-            ).length === 0 && (
-              <div className="flex flex-col items-center justify-center bg-card rounded-2xl shadow-lg p-12 text-center">
-                <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mb-4">
-                  <ImageIcon className="w-8 h-8 text-primary" />
-                </div>
-                <p className="text-gray-500 text-lg">
-                  Aucun média partagé pour l'instant
-                </p>
-                <p className="text-gray-400 text-sm mt-2">
-                  Partage des photos ou vidéos pour les retrouver ici.
-                </p>
-              </div>
-            )}
-          </TabsContent>
-          {/* Likes Tab Content */}
-          <TabsContent value="likes" className="mt-6 space-y-4">
-            {[...posts]
-              // .filter((post) => likedPosts.includes(post._id))
-              .map((post) => (
-                <Post
-                  key={post._id}
-                  post={post}
-                  userProfile={user}
-                  authorProfile={authorProfiles[post.author]}
-                />
-              ))}
-            {likedPosts.length === 0 && (
-              <div className="flex flex-col items-center justify-center bg-card rounded-2xl shadow-lg p-12 text-center">
-                <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mb-4">
-                  <Heart className="w-8 h-8 text-primary" />
-                </div>
-                <p className="text-gray-500 text-lg">
-                  Aucun post liké pour le moment
-                </p>
-                <p className="text-gray-400 text-sm mt-2">
-                  Les posts que tu aimeras s'afficheront ici.
-                </p>
-              </div>
-            )}
-          </TabsContent>
-        </Tabs>
+        <UserProfileTabs
+          userPosts={userPosts}
+          posts={posts}
+          user={user}
+          currentUser={currentUser}
+          refresh={() => fetchUserAndPosts()}
+        />
       </div>
     </div>
   );

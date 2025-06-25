@@ -143,6 +143,8 @@ export function Post({
       // Call the API which toggles like/unlike
       await postService.likePost(post._id, userProfile.userId);
 
+      refreshPosts?.();
+
       // Optionally, fetch the latest likes from backend to ensure sync
       // (if your API returns the updated post, use that instead)
       // Here, we just assume the optimistic update is correct
