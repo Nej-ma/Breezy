@@ -104,8 +104,6 @@ export function Post({ post, userProfile, refreshPosts }: PostProps) {
   const [likedState, setLikedState] = useState(
     (post.likes ?? []).includes(userProfile.userId)
   );
-  const likeTimeout = useRef<NodeJS.Timeout | null>(null);
-
   // Add new state for dialog
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   // add state to modify the content
@@ -125,6 +123,7 @@ export function Post({ post, userProfile, refreshPosts }: PostProps) {
   const handleToggleLike = async () => {
     // Optimistic update
     const isLiked = likesState.includes(userProfile.userId);
+    const previousLikes = [...likesState];
     const newLikes = isLiked
       ? likesState.filter((id) => id !== userProfile.userId)
       : [...likesState, userProfile.userId];
