@@ -6,16 +6,21 @@ export function useComments() {
   const [commentsCache, setCommentsCache] = useState<Record<string, CommentType[]>>({});
   const pendingFetches = useRef<Map<string, Promise<CommentType[]>>>(new Map());
 
-  const getPostComments = async (postId: string) => {
-    // Return cached comments if they exist
-    if (commentsCache[postId]) {
+  const getPostComments = async (postId: string, forceRefresh = false) => {
+    // Return cached comments if they exist and no force refresh
+    if (commentsCache[postId] && !forceRefresh) {
       return commentsCache[postId];
     }
 
     // Check if there's already a pending fetch for this post
     const pendingFetch = pendingFetches.current.get(postId);
-    if (pendingFetch) {
+    if (pendingFetch && !forceRefresh) {
       return pendingFetch;
+    }
+
+    // Clear existing pending fetch if force refreshing
+    if (forceRefresh) {
+      pendingFetches.current.delete(postId);
     }
 
     // Create new fetch promise

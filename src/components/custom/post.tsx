@@ -12,7 +12,6 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   MessageCircle,
-  Eye,
   Heart,
   Share,
   Sparkles,
@@ -155,12 +154,12 @@ export function Post({
     }
   };
 
-  const fetchComments = async () => {
+  const fetchComments = async (forceRefresh: boolean = false) => {
     if (!showComments) return;
 
     setCommentsLoading(true);
     try {
-      const fetchedComments = await getPostComments(post._id);
+      const fetchedComments = await getPostComments(post._id, forceRefresh);
       setComments(fetchedComments);
     } finally {
       setCommentsLoading(false);
@@ -183,6 +182,27 @@ export function Post({
       setLikedState(false);
     }
   }, [userProfile.userId, post.likes]);
+
+  const refreshPost = async () => {
+    try {
+      const response = await postService.getPostById(post._id);
+      console.log("Post fetched:", response);
+      if (response) {
+        setAuthorProfile(
+          response.post.author === userProfile.userId
+            ? userProfile
+            : initialAuthorProfile || null
+        );
+      }
+
+      post.commentsCount = response.post.commentsCount;
+      post.likes = response.post.likes;
+
+      await fetchComments(true);
+    } catch (error) {
+      console.error("Error fetching post by ID:", error);
+    }
+  };
 
   const updatePost = (newContent: string) => {
     setIsLoading(true);
@@ -407,6 +427,7 @@ export function Post({
                   likedState ? "fill-current" : "fill-none"
                 }`}
               />
+              {likesState.length}
             </Button>
             <Button
               variant="ghost"
@@ -481,7 +502,7 @@ export function Post({
               ) : comments.length > 0 ? (
                 <CommentSection
                   comments={comments}
-                  refreshComments={fetchComments}
+                  refreshComments={refreshPost}
                   userProfile={userProfile}
                 />
               ) : (
@@ -492,7 +513,7 @@ export function Post({
                 <CommentComposer
                   postId={post._id}
                   userProfile={userProfile}
-                  refreshComments={fetchComments}
+                  refreshComments={refreshPost}
                 />
               )}
             </div>

@@ -27,7 +27,6 @@ import { getRelativeTime } from "@/utils/helpers/stringFormatter";
 
 // services
 import { commentService } from "@/services/commentService";
-import { userService } from "@/services/userService";
 
 // hooks
 import { useAuth } from "@/app/auth-provider";

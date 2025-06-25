@@ -16,3 +16,9 @@ export type Post = {
   visibility: PostVisibility;
   createdAt: string;
 };
+
+export type PostResponse = {
+  post: Post;
+  filter: string;
+  id: string;
+};

@@ -37,7 +37,7 @@ const createComment = async (
   try {
     const response = await apiClient.post(`posts/comments/${postId}`, request);
 
-    if (response.status !== 201) {
+    if (response.status !== 200) {
       throw new Error(`Failed to create comment: ${response.statusText}`);
     }
 
@@ -54,12 +54,15 @@ const updateComment = async (
   mentions: string[] = []
 ): Promise<Comment> => {
   try {
-    const response = await apiClient.put(`posts/comments/${commentId}`, { comment, mentions });
-    
+    const response = await apiClient.put(`posts/comments/${commentId}`, {
+      comment,
+      mentions,
+    });
+
     if (response.status !== 200) {
       throw new Error(`Failed to update comment: ${response.statusText}`);
     }
-    
+
     return response.data;
   } catch (error) {
     console.error("Error updating comment:", error);
@@ -72,8 +75,10 @@ const likeComment = async (
   likeState: "like" | "unlike"
 ): Promise<void> => {
   try {
-    const response = await apiClient.put(`posts/comments/${commentId}/like`, { action: likeState });
-    
+    const response = await apiClient.put(`posts/comments/${commentId}/like`, {
+      action: likeState,
+    });
+
     if (response.status !== 200) {
       throw new Error(`Failed to like comment: ${response.statusText}`);
     }
@@ -86,7 +91,7 @@ const likeComment = async (
 const deleteComment = async (commentId: string): Promise<void> => {
   try {
     const response = await apiClient.delete(`posts/comments/${commentId}`);
-    
+
     if (response.status !== 200) {
       throw new Error(`Failed to delete comment: ${response.statusText}`);
     }
