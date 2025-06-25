@@ -1,6 +1,10 @@
 // src/services/postService.ts - Version avec API routes
 import apiClient from "@/utils/api";
-import type { Post, PostVisibility } from "@/utils/types/postType";
+import type {
+  Post,
+  PostVisibility,
+  PostResponse,
+} from "@/utils/types/postType";
 import { extractTags, extractMentions } from "@/utils/helpers/stringFormatter";
 
 export type PostRequest = {
@@ -28,7 +32,7 @@ const getAllPosts = async (): Promise<Post[]> => {
   }
 };
 
-const getUserPostsById = async (postId: string): Promise<Post> => {
+const getPostById = async (postId: string): Promise<PostResponse> => {
   try {
     const response = await apiClient.get(`posts/?id=${postId}`);
 
@@ -46,12 +50,16 @@ const getUserPostsById = async (postId: string): Promise<Post> => {
 const getUserPostsByUserIds = async (userIds: string[]): Promise<Post[]> => {
   try {
     const queryParams = new URLSearchParams();
-    userIds.forEach(id => queryParams.append('userIds', id));
-    
-    const response = await apiClient.get(`posts/users?${queryParams.toString()}`);
+    userIds.forEach((id) => queryParams.append("userIds", id));
+
+    const response = await apiClient.get(
+      `posts/users?${queryParams.toString()}`
+    );
 
     if (response.status !== 200) {
-      throw new Error(`Failed to fetch posts for users: ${response.statusText}`);
+      throw new Error(
+        `Failed to fetch posts for users: ${response.statusText}`
+      );
     }
 
     return response.data;
@@ -66,19 +74,29 @@ const getPostsByAuthor = async (authorId: string): Promise<Post[]> => {
     console.log("📊 Fetching posts by author:", authorId);
     const response = await apiClient.get(`posts?author=${authorId}`);
     console.log("📊 Response status:", response.status);
-    
+
     if (response.status !== 200) {
-      console.error("❌ Response not OK:", response.status, response.statusText);
-      throw new Error(`Failed to fetch posts by author: ${response.statusText}`);
+      console.error(
+        "❌ Response not OK:",
+        response.status,
+        response.statusText
+      );
+      throw new Error(
+        `Failed to fetch posts by author: ${response.statusText}`
+      );
     }
-    
+
     const data = response.data;
     console.log("📊 Posts data received:", data);
     console.log("📊 Data type:", typeof data, "Is array:", Array.isArray(data));
-    
-    const posts = Array.isArray(data) ? data : (Array.isArray(data.posts) ? data.posts : []);
+
+    const posts = Array.isArray(data)
+      ? data
+      : Array.isArray(data.posts)
+      ? data.posts
+      : [];
     console.log("📊 Final posts array:", posts.length, "posts");
-    
+
     return posts;
   } catch (error) {
     console.error("Error fetching posts by author:", error);
@@ -191,26 +209,32 @@ const deletePost = async (postId: string) => {
   }
 };
 
-const getPostsByTags = async (tags: string[], limit?: number, skip?: number): Promise<{
-  posts: Post[], 
+const getPostsByTags = async (
+  tags: string[],
+  limit?: number,
+  skip?: number
+): Promise<{
+  posts: Post[];
   pagination: {
-    currentPage: number,
-    totalPages: number,
-    totalResults: number,
-    limit: number,
-    skip: number
-  }, 
+    currentPage: number;
+    totalPages: number;
+    totalResults: number;
+    limit: number;
+    skip: number;
+  };
   searchCriteria: {
-    tags: string[]
-  }
+    tags: string[];
+  };
 }> => {
   try {
     const queryParams = new URLSearchParams();
-    tags.forEach(tag => queryParams.append('tags', tag));
-    if (limit) queryParams.append('limit', limit.toString());
-    if (skip) queryParams.append('skip', skip.toString());
-    
-    const response = await apiClient.get(`posts/search/tags?${queryParams.toString()}`);
+    tags.forEach((tag) => queryParams.append("tags", tag));
+    if (limit) queryParams.append("limit", limit.toString());
+    if (skip) queryParams.append("skip", skip.toString());
+
+    const response = await apiClient.get(
+      `posts/search/tags?${queryParams.toString()}`
+    );
 
     if (response.status !== 200) {
       throw new Error(`Failed to fetch posts by tags: ${response.statusText}`);
@@ -225,7 +249,7 @@ const getPostsByTags = async (tags: string[], limit?: number, skip?: number): Pr
 
 export const postService = {
   getAllPosts,
-  getUserPostsById,
+  getPostById,
   getUserPostsByUserIds,
   postPost,
   likePost,
@@ -235,4 +259,3 @@ export const postService = {
   deletePost,
   getPostsByTags,
 };
-

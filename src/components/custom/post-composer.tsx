@@ -70,13 +70,19 @@ export default function PostComposer({
     {
       value: "friends",
       label: t("post.visibility.friends", "Amis"),
-      description: t("post.visibility.friendsDescription", "Visible par vos amis"),
+      description: t(
+        "post.visibility.friendsDescription",
+        "Visible par vos amis"
+      ),
       icon: Users,
     },
     {
       value: "private",
       label: t("post.visibility.private", "Privé"),
-      description: t("post.visibility.privateDescription", "Visible par vous seul"),
+      description: t(
+        "post.visibility.privateDescription",
+        "Visible par vous seul"
+      ),
       icon: Lock,
     },
   ];
@@ -85,6 +91,7 @@ export default function PostComposer({
   const [attachedFiles, setAttachedFiles] = useState<File[]>([]);
   const [isPosting, setIsPosting] = useState(false);
   const [searchedUsers, setSearchedUsers] = useState<UserProfile[]>([]);
+  const [mentioned, setMentioned] = useState<string[]>([]); // Array of mentioned user IDs
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const mentionTriggerRef = useRef<HTMLDivElement>(null);
 
@@ -118,13 +125,20 @@ export default function PostComposer({
   useEffect(() => {
     // trigger autocomplete when user types @
     const words = content.split(" ");
-    const mentionTrigger = words.find((word) => word.startsWith("@"));
-    if (mentionTrigger && mentionTrigger.length > 1) {
-      console.log("Triggering autocomplete for:", mentionTrigger);
+    const mentions = words.filter((word) => word.startsWith("@"));
 
-      // Vérifier si userService.searchUser existe
-      if (userService.searchUsers) {
-        userService.searchUsers(mentionTrigger.slice(1)).then((profiles) => {
+    const mentionTrigger =
+      mentions.length > 0 ? mentions[mentions.length - 1] : "";
+
+    if (
+      mentionTrigger &&
+      mentionTrigger !== "@" &&
+      mentionTrigger === words[words.length - 1]
+    ) {
+
+      userService
+        .searchUser(mentionTrigger.slice(1))
+        .then((profiles) => {
           if (profiles) {
             console.log("Found user profiles:", profiles);
             setSearchedUsers(profiles);
@@ -132,11 +146,11 @@ export default function PostComposer({
             console.log("No users found for:", mentionTrigger);
             setSearchedUsers([]);
           }
-        }).catch((error) => {
+        })
+        .catch((error) => {
           console.error("Error searching users:", error);
           setSearchedUsers([]);
         });
-      }
     } else {
       setSearchedUsers([]);
     }
@@ -178,12 +192,12 @@ export default function PostComposer({
       {/* Header */}
       <div className="flex items-center gap-3 mb-4">
         <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center">
-          <Avatar className="w-12 h-12 ring-2 border-none">
+          <Avatar className="w-8 h-8 md:w-12 md:h-12 ring-2 border-none">
             <AvatarImage
               src={userProfile?.profilePicture || "/placeholder.svg"}
               alt={userProfile?.displayName}
             />
-            <AvatarFallback className="bg-gradient-to-br from-[var(--primary)] to-[var(--primary-light)] text-white">
+            <AvatarFallback className="w-8 h-8 md:w-12 md:h-12 bg-gradient-to-br from-[var(--primary)] to-[var(--primary-light)] text-white">
               <UserPlaceholderIcon className="w-8 h-8" />
             </AvatarFallback>
           </Avatar>
@@ -193,7 +207,10 @@ export default function PostComposer({
             {t("postComposer.createPost", "Créer une publication")}
           </h3>
           <p className="text-xs text-muted-foreground">
-            {t("postComposer.shareThoughts", `Breeze what's on your mind, ${user?.username || "Guest"}!`)}
+            {t(
+              "postComposer.shareThoughts",
+              `Breeze what's on your mind, ${user?.username || "Guest"}!`
+            )}
           </p>
         </div>
       </div>
@@ -245,7 +262,7 @@ export default function PostComposer({
 
                     if (mentionIndex !== -1) {
                       // Replace the mention with the selected username
-                      words[mentionIndex] = `@${user.username}`;
+                      words[mentionIndex] = `@${user.username} `;
 
                       // Update the content with the new mention
                       methods.setValue("content", words.join(" "), {
@@ -255,6 +272,8 @@ export default function PostComposer({
 
                       // Force a re-render
                       methods.trigger("content");
+                      // Clear the searched users
+                      setSearchedUsers([]);
                     }
                   }}
                   triggerRef={mentionTriggerRef}
@@ -286,7 +305,9 @@ export default function PostComposer({
           {/* Attached Files */}
           {attachedFiles.length > 0 && (
             <div className="space-y-2">
-              <p className="text-sm font-medium">{t("post.attachedFiles", "Fichiers joints")}</p>
+              <p className="text-sm font-medium">
+                {t("post.attachedFiles", "Fichiers joints")}
+              </p>
               <div className="flex flex-wrap gap-2">
                 {attachedFiles.map((file, index) => (
                   <Badge

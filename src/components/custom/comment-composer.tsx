@@ -65,28 +65,31 @@ export function CommentComposer({
   useEffect(() => {
     // trigger autocomplete when user types @
     const words = content.split(" ");
-    const mentionTrigger = words.find((word) => word.startsWith("@"));
-    if (mentionTrigger && mentionTrigger.length > 1) {
-      console.log("Triggering autocomplete for:", mentionTrigger);
+    const mentions = words.filter((word) => word.startsWith("@"));
 
-      // Vérifier si userService.searchUser existe
-      if (userService.searchUsers) {
-        userService
-          .searchUsers(mentionTrigger.slice(1))
-          .then((profiles) => {
-            if (profiles) {
-              console.log("Found user profiles:", profiles);
-              setSearchedUsers(profiles);
-            } else {
-              console.log("No users found for:", mentionTrigger);
-              setSearchedUsers([]);
-            }
-          })
-          .catch((error) => {
-            console.error("Error searching users:", error);
+    const mentionTrigger =
+      mentions.length > 0 ? mentions[mentions.length - 1] : "";
+
+    if (
+      mentionTrigger &&
+      mentionTrigger !== "@" &&
+      mentionTrigger === words[words.length - 1]
+    ) {
+      userService
+        .searchUser(mentionTrigger.slice(1))
+        .then((profiles) => {
+          if (profiles) {
+            console.log("Found user profiles:", profiles);
+            setSearchedUsers(profiles);
+          } else {
+            console.log("No users found for:", mentionTrigger);
             setSearchedUsers([]);
-          });
-      }
+          }
+        })
+        .catch((error) => {
+          console.error("Error searching users:", error);
+          setSearchedUsers([]);
+        });
     } else {
       setSearchedUsers([]);
     }
@@ -114,7 +117,7 @@ export function CommentComposer({
 
   return (
     <div className="flex space-x-3 mx-5">
-      <Avatar className="w-8 h-8 ring-2 border-none">
+      <Avatar className="w-8 h-8 ring-2 border-none hidden md:inline">
         <AvatarImage
           src={userProfile.profilePicture || "/placeholder.svg"}
           alt={userProfile.displayName}
@@ -165,6 +168,9 @@ export function CommentComposer({
 
                 // Force a re-render
                 methods.trigger("content");
+
+                // Clear the searched users
+                setSearchedUsers([]);
               }
             }}
             triggerRef={mentionTriggerRef}

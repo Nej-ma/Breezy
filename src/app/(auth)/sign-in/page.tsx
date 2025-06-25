@@ -17,7 +17,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Loader2 } from "lucide-react";
+import { Loader2, Eye, EyeClosed } from "lucide-react";
 import Link from "next/link";
 
 // hooks
@@ -45,6 +45,7 @@ export default function SignInPage() {
   const { t, i18n } = useTranslation();
   const [isLoading, setIsLoading] = useState(false);
   const [signInSchema, setSignInSchema] = useState(() => createSignInSchema(t));
+  const [showPassword, setShowPassword] = useState(false);
 
   // ✅ AJOUT : useAuth hook et router
   const { login } = useAuth();
@@ -103,7 +104,7 @@ export default function SignInPage() {
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit)}
-          className="flex flex-col max-w-md space-y-6"
+          className="flex flex-col max-w-md space-y-6 w-full"
         >
           <FormField
             control={form.control}
@@ -130,11 +131,38 @@ export default function SignInPage() {
               <FormItem>
                 <FormLabel>{t("auth.signup.password")}</FormLabel>
                 <FormControl>
-                  <Input
-                    type="password"
-                    placeholder={t("auth.signup.password")}
-                    {...field}
-                  />
+                  <div className="relative">
+                    <Input
+                      type={showPassword ? "text" : "password"}
+                      placeholder={t("auth.signup.password")}
+                      {...field}
+                    />
+                    <button
+                      type="button"
+                      className="absolute inset-y-0 right-0 flex items-center px-3 text-gray-500"
+                      tabIndex={-1}
+                      onClick={() => setShowPassword((prev) => !prev)}
+                      aria-label={
+                        showPassword
+                          ? t(
+                              "auth.signup.hidePassword",
+                              "Cacher le mot de passe"
+                            )
+                          : t(
+                              "auth.signup.showPassword",
+                              "Afficher le mot de passe"
+                            )
+                      }
+                    >
+                      {showPassword ? (
+                        // You can use an eye-off icon here
+                        <EyeClosed className="h-4 w-4" aria-hidden="true" />
+                      ) : (
+                        // You can use an eye icon here
+                        <Eye className="h-4 w-4" aria-hidden="true" />
+                      )}
+                    </button>
+                  </div>
                 </FormControl>
                 <FormMessage />
               </FormItem>

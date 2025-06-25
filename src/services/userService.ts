@@ -4,12 +4,14 @@ import type { UserProfile } from "@/utils/types/userType";
 
 const searchUser = async (query: string): Promise<UserProfile[]> => {
   try {
-    const response = await apiClient.get(`users/search?q=${encodeURIComponent(query)}`);
-    
+    const response = await apiClient.get(
+      `users/search?q=${encodeURIComponent(query)}`
+    );
+
     if (response.status !== 200) {
       throw new Error(`Failed to search users: ${response.statusText}`);
     }
-    
+
     return response.data.users || [];
   } catch (error) {
     console.error(error);
@@ -34,7 +36,21 @@ const getUserProfile = async (username: string): Promise<UserProfile> => {
       throw new Error(`Failed to fetch user: ${response.statusText}`);
     }
     return response.data as UserProfile;
-  } catch (error) { 
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+};
+
+const getUserProfileById = async (userId: string): Promise<UserProfile> => {
+  try {
+    const response = await apiClient.get(`users/id/${userId}`);
+
+    if (response.status !== 200) {
+      throw new Error(`Failed to fetch user profile: ${response.statusText}`);
+    }
+    return response.data as UserProfile;
+  } catch (error) {
     console.error(error);
     throw error;
   }
@@ -70,7 +86,8 @@ const updateUser = async (userData: UserUpdate): Promise<UserProfile> => {
 
 export const userService = {
   searchUser,
+  getUserProfileById,
   getUserProfile,
   getCurrentUser,
-  updateUser
+  updateUser,
 };

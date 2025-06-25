@@ -28,7 +28,8 @@ import { useTranslation } from "react-i18next";
 
 export default function Navbar({
   ...props
-}: React.ComponentProps<typeof Sidebar>) {  // Custom hooks to fetch user and auth data
+}: React.ComponentProps<typeof Sidebar>) {
+  // Custom hooks to fetch user and auth data
   const { user, logout } = useAuth();
 
   // Handle logout

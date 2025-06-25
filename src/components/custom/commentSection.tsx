@@ -16,11 +16,13 @@ type CommentSectionProps = {
   comments: CommentType[];
   userProfile: UserProfile;
   refreshComments?: () => void; // Add this prop
+  refreshPost?: () => void; // Optional, if you want to refresh the post after actions
 };
 
 export function CommentSection({
   comments,
   refreshComments,
+  refreshPost = () => {}, // Default to a no-op function
   userProfile,
 }: CommentSectionProps) {
   const { t } = useTranslation("common");
@@ -45,9 +47,7 @@ export function CommentSection({
       {/* Comments Section */}
       {mainComments.length > 0 && (
         <div className="space-y-4 my-5">
-          <h3 className="text-gray-400">
-            {t("comments.title")}
-          </h3>
+          <h3 className="text-gray-400">{t("comments.title")}</h3>
           {visibleComments.map((comment) => (
             <div key={comment._id} className="mb-4">
               <Comment
