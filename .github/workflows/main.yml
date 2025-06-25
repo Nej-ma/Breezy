@@ -10,6 +10,7 @@ on:
 jobs:
   deploy-frontend:
     runs-on: ubuntu-latest
+    environment: CI/CD
     
     # Ne déployer que si c'est un push direct ou une PR mergée
     if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.merged == true)
