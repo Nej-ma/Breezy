@@ -15,7 +15,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { userService } from "@/services/userService";
 import { useAuth } from "@/app/auth-provider";
 import type { UserProfile } from "@/utils/types/userType";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
 import { UserRoundCheck, UserRoundPlus, Loader2 } from "lucide-react";
 
@@ -61,6 +61,39 @@ export function FollowersModal({
   const [followingStatus, setFollowingStatus] = useState<Record<string, boolean>>({});
   const [activeTab, setActiveTab] = useState<"followers" | "following">(defaultTab);
 
+  // Optimisation principale : fonction pour vérifier TOUS les statuts en une seule fois
+  const checkAllFollowingStatus = useCallback(async (allUserIds: string[]) => {
+    if (!currentUser || allUserIds.length === 0) return;
+    
+    try {
+      // Filtrer les utilisateurs qu'on ne suit pas déjà et qui ne sont pas nous-mêmes
+      const uniqueUserIds = [...new Set(allUserIds)].filter(id => 
+        id !== currentUser.id && !(id in followingStatus)
+      );
+      
+      if (uniqueUserIds.length === 0) return;
+
+      
+      // Faire TOUTES les requêtes en parallèle d'un coup
+      const statusPromises = uniqueUserIds.map(async (userId) => {
+        try {
+          const isFollowing = await userService.isFollowing(userId);
+          return [userId, isFollowing] as [string, boolean];
+        } catch {
+          return [userId, false] as [string, boolean];
+        }
+      });
+
+      const allStatuses = await Promise.all(statusPromises);
+      const statusMap = Object.fromEntries(allStatuses);
+      
+      setFollowingStatus(prev => ({ ...prev, ...statusMap }));
+      
+    } catch (error) {
+      console.error("Error checking follow status:", error);
+    }
+  }, [currentUser, followingStatus]);
+
   const fetchFollowersPage = async (page: number = 1, append: boolean = false) => {
     if (append) {
       setFollowersData(prev => ({ ...prev, loadingMore: true }));
@@ -69,7 +102,6 @@ export function FollowersModal({
     }
 
     try {
-      console.log(`📋 Fetching followers page ${page} for user ${user.userId}`);
       const response = await userService.getFollowers(user.userId, page, 5);
       
       setFollowersData(prev => ({
@@ -79,25 +111,12 @@ export function FollowersModal({
         loadingMore: false
       }));
 
-      // Check following status for new users
-      if (currentUser) {
-        const statusPromises = response.users.map(async (u) => {
-          if (u.userId === currentUser.id) return [u.userId, false];
-          try {
-            const isFollowing = await userService.isFollowing(u.userId);
-            return [u.userId, isFollowing];
-          } catch {
-            return [u.userId, false];
-          }
-        });
-
-        const statuses = await Promise.all(statusPromises);
-        const statusMap = Object.fromEntries(statuses);
-        setFollowingStatus(prev => ({ ...prev, ...statusMap }));
-      }
+      return response.users.map(u => u.userId);
+      
     } catch (error) {
       console.error("Error fetching followers:", error);
       setFollowersData(prev => ({ ...prev, loading: false, loadingMore: false }));
+      return [];
     }
   };
 
@@ -109,7 +128,6 @@ export function FollowersModal({
     }
 
     try {
-      console.log(`📋 Fetching following page ${page} for user ${user.userId}`);
       const response = await userService.getFollowing(user.userId, page, 5);
       
       setFollowingData(prev => ({
@@ -119,32 +137,34 @@ export function FollowersModal({
         loadingMore: false
       }));
 
-      // Check following status for new users
-      if (currentUser) {
-        const statusPromises = response.users.map(async (u) => {
-          if (u.userId === currentUser.id) return [u.userId, false];
-          try {
-            const isFollowing = await userService.isFollowing(u.userId);
-            return [u.userId, isFollowing];
-          } catch {
-            return [u.userId, false];
-          }
-        });
-
-        const statuses = await Promise.all(statusPromises);
-        const statusMap = Object.fromEntries(statuses);
-        setFollowingStatus(prev => ({ ...prev, ...statusMap }));
-      }
+      return response.users.map(u => u.userId);
+      
     } catch (error) {
       console.error("Error fetching following:", error);
       setFollowingData(prev => ({ ...prev, loading: false, loadingMore: false }));
+      return [];
     }
   };
+
+  // Fonction pour charger les deux onglets ET vérifier tous les statuts
+  const loadBothTabsAndStatus = useCallback(async () => {
+    
+    // Charger les deux listes en parallèle
+    const [followersUserIds, followingUserIds] = await Promise.all([
+      fetchFollowersPage(1, false),
+      fetchFollowingPage(1, false)
+    ]);
+    
+    // Combiner tous les IDs et vérifier les statuts en une seule fois
+    const allUserIds = [...followersUserIds, ...followingUserIds];
+    if (allUserIds.length > 0) {
+      await checkAllFollowingStatus(allUserIds);
+    }
+  }, [user.userId, checkAllFollowingStatus]);
 
   useEffect(() => {
     if (isOpen) {
       // Reset data when modal opens
-      console.log(`🔄 Modal opened for user ${user.userId}, tab: ${defaultTab}`);
       setFollowersData({
         users: [],
         pagination: { page: 0, limit: 5, total: 0, pages: 0, hasMore: false },
@@ -160,11 +180,9 @@ export function FollowersModal({
       setFollowingStatus({});
       setActiveTab(defaultTab);
       
-      // Load BOTH tabs data immediately when modal opens
-      console.log(`🔄 Loading both followers and following data for user ${user.userId}`);
+      // Charger les deux onglets dès l'ouverture
       setTimeout(() => {
-        fetchFollowersPage(1, false);
-        fetchFollowingPage(1, false);
+        loadBothTabsAndStatus();
       }, 100);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -172,20 +190,25 @@ export function FollowersModal({
 
   const handleTabChange = (tab: string) => {
     const newTab = tab as "followers" | "following";
-    console.log(`🔄 Tab changed to: ${newTab}`);
     setActiveTab(newTab);
-    // No need to fetch data here since we load both tabs at modal open
+    // Plus besoin de charger ici, tout est déjà chargé !
   };
 
-  const loadMoreFollowers = () => {
+  const loadMoreFollowers = async () => {
     if (followersData.pagination.hasMore && !followersData.loadingMore) {
-      fetchFollowersPage(followersData.pagination.page + 1, true);
+      const newUserIds = await fetchFollowersPage(followersData.pagination.page + 1, true);
+      if (newUserIds.length > 0) {
+        await checkAllFollowingStatus(newUserIds);
+      }
     }
   };
 
-  const loadMoreFollowing = () => {
+  const loadMoreFollowing = async () => {
     if (followingData.pagination.hasMore && !followingData.loadingMore) {
-      fetchFollowingPage(followingData.pagination.page + 1, true);
+      const newUserIds = await fetchFollowingPage(followingData.pagination.page + 1, true);
+      if (newUserIds.length > 0) {
+        await checkAllFollowingStatus(newUserIds);
+      }
     }
   };
 
@@ -194,6 +217,12 @@ export function FollowersModal({
 
     const isCurrentlyFollowing = followingStatus[targetUserId];
     
+    // Mise à jour optimiste de l'UI
+    setFollowingStatus(prev => ({
+      ...prev,
+      [targetUserId]: !isCurrentlyFollowing
+    }));
+    
     try {
       if (isCurrentlyFollowing) {
         await userService.unfollowUser(targetUserId);
@@ -201,14 +230,13 @@ export function FollowersModal({
         await userService.followUser(targetUserId);
       }
       
-      // Update local state immediately
-      setFollowingStatus(prev => ({
-        ...prev,
-        [targetUserId]: !isCurrentlyFollowing
-      }));
-      
     } catch (error) {
       console.error("Error following/unfollowing user:", error);
+      // Rollback en cas d'erreur
+      setFollowingStatus(prev => ({
+        ...prev,
+        [targetUserId]: isCurrentlyFollowing
+      }));
     }
   };
 

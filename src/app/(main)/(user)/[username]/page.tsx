@@ -63,12 +63,8 @@ export default function ProfilePage() {
       );
       setUserData(userData);
       setFollowersCount(userData.followersCount || 0); 
-      
-      console.log("userId utilisé pour fetch les posts :", userData.userId);
-      console.log("userData complète :", userData);
-      
+
       const userPosts = await postService.getPostsByAuthor(userData.userId);
-      console.log("Posts récupérés :", userPosts);
       setUserPosts(userPosts);
 
       const allPosts = await postService.getAllPosts();
@@ -79,7 +75,6 @@ export default function ProfilePage() {
         try {
           const followingStatus = await userService.isFollowing(userData.userId);
           setIsFollowing(followingStatus);
-          console.log(`Is current user following ${userData.username}?`, followingStatus);
         } catch (error) {
           console.error("Error checking follow status:", error);
         }
@@ -151,24 +146,14 @@ export default function ProfilePage() {
     setFollowLoading(true);
     
     try {
-      console.log("Current follow status before action:", wasFollowing);
-      console.log("Current followers count before action:", user.followersCount);
-      
       if (wasFollowing) {
-        console.log("Attempting to unfollow user:", user.userId);
         await userService.unfollowUser(user.userId);
-        console.log(`User ${user.username} unfollowed successfully`);
       } else {
-        console.log("Attempting to follow user:", user.userId);
         await userService.followUser(user.userId);
-        console.log(`User ${user.username} followed successfully`);
       }
       
       // ✅ Validation optionnelle avec les vraies données du serveur
-      console.log("Fetching updated user data...");
       const updatedUserData = await userService.getUserProfile(params.username as string);
-      console.log("Updated user data after follow/unfollow:", updatedUserData);
-      console.log("New followers count:", updatedUserData.followersCount);
       setUserData(updatedUserData);
       
     } catch (error) {

@@ -79,10 +79,8 @@ export function CommentComposer({
         .searchUser(mentionTrigger.slice(1))
         .then((profiles) => {
           if (profiles) {
-            console.log("Found user profiles:", profiles);
             setSearchedUsers(profiles);
           } else {
-            console.log("No users found for:", mentionTrigger);
             setSearchedUsers([]);
           }
         })
@@ -102,9 +100,6 @@ export function CommentComposer({
     commentService
       .createComment(postId, data.content, parentCommentId, mentioned)
       .then(() => {
-        // Optionally, you can show a success message or refresh comments
-        console.log("Comment added successfully");
-
         if (refreshComments) {
           refreshComments(); // Call the refresh function if provided
         }

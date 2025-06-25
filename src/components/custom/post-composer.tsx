@@ -140,10 +140,8 @@ export default function PostComposer({
         .searchUser(mentionTrigger.slice(1))
         .then((profiles) => {
           if (profiles) {
-            console.log("Found user profiles:", profiles);
             setSearchedUsers(profiles);
           } else {
-            console.log("No users found for:", mentionTrigger);
             setSearchedUsers([]);
           }
         })

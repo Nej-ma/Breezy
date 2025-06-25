@@ -41,7 +41,6 @@ export const PostsSection = forwardRef<PostsSectionRef, PostsSectionProps>(
     const filteredPosts = filter ? posts.filter(filter) : posts;
 
     const fetchPosts = async () => {
-      console.log("Fetching posts...");
       try {
         const response = await postService.getAllPosts();
         setPosts(response);
@@ -66,10 +65,8 @@ export const PostsSection = forwardRef<PostsSectionRef, PostsSectionProps>(
 
     useEffect(() => {
       if (!initialPosts || initialPosts.length === 0) {
-        console.log("No initial posts, fetching posts...");
         fetchPosts();
       } else {
-        console.log("Using initial posts:", initialPosts.length);
         // Pre-fetch author profiles in parallel
         setLoadingAuthors(true);
         const authorPromises = initialPosts

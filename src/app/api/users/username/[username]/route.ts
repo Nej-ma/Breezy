@@ -30,9 +30,6 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     const backendUrl =
       process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8080/api";
    
-    console.log(`📡 Fetching user profile for username: ${username}`);
-    console.log(`🔗 Backend URL: ${backendUrl}/users/username/${encodeURIComponent(username)}`);
-   
     const response = await fetch(
       `${backendUrl}/users/username/${encodeURIComponent(username)}`,
       {
@@ -44,11 +41,9 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       }
     );
 
-    console.log(`📡 Backend response status: ${response.status}`);
     
     if (!response.ok) {
       if (response.status === 404) {
-        console.log(`❌ User not found: ${username}`);
         return NextResponse.json(
           { error: "User not found" },
           { status: 404 }
@@ -60,7 +55,6 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     }
 
     const data = await response.json();
-    console.log(`✅ Successfully fetched user profile for: ${username}`);
     return NextResponse.json(data);
   } catch (error) {
     console.error("Get user by username error:", error);

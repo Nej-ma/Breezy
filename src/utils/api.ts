@@ -10,19 +10,6 @@ const apiClient = axios.create({
   },
 });
 
-// Debug intercepteur (à commenter en production)
-/*
-apiClient.interceptors.request.use((config) => {
-  console.log("🔍 API Request:", {
-    url: config.url,
-    fullURL: (config.baseURL || '') + (config.url || ''),
-    method: config.method,
-    cookies: document.cookie,
-    withCredentials: config.withCredentials
-  });
-  return config;
-});
-*/
 // Intercepteur pour gérer les erreurs 401 et refresh automatique
 apiClient.interceptors.response.use(
   (response) => {

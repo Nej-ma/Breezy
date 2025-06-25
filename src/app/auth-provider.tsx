@@ -62,7 +62,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
       }
 
-      console.log("Authentication failed");
       setUser(null);
       return false;
     } catch (error) {
@@ -112,7 +111,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return false;
       }
 
-      console.log("Login successful:", data.user);
       setUser(data.user);
       return true;
     } catch (error) {
@@ -142,7 +140,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return false;
       }
 
-      console.log("Logout successful, clearing user state...");
       setUser(null);
       
       // Rediriger vers la page de connexion

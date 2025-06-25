@@ -41,9 +41,7 @@ export type UserUpdate = {
 
 const getUserProfile = async (username: string): Promise<UserProfile> => {
   try {
-    console.log("Fetching user profile for:", username);
     const response = await apiClient.get(`users/username/${username}`);
-    console.log("getUserProfile API response:", response.status, response.data);
 
     if (response.status !== 200) {
       throw new Error(`Failed to fetch user: ${response.statusText}`);
@@ -99,9 +97,7 @@ const updateUser = async (userData: UserUpdate): Promise<UserProfile> => {
 
 const followUser = async (userId: string): Promise<void> => {
   try {
-    console.log("Calling follow API for user:", userId);
     const response = await apiClient.post(`users/${userId}/follow`);
-    console.log("Follow API response:", response.status, response.data);
     if (response.status !== 200) {
       throw new Error(`Failed to follow user: ${response.statusText}`);
     }
@@ -113,9 +109,7 @@ const followUser = async (userId: string): Promise<void> => {
 
 const unfollowUser = async (userId: string): Promise<void> => {
   try {
-    console.log("Calling unfollow API for user:", userId);
     const response = await apiClient.delete(`users/${userId}/unfollow`);
-    console.log("Unfollow API response:", response.status, response.data);
     if (response.status !== 200) {
       throw new Error(`Failed to unfollow user: ${response.statusText}`);
     }
@@ -144,9 +138,7 @@ const getFollowers = async (
   limit: number = 5
 ): Promise<PaginatedResponse<UserProfile>> => {
   try {
-    console.log(`🔍 Fetching followers for user ${userId}, page ${page}, limit ${limit}`);
     const response = await apiClient.get(`users/${userId}/followers?page=${page}&limit=${limit}`);
-    console.log("getFollowers API response:", response.status, response.data);
     
     if (response.status !== 200) {
       throw new Error(`Failed to fetch followers: ${response.statusText}`);
@@ -164,9 +156,7 @@ const getFollowing = async (
   limit: number = 5
 ): Promise<PaginatedResponse<UserProfile>> => {
   try {
-    console.log(`🔍 Fetching following for user ${userId}, page ${page}, limit ${limit}`);
     const response = await apiClient.get(`users/${userId}/following?page=${page}&limit=${limit}`);
-    console.log("getFollowing API response:", response.status, response.data);
     
     if (response.status !== 200) {
       throw new Error(`Failed to fetch following: ${response.statusText}`);
@@ -180,9 +170,7 @@ const getFollowing = async (
 
 const syncCounts = async (): Promise<{ message: string; syncedUsers: number }> => {
   try {
-    console.log("Calling sync counts API");
     const response = await apiClient.post(`users/sync-counts`);
-    console.log("Sync counts API response:", response.status, response.data);
     if (response.status !== 200) {
       throw new Error(`Failed to sync counts: ${response.statusText}`);
     }

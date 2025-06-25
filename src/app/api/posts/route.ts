@@ -64,7 +64,6 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const backendUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080/api';
     
-    console.log('🚀 Sending post to backend with token:', backendToken.substring(0, 20) + '...');
     
     const response = await fetch(`${backendUrl}/posts`, {
       method: 'POST',
@@ -75,7 +74,6 @@ export async function POST(request: NextRequest) {
       body: JSON.stringify(body),
     });
 
-    console.log('📊 Backend response status:', response.status);
 
     if (!response.ok) {
       const errorData = await response.json();
@@ -84,7 +82,6 @@ export async function POST(request: NextRequest) {
     }
 
     const data = await response.json();
-    console.log('✅ Post created successfully');
     return NextResponse.json(data, { status: 201 });
     
   } catch (error) {

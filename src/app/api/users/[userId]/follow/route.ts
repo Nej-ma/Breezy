@@ -10,17 +10,14 @@ export async function POST(
 ) {
   try {
     const { userId } = await params;
-    console.log("Follow API called for userId:", userId);
     const session = await getSession();
     const cookieStore = await cookies();
     const backendToken = cookieStore.get('backend_token')?.value;
     
     if (!session?.isLoggedIn || !backendToken) {
-      console.log("Follow API: Unauthorized access");
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    console.log("Making follow request to backend:", `${API_URL}/users/${userId}/follow`);
     const response = await fetch(`${API_URL}/users/${userId}/follow`, {
       method: "POST",
       headers: {
@@ -29,11 +26,9 @@ export async function POST(
       },
     });
 
-    console.log("Backend follow response status:", response.status);
     
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
-      console.log("Backend follow error:", errorData);
       return NextResponse.json(
         { error: errorData.message || "Failed to follow user" },
         { status: response.status }
@@ -41,7 +36,6 @@ export async function POST(
     }
 
     const data = await response.json();
-    console.log("Backend follow success:", data);
     return NextResponse.json(data);
   } catch (error) {
     console.error("Error in follow API:", error);

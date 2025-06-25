@@ -188,7 +188,6 @@ export function Post({
   const refreshPost = async () => {
     try {
       const response = await postService.getPostById(post._id);
-      console.log("Post fetched:", response);
       if (response) {
         setAuthorProfile(
           response.post.author === userProfile.userId

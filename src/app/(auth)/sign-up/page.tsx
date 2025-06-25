@@ -91,7 +91,6 @@ export default function SignUpPage() {
       .then((success) => {
         if (success) {
           // Handle successful user creation, e.g., redirect to login page or show success message
-          console.log("User created successfully");
           toast.success(t("auth.signup.successMessage"));
         } else {
           // Handle failure case
