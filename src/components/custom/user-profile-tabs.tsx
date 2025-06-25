@@ -127,7 +127,6 @@ export const UserProfileTabs: React.FC<UserProfileTabsProps> = ({ userPosts, pos
               post={post}
               userProfile={user}
               refreshPosts={() => {
-                console.log("Refresh called from likes tab"); 
                 refresh?.();
               }}
             />
