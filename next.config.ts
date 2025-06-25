@@ -1,35 +1,16 @@
 import type { NextConfig } from 'next'
 
 const nextConfig: NextConfig = {
-  // Optimisations pour la production
   output: 'standalone',
-  
-  // Configuration API
-  async rewrites() {
-    return [
-      {
-        source: '/api/:path*',
-        destination: process.env.NODE_ENV === 'production' 
-          ? 'http://breezy-traefik-prod/api/:path*'  // ← HTTP interne
-          : 'http://localhost:8080/api/:path*',
-      },
-    ]
-  },
 
-  // Images optimisées
   images: {
-    domains: [
-      'api.breezy.website',
-      'localhost'
-    ],
+    domains: ['api.breezy.website', 'localhost'],
     unoptimized: false,
   },
-
-  // Compression et optimisations
+  
   compress: true,
   poweredByHeader: false,
   
-  // Gestion des erreurs en production
   typescript: {
     ignoreBuildErrors: true,
   },
@@ -37,13 +18,11 @@ const nextConfig: NextConfig = {
     ignoreDuringBuilds: true,
   },
 
-  // Variables d'environnement publiques
   env: {
     NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL,
     NEXT_PUBLIC_FRONTEND_URL: process.env.NEXT_PUBLIC_FRONTEND_URL,
   },
 
-  // Headers de sécurité
   async headers() {
     return [
       {
@@ -60,10 +39,6 @@ const nextConfig: NextConfig = {
           {
             key: 'Referrer-Policy',
             value: 'strict-origin-when-cross-origin'
-          },
-          {
-            key: 'Permissions-Policy',
-            value: 'notifications=()'
           }
         ]
       }
