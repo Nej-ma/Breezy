@@ -9,7 +9,7 @@ interface UserProfileTabsProps {
   userPosts: PostType[];
   posts: PostType[];
   user: UserProfile;
-  currentUser: any;
+  currentUser: UserProfile;
   refresh?: () => void;
 }
 
