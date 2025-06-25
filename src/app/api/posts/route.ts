@@ -34,7 +34,33 @@ export async function GET(request: NextRequest) {
     });
 
     if (!response.ok) {
-      throw new Error(`Backend responded with ${response.status}`);
+      // Handle different HTTP status codes appropriately
+      let errorMessage = 'Failed to fetch posts';
+      const statusCode = response.status;
+
+      try {
+        const errorData = await response.json();
+        errorMessage = errorData.message || errorData.error || errorMessage;
+      } catch {
+        // If response body is not JSON, use default message
+        if (response.status === 429) {
+          errorMessage = 'Too many requests. Please try again later.';
+        } else if (response.status === 401) {
+          errorMessage = 'Authentication failed';
+        } else if (response.status === 403) {
+          errorMessage = 'Access forbidden';
+        } else if (response.status === 404) {
+          errorMessage = 'Posts not found';
+        } else if (response.status >= 500) {
+          errorMessage = 'Backend server error';
+        }
+      }
+
+      console.error(`Backend error (${response.status}):`, errorMessage);
+      return NextResponse.json(
+        { error: errorMessage },
+        { status: statusCode }
+      );
     }
 
     const data = await response.json();
@@ -74,11 +100,35 @@ export async function POST(request: NextRequest) {
       body: JSON.stringify(body),
     });
 
-
     if (!response.ok) {
-      const errorData = await response.json();
-      console.error('❌ Backend error:', errorData);
-      return NextResponse.json(errorData, { status: response.status });
+      let errorMessage = 'Failed to create post';
+      const statusCode = response.status;
+
+      try {
+        const errorData = await response.json();
+        errorMessage = errorData.message || errorData.error || errorMessage;
+        console.error('❌ Backend error:', errorData);
+        return NextResponse.json(errorData, { status: statusCode });
+      } catch {
+        // If response body is not JSON, use appropriate message
+        if (response.status === 429) {
+          errorMessage = 'Too many requests. Please try again later.';
+        } else if (response.status === 401) {
+          errorMessage = 'Authentication failed';
+        } else if (response.status === 403) {
+          errorMessage = 'Access forbidden';
+        } else if (response.status === 404) {
+          errorMessage = 'Resource not found';
+        } else if (response.status >= 500) {
+          errorMessage = 'Backend server error';
+        }
+        
+        console.error(`❌ Backend error (${response.status}):`, errorMessage);
+        return NextResponse.json(
+          { error: errorMessage },
+          { status: statusCode }
+        );
+      }
     }
 
     const data = await response.json();
