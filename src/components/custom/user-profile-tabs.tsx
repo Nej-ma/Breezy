@@ -99,14 +99,10 @@ export const UserProfileTabs: React.FC<UserProfileTabsProps> = ({ userPosts, pos
       </TabsContent>
       {/* Media Tab Content */}
       <TabsContent value="media" className="mt-6 space-y-4">
-        {userPosts.filter(
-          (post) => (post.images && post.images.length > 0) || (post.videos && post.videos.length > 0)
-        ).map((post) => (
+        {mediaPosts.map((post) => (
           <Post key={post._id} post={post} userProfile={user} refreshPosts={refresh}/>
         ))}
-        {userPosts.filter(
-          (post) => (post.images && post.images.length > 0) || (post.videos && post.videos.length > 0)
-        ).length === 0 && (
+        {mediaPosts.length === 0 && (
           <div className="flex flex-col items-center justify-center bg-card rounded-2xl shadow-lg p-12 text-center">
             <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mb-4">
               <ImageIcon className="w-8 h-8 text-primary" />
