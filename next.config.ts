@@ -4,18 +4,6 @@ const nextConfig: NextConfig = {
   // Optimisations pour la production
   output: 'standalone',
   
-  // Configuration API
-  async rewrites() {
-    return [
-      {
-        source: '/api/:path*',
-        destination: process.env.NODE_ENV === 'production' 
-          ? 'http://breezy-traefik-prod/api/:path*'  // ← HTTP interne
-          : 'http://localhost:8080/api/:path*',
-      },
-    ]
-  },
-
   // Images optimisées
   images: {
     domains: [
