@@ -10,7 +10,7 @@ const nextConfig: NextConfig = {
       {
         source: '/api/:path*',
         destination: process.env.NODE_ENV === 'production' 
-          ? `${process.env.NEXT_PUBLIC_API_URL}/api/:path*`
+          ? 'http://breezy-traefik-prod/api/:path*'  // ← HTTP interne
           : 'http://localhost:8080/api/:path*',
       },
     ]
