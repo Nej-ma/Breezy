@@ -153,8 +153,8 @@ function EditProfileForm({ user, onSave }: EditProfileProps) {
   const form = useForm<EditProfileData>({
     resolver: zodResolver(editProfileSchema),
     defaultValues: {
-      avatar: avatarPreview || "",
-      banner: bannerPreview || "",
+      avatar: avatarPreview || null,
+      banner: bannerPreview || null,
       displayName: user.displayName || "",
       bio: user.bio || "",
       location: user.location || "",
