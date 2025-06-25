@@ -2,9 +2,9 @@ name: Deploy Frontend to Production
 
 on:
   push:
-    branches: [ production, main ]  # Déclenché sur push vers production ou main
+    branches: [ prod ]  # Déclenché sur push vers production ou main
   pull_request:
-    branches: [ production ]
+    branches: [ prod ]
     types: [ closed ]  # Déclenché quand une PR est mergée
 
 jobs:
