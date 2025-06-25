@@ -72,6 +72,7 @@ export default function ProfilePage() {
       setUserData(undefined);
       setFollowersCount(0);
       setUserPosts([]);
+      setPosts([]);
     } finally {
       setLoading(false);
     }
