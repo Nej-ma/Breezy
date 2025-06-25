@@ -105,10 +105,12 @@ export function Post({
     },
   ];
 
-  // States
+  // Existing state variables
+  const [likesState, setLikesState] = useState<Array<string>>(post.likes ?? []);
   const [likedState, setLikedState] = useState(
-    post.likes.includes(userProfile.userId)
+    (post.likes ?? []).includes(userProfile.userId)
   );
+  // Add new state for dialog
   const [showComments, setShowComments] = useState(false);
   const [commentsLoading, setCommentsLoading] = useState(false);
   const [comments, setComments] = useState<CommentType[]>([]);
@@ -126,18 +128,31 @@ export function Post({
   const likeTimeout = useRef<NodeJS.Timeout | null>(null);
   const { user } = useAuth();
 
-  const handleToggleLike = () => {
-    if (likeTimeout.current) {
-      clearTimeout(likeTimeout.current);
+  // === BACKEND INTERACTIONS ===
+  const handleToggleLike = async () => {
+    // Optimistic update
+    const isLiked = likesState.includes(userProfile.userId);
+    const previousLikes = [...likesState];
+    const newLikes = isLiked
+      ? likesState.filter((id) => id !== userProfile.userId)
+      : [...likesState, userProfile.userId];
+
+    setLikesState(newLikes);
+    setLikedState(!isLiked);
+
+    try {
+      // Call the API which toggles like/unlike
+      await postService.likePost(post._id, userProfile.userId);
+
+      // Optionally, fetch the latest likes from backend to ensure sync
+      // (if your API returns the updated post, use that instead)
+      // Here, we just assume the optimistic update is correct
+    } catch (error) {
+      // Rollback optimistic update on error
+      setLikesState(previousLikes);
+      setLikedState(isLiked);
+      console.error("Error updating like:", error);
     }
-    likeTimeout.current = setTimeout(() => {
-      postService.likePost(post._id).then(() => {
-        postService.getUserPostsById(post._id).then((updatedPost: Post) => {
-          post.likes = updatedPost.likes;
-          setLikedState(updatedPost.likes.includes(userProfile.userId));
-        });
-      });
-    }, 400);
   };
 
   const fetchComments = async () => {
@@ -162,7 +177,7 @@ export function Post({
   }, [showComments]);
 
   useEffect(() => {
-    if (userProfile.userId && post.likes.includes(userProfile.userId)) {
+    if (userProfile.userId && likesState.includes(userProfile.userId)) {
       setLikedState(true);
     } else {
       setLikedState(false);
@@ -392,7 +407,6 @@ export function Post({
                   likedState ? "fill-current" : "fill-none"
                 }`}
               />
-              {post.likes.length}
             </Button>
             <Button
               variant="ghost"
