@@ -66,6 +66,17 @@
     },
 
     "auth": {
+        "form": {
+            "required": "This field is required",
+            "invalidEmail": "Invalid email address",
+            "minLength": "Must contain at least {{min}} characters",
+            "passwordLowercase": "Must contain a lowercase letter",
+            "passwordUppercase": "Must contain an uppercase letter",
+            "passwordNumber": "Must contain a number",
+            "passwordSpecial": "Must contain a special character",
+            "passwordMismatch": "Passwords do not match"
+        },
+
         "signup": {
             "displayName": "Name",
             "displayNameDescription": "This name will be displayed on your profile",
@@ -78,7 +89,9 @@
             "submit": "Sign Up",
             "successMessage": "Your account has been successfully created. A confirmation email has been sent to your address. Please check your inbox and click the confirmation link to activate your account.",
             "errorMessage": "An error occurred while creating your account. Please try again later or contact support if the problem persists.",
-            "alreadyHaveAccount": "Already have an account?"
+            "alreadyHaveAccount": "Already have an account?",
+            "showPassword": "Show password",
+            "hidePassword": "Hide password"
         },
 
         "signin": {
@@ -90,19 +103,32 @@
             "successMessage": "Welcome back! You have successfully logged in.",
             "errorMessage": "Incorrect username or password. Please try again.",
             "noAccount": "I don't have an account"
+        },
+
+        "resetPassword": {
+            "title": "Reset Password",
+            "subtitle": "Please choose a new password for your account.",
+            "newPasswordPlaceholder": "New password",
+            "confirmPasswordPlaceholder": "Confirm new password",
+            "submit": "Reset Password",
+            "successMessage": "Your password has been reset successfully.",
+            "errorMessage": "Failed to reset password.",
+            "backToLogin": "Back to login",
+            "validatingToken": "Validating your request...",
+            "invalidToken": "Reset link is invalid or has expired."
         }
     },
     
     "comments": {
-    "title": "Comments",
-    "placeholder": "Write your comment...",
-    "send": "Comment",
-    "reply": "Reply",
-    "menu": "Open menu",
-    "delete": "Delete",
-    "deleting": "Deleting...",
-    "showMore": "Show {{count}} more comment(s)",
-    "hide": "Hide comments"
+        "title": "Comments",
+        "placeholder": "Write your comment...",
+        "send": "Comment",
+        "reply": "Reply",
+        "menu": "Open menu",
+        "delete": "Delete",
+        "deleting": "Deleting...",
+        "showMore": "Show {{count}} more comment(s)",
+        "hide": "Hide comments"
     },
 
     "suspense": {

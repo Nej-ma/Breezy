@@ -14,7 +14,7 @@ export async function POST(
       `${backendUrl}/auth/activate/${params.token}`,
       {
         method: "POST",
-        headers: {
+        headers: { 
           "Content-Type": "application/json",
         },
       }

@@ -66,6 +66,17 @@
     },
 
     "auth": {
+        "form": {
+            "required": "Ce champ est requis",
+            "invalidEmail": "Adresse email invalide",
+            "minLength": "Doit contenir au moins {{min}} caractères",
+            "passwordLowercase": "Doit contenir une lettre minuscule",
+            "passwordUppercase": "Doit contenir une lettre majuscule",
+            "passwordNumber": "Doit contenir un chiffre",
+            "passwordSpecial": "Doit contenir un caractère spécial",
+            "passwordMismatch": "Les mots de passe ne correspondent pas"
+        },
+
         "signup": {
             "displayName": "Nom",
             "displayNameDescription": "Ce nom sera affiché sur votre profil",
@@ -78,7 +89,9 @@
             "submit": "S'inscrire",
             "successMessage": "Votre compte a été créé avec succès. Un email de confirmation a été envoyé à votre adresse. Veuillez vérifier votre boîte de réception et cliquer sur le lien de confirmation pour activer votre compte.",
             "errorMessage": "Une erreur s'est produite lors de la création de votre compte. Veuillez réessayer plus tard ou contacter le support si le problème persiste.",
-            "alreadyHaveAccount": "Vous avez déjà un compte ?"
+            "alreadyHaveAccount": "Vous avez déjà un compte ?",
+            "showPassword": "Afficher le mot de passe",
+            "hidePassword": "Cacher le mot de passe"
         },
         
         "signin": {
@@ -90,19 +103,32 @@
             "successMessage": "Connexion réussie. Bienvenue !",
             "errorMessage": "Nom d'utilisateur ou mot de passe incorrect. Veuillez réessayer.",
             "noAccount": "Je n'ai pas de compte"
+        },
+
+        "resetPassword": {
+            "title": "Réinitialisation du mot de passe",
+            "subtitle": "Veuillez choisir un nouveau mot de passe pour votre compte.",
+            "newPasswordPlaceholder": "Nouveau mot de passe",
+            "confirmPasswordPlaceholder": "Confirmer le nouveau mot de passe",
+            "submit": "Réinitialiser le mot de passe",
+            "successMessage": "Votre mot de passe a été réinitialisé avec succès.",
+            "errorMessage": "La réinitialisation du mot de passe a échoué.",
+            "backToLogin": "Retour à la connexion",
+            "validatingToken": "Validation de votre demande...",
+            "invalidToken": "Le lien de réinitialisation est invalide ou a expiré."
         }
     },
 
     "comments": {
-    "title": "Commentaires",
-    "placeholder": "Écrivez votre commentaire...",
-    "send": "Commenter",
-    "reply": "Répondre",
-    "menu": "Ouvrir le menu",
-    "delete": "Supprimer",
-    "deleting": "Suppression...",
-    "showMore": "Voir {{count}} commentaire(s) de plus",
-    "hide": "Masquer les commentaires"
+        "title": "Commentaires",
+        "placeholder": "Écrivez votre commentaire...",
+        "send": "Commenter",
+        "reply": "Répondre",
+        "menu": "Ouvrir le menu",
+        "delete": "Supprimer",
+        "deleting": "Suppression...",
+        "showMore": "Voir {{count}} commentaire(s) de plus",
+        "hide": "Masquer les commentaires"
     },
 
     "suspense": {
