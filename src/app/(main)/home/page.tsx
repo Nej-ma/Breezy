@@ -23,7 +23,12 @@ export default function HomePage() {
   const postsSectionRef = React.useRef<PostsSectionRef>(null);
 
   const refreshPosts = useCallback(() => {
-    postsSectionRef.current?.refresh();
+    if (
+      postsSectionRef.current &&
+      typeof postsSectionRef.current.refresh === "function"
+    ) {
+      postsSectionRef.current.refresh();
+    }
   }, []);
 
   const fetchUserProfile = useCallback(async () => {
