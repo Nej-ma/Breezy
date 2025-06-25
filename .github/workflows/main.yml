@@ -1,0 +1,71 @@
+name: Deploy Frontend to Production
+
+on:
+  push:
+    branches: [ production, main ]  # Déclenché sur push vers production ou main
+  pull_request:
+    branches: [ production ]
+    types: [ closed ]  # Déclenché quand une PR est mergée
+
+jobs:
+  deploy-frontend:
+    runs-on: ubuntu-latest
+    
+    # Ne déployer que si c'est un push direct ou une PR mergée
+    if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.merged == true)
+    
+    steps:
+    - name: Deploy Frontend to VPS
+      uses: appleboy/ssh-action@v0.1.7
+      with:
+        host: ${{ secrets.VPS_HOST }}
+        username: ${{ secrets.VPS_USERNAME }}
+        key: ${{ secrets.VPS_SSH_KEY }}
+        script: |
+          echo "Déploiement du frontend démarré..."
+          
+          # Aller dans le dossier du projet frontend
+          cd /root/projects/Breezy
+          
+          # Backup de sécurité (optionnel)
+          echo "Création d'un backup..."
+          git stash push -m "Pre-deploy backup $(date)"
+          
+          # Pull des dernières modifications
+          echo "Récupération des modifications..."
+          git fetch origin
+          git checkout production  # ou main selon votre branche
+          git pull origin production  # ou main
+          
+          # Aller dans le dossier backend pour redéployer le frontend
+          cd ../breezy-backend
+          
+          # Arrêter seulement le frontend
+          echo "⏹Arrêt du frontend..."
+          docker compose -f docker-compose.prod-ssl.yml stop frontend
+          
+          # Supprimer l'ancienne image pour forcer un rebuild complet
+          echo "Suppression de l'ancienne image..."
+          docker rmi breezy-frontend:latest || true
+          
+          # Reconstruire et redémarrer SEULEMENT le frontend
+          echo "Reconstruction du frontend..."
+          docker compose -f docker-compose.prod-ssl.yml up -d --build frontend
+          
+          # Attendre que le service soit prêt
+          echo "Attente du démarrage..."
+          sleep 30
+          
+          # Vérifier que le frontend fonctionne
+          echo "Vérification du statut..."
+          docker logs breezy-frontend-prod --tail 10
+          
+          # Test de santé
+          if docker compose -f docker-compose.prod-ssl.yml ps frontend | grep -q "healthy\|running"; then
+            echo "Frontend déployé avec succès!"
+          else
+            echo "Problème avec le déploiement"
+            exit 1
+          fi
+          
+          echo "Déploiement terminé!"
