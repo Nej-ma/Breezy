@@ -24,6 +24,13 @@ export const UserProfileTabs: React.FC<UserProfileTabsProps> = ({
   const isCurrentUser = currentUser && currentUser.id === user.userId;
   const [likedPosts, setLikedPosts] = useState<PostType[]>([]);
 
+  // Filter posts that contain media (e.g., images or videos)
+  const mediaPosts = userPosts.filter(
+    (post) =>
+      (post.images && post.images.length > 0) ||
+      (post.videos && post.videos.length > 0)
+  );
+
   useEffect(() => {
     setLikedPosts(
       posts.filter((post) => post.likes && post.likes.includes(currentUser?.id))
@@ -113,23 +120,26 @@ export const UserProfileTabs: React.FC<UserProfileTabsProps> = ({
       </TabsContent>
       {/* Media Tab Content */}
       <TabsContent value="media" className="mt-6 space-y-4">
-        {/* TODO: Afficher les posts contenant des médias (images/vidéos) ici */}
-        {/* {mediaPosts.map((post) => (
-          <Post key={post._id} post={post} userProfile={user} refreshPosts={refresh}/>
-        ))}
-        {mediaPosts.length === 0 && ( */}
-        <div className="flex flex-col items-center justify-center bg-card rounded-2xl shadow-lg p-12 text-center">
-          <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mb-4">
-            <ImageIcon className="w-8 h-8 text-primary" />
+        {mediaPosts.length > 0 ? (
+          <PostsSection
+            userProfile={user}
+            posts={mediaPosts}
+            isLoading={!mediaPosts.length}
+            refreshParents={refresh}
+          />
+        ) : (
+          <div className="flex flex-col items-center justify-center bg-card rounded-2xl shadow-lg p-12 text-center">
+            <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mb-4">
+              <ImageIcon className="w-8 h-8 text-primary" />
+            </div>
+            <p className="text-gray-500 text-lg">
+              Aucun média partagé pour l'instant
+            </p>
+            <p className="text-gray-400 text-sm mt-2">
+              Partage des photos ou vidéos pour les retrouver ici.
+            </p>
           </div>
-          <p className="text-gray-500 text-lg">
-            Aucun média partagé pour l'instant
-          </p>
-          <p className="text-gray-400 text-sm mt-2">
-            Partage des photos ou vidéos pour les retrouver ici.
-          </p>
-        </div>
-        {/* )} */}
+        )}
       </TabsContent>
       {/* Likes Tab Content */}
       <TabsContent value="likes" className="mt-6 space-y-4">

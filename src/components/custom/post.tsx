@@ -370,7 +370,7 @@ export function Post({
               )}
 
               {(post.images?.length > 0 || post.videos?.length > 0) && (
-                <div className="mb-4 rounded-2xl overflow-hidden border border-gray-100 bg-gray-50">
+                <div className="mt-3 mb-4 rounded-2xl overflow-hidden border border-gray-100 bg-gray-50">
                   {post.images &&
                     post.images.map((imgUrl, idx) => (
                       <img
