@@ -21,7 +21,6 @@ export async function POST(
     );
 
     const data = await response.text();
-    console.log("Backend response:", data);
 
     let jsonData;
     try {

@@ -17,7 +17,7 @@ import { useAuthorProfiles } from "@/hooks/use-author";
 
 // Add export for the ref type
 export interface PostsSectionRef {
-  refresh: () => Promise<void>;
+  refresh?: () => Promise<void>;
 }
 
 interface PostsSectionProps {
@@ -25,10 +25,14 @@ interface PostsSectionProps {
   userProfile: UserProfile;
   filter?: (post: PostType) => boolean;
   isLoading?: boolean;
+  refreshParents?: () => void;
 }
 
 export const PostsSection = forwardRef<PostsSectionRef, PostsSectionProps>(
-  ({ posts: initialPosts, userProfile, filter, isLoading }, ref) => {
+  (
+    { posts: initialPosts, userProfile, filter, isLoading, refreshParents },
+    ref
+  ) => {
     const { authorProfiles, getAuthorProfile } = useAuthorProfiles();
     const [loadingAuthors, setLoadingAuthors] = useState(false);
 
@@ -37,7 +41,6 @@ export const PostsSection = forwardRef<PostsSectionRef, PostsSectionProps>(
     const filteredPosts = filter ? posts.filter(filter) : posts;
 
     const fetchPosts = async () => {
-      console.log("Fetching posts...");
       try {
         const response = await postService.getAllPosts();
         setPosts(response);
@@ -62,10 +65,8 @@ export const PostsSection = forwardRef<PostsSectionRef, PostsSectionProps>(
 
     useEffect(() => {
       if (!initialPosts || initialPosts.length === 0) {
-        console.log("No initial posts, fetching posts...");
         fetchPosts();
       } else {
-        console.log("Using initial posts:", initialPosts.length);
         // Pre-fetch author profiles in parallel
         setLoadingAuthors(true);
         const authorPromises = initialPosts
@@ -78,6 +79,10 @@ export const PostsSection = forwardRef<PostsSectionRef, PostsSectionProps>(
 
     const refreshPosts = async () => {
       await fetchPosts();
+
+      if (refreshParents) {
+        refreshParents();
+      }
     };
 
     if (isLoading || loadingAuthors) {

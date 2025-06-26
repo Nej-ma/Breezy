@@ -83,7 +83,6 @@ export async function decrypt(token: string): Promise<SessionPayload | null> {
       expiresAt: sessionPayload.expiresAt
     };
   } catch (error) {
-    console.log('Failed to decrypt session:', error);
     return null;
   }
 }

@@ -4,6 +4,7 @@ import { Heart, ImageIcon, MessageCircle, StickyNote } from "lucide-react";
 import type { Post as PostType } from "@/utils/types/postType";
 import type { User, UserProfile } from "@/utils/types/userType";
 import React, { useState, useEffect } from "react";
+import { PostsSection } from "./post-section";
 
 interface UserProfileTabsProps {
   userPosts: PostType[];
@@ -13,12 +14,20 @@ interface UserProfileTabsProps {
   refresh?: () => void;
 }
 
-export const UserProfileTabs: React.FC<UserProfileTabsProps> = ({ userPosts, posts, user, currentUser, refresh }) => {
+export const UserProfileTabs: React.FC<UserProfileTabsProps> = ({
+  userPosts,
+  posts,
+  user,
+  currentUser,
+  refresh,
+}) => {
   const isCurrentUser = currentUser && currentUser.id === user.userId;
   const [likedPosts, setLikedPosts] = useState<PostType[]>([]);
 
   useEffect(() => {
-    setLikedPosts(posts.filter((post) => post.likes && post.likes.includes(currentUser?.id)));
+    setLikedPosts(
+      posts.filter((post) => post.likes && post.likes.includes(currentUser?.id))
+    );
   }, [posts, currentUser]);
 
   return (
@@ -72,7 +81,12 @@ export const UserProfileTabs: React.FC<UserProfileTabsProps> = ({ userPosts, pos
       {/* Posts Tab Content */}
       <TabsContent value="posts" className="mt-6 space-y-4">
         {userPosts.length > 0 ? (
-          userPosts.map((post) => <Post key={post._id} post={post} userProfile={user} refreshPosts={refresh} />)
+          <PostsSection
+            userProfile={user}
+            posts={userPosts}
+            isLoading={!userPosts.length}
+            refreshParents={refresh}
+          />
         ) : (
           <div className="flex flex-col items-center justify-center bg-card rounded-2xl shadow-lg p-12 text-center">
             <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mb-4">
@@ -104,36 +118,36 @@ export const UserProfileTabs: React.FC<UserProfileTabsProps> = ({ userPosts, pos
           <Post key={post._id} post={post} userProfile={user} refreshPosts={refresh}/>
         ))}
         {mediaPosts.length === 0 && ( */}
-          <div className="flex flex-col items-center justify-center bg-card rounded-2xl shadow-lg p-12 text-center">
-            <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mb-4">
-              <ImageIcon className="w-8 h-8 text-primary" />
-            </div>
-            <p className="text-gray-500 text-lg">Aucun média partagé pour l'instant</p>
-            <p className="text-gray-400 text-sm mt-2">
-              Partage des photos ou vidéos pour les retrouver ici.
-            </p>
+        <div className="flex flex-col items-center justify-center bg-card rounded-2xl shadow-lg p-12 text-center">
+          <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mb-4">
+            <ImageIcon className="w-8 h-8 text-primary" />
           </div>
+          <p className="text-gray-500 text-lg">
+            Aucun média partagé pour l'instant
+          </p>
+          <p className="text-gray-400 text-sm mt-2">
+            Partage des photos ou vidéos pour les retrouver ici.
+          </p>
+        </div>
         {/* )} */}
       </TabsContent>
       {/* Likes Tab Content */}
       <TabsContent value="likes" className="mt-6 space-y-4">
         {likedPosts.length > 0 ? (
-          likedPosts.map((post) => (
-            <Post
-              key={post._id}
-              post={post}
-              userProfile={user}
-              refreshPosts={() => {
-                refresh?.();
-              }}
-            />
-          ))
+          <PostsSection
+            userProfile={user}
+            posts={likedPosts}
+            isLoading={!userPosts.length}
+            refreshParents={refresh}
+          />
         ) : (
           <div className="flex flex-col items-center justify-center bg-card rounded-2xl shadow-lg p-12 text-center">
             <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mb-4">
               <Heart className="w-8 h-8 text-primary" />
             </div>
-            <p className="text-gray-500 text-lg">Aucun post liké pour le moment</p>
+            <p className="text-gray-500 text-lg">
+              Aucun post liké pour le moment
+            </p>
             <p className="text-gray-400 text-sm mt-2">
               Les posts que tu aimeras s'afficheront ici.
             </p>

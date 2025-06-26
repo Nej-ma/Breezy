@@ -71,9 +71,7 @@ const getUserPostsByUserIds = async (userIds: string[]): Promise<Post[]> => {
 
 const getPostsByAuthor = async (authorId: string): Promise<Post[]> => {
   try {
-    console.log("📊 Fetching posts by author:", authorId);
     const response = await apiClient.get(`posts?author=${authorId}`);
-    console.log("📊 Response status:", response.status);
 
     if (response.status !== 200) {
       console.error(
@@ -87,15 +85,12 @@ const getPostsByAuthor = async (authorId: string): Promise<Post[]> => {
     }
 
     const data = response.data;
-    console.log("📊 Posts data received:", data);
-    console.log("📊 Data type:", typeof data, "Is array:", Array.isArray(data));
 
     const posts = Array.isArray(data)
       ? data
       : Array.isArray(data.posts)
       ? data.posts
       : [];
-    console.log("📊 Final posts array:", posts.length, "posts");
 
     return posts;
   } catch (error) {
@@ -118,14 +113,11 @@ const postPost = async (content: string, visibility: string, files: File[]) => {
       videos: files.filter((file) => file.type.startsWith("video/")),
     } as PostRequest;
 
-    console.log("📝 Creating post with data:", data);
 
     const response = await apiClient.post("posts", data);
 
-    console.log("📊 Post response status:", response.status);
 
     if (response.status === 201) {
-      console.log("✅ Post created successfully");
       return response.data;
     } else if (response.status === 400) {
       throw new Error("Bad request: Invalid post data");
@@ -147,7 +139,6 @@ const likePost = async (postId: string, userId: string) => {
     const response = await apiClient.put(`posts/${postId}/like`, { userId });
 
     if (response.status === 200) {
-      console.log("Post liked successfully");
     } else {
       throw new Error(`Error liking post: ${response.statusText}`);
     }
@@ -166,7 +157,6 @@ const updatePostContent = async (postId: string, content: string) => {
     });
 
     if (response.status === 200) {
-      console.log("Post modified successfully");
     } else {
       throw new Error(`Error modifying post: ${response.statusText}`);
     }
@@ -184,7 +174,6 @@ const updatePostVisibility = async (
     const response = await apiClient.put(`posts/${postId}`, { visibility });
 
     if (response.status === 200) {
-      console.log("Post visibility updated successfully");
     } else {
       throw new Error(`Error updating post visibility: ${response.statusText}`);
     }
@@ -199,7 +188,6 @@ const deletePost = async (postId: string) => {
     const response = await apiClient.delete(`posts/${postId}`);
 
     if (response.status === 200) {
-      console.log("Post deleted successfully");
     } else {
       throw new Error(`Error deleting post: ${response.statusText}`);
     }
