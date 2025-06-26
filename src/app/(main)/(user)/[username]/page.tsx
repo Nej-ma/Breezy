@@ -240,6 +240,8 @@ export default function ProfilePage() {
         ) : (
           <div
         className="w-full h-64"
+        role="img"
+        aria-label="Default cover picture"
         style={{
           background: "linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%)",
         }}
