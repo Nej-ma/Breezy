@@ -263,7 +263,7 @@ export function Post({
             <div className="flex-1">
               <div className="flex items-center gap-2 mb-2">
                 <span className="font-semibold text-gray-900 transition-colors">
-                  {authorProfile?.username}
+                  {authorProfile?.displayName}
                 </span>
                 <Sparkles className="w-4 h-4 text-[var(--primary-light)]" />
                 <span className="text-gray-500">
