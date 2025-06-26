@@ -233,7 +233,7 @@ export default function ProfilePage() {
       <div className="relative h-64 overflow-hidden ">
         <img
           src={user.coverPicture || "/placeholder.svg"}
-          alt="Banner"
+          alt={user.coverPicture ? `${user.displayName}'s cover picture` : "Default placeholder cover picture"}
           className="w-full h-64 object-cover"
         />
       </div>
