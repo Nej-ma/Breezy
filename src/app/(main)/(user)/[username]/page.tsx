@@ -5,6 +5,7 @@ import { DeleteUser } from "@/components/custom/delete-user";
 import { Stats } from "@/components/custom/stats";
 import { RoleBadge } from "@/components/custom/role-badge";
 import { SuspendedAccount } from "@/components/custom/suspended-account";
+import { SuspendUserModal } from "@/components/custom/suspend-user-modal";
 import {
   Avatar,
   AvatarFallback,
@@ -61,6 +62,7 @@ export default function ProfilePage() {
   const [showFollowersModal, setShowFollowersModal] = useState(false);
   const [followersModalTab, setFollowersModalTab] = useState<"followers" | "following">("followers");
   const [isModerating, setIsModerating] = useState(false);
+  const [showSuspendModal, setShowSuspendModal] = useState(false);
 
   const fetchUserAndPosts = async () => {
     try {
@@ -224,23 +226,28 @@ export default function ProfilePage() {
   };
 
   // Fonctions de modération
-  const handleSuspendUser = async () => {
+  const handleSuspendUser = async (duration?: number, reason?: string) => {
     if (!currentUser || !user || !adminService.hasModeratorPermissions(currentUser.role)) return;
     
     setIsModerating(true);
     try {
       await adminService.suspendUser(user.userId, {
-        duration: 24, // 24 heures par défaut
-        reason: "Violation des règles de la communauté"
+        duration,
+        reason
       });
       
       // Recharger les données utilisateur
       await fetchUserAndPosts();
+      setShowSuspendModal(false);
     } catch (error) {
       console.error("Erreur lors de la suspension:", error);
     } finally {
       setIsModerating(false);
     }
+  };
+
+  const openSuspendModal = () => {
+    setShowSuspendModal(true);
   };
 
   const handleUnsuspendUser = async () => {
@@ -267,6 +274,9 @@ export default function ProfilePage() {
       <SuspendedAccount 
         displayName={user.displayName}
         suspendedUntil={user.suspendedUntil}
+        userId={user.userId}
+        currentUserRole={currentUser?.role}
+        onUnsuspend={fetchUserAndPosts}
       />
     );
   }
@@ -403,7 +413,7 @@ export default function ProfilePage() {
                           ) : (
                             <DropdownMenuItem 
                               className="cursor-pointer text-orange-600 focus:text-orange-600 focus:bg-orange-50"
-                              onClick={handleSuspendUser}
+                              onClick={openSuspendModal}
                               disabled={isModerating}
                             >
                               <Shield className="w-4 h-4" />
@@ -513,6 +523,17 @@ export default function ProfilePage() {
           isOpen={showFollowersModal}
           onClose={handleModalClose}
           defaultTab={followersModalTab}
+        />
+      )}
+
+      {/* Suspend User Modal */}
+      {user && (
+        <SuspendUserModal
+          isOpen={showSuspendModal}
+          onClose={() => setShowSuspendModal(false)}
+          onSuspend={handleSuspendUser}
+          userName={user.displayName}
+          isLoading={isModerating}
         />
       )}
     </div>

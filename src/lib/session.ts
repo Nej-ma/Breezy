@@ -10,6 +10,8 @@ export interface SessionPayload {
   email?: string;
   displayName?: string;
   isVerified?: boolean;
+  isSuspended?: boolean;
+  suspendedUntil?: string | null;
   expiresAt: number;
 }
 
@@ -24,6 +26,8 @@ interface JWTSessionPayload extends JWTPayload {
   email?: string;
   displayName?: string;
   isVerified?: boolean;
+  isSuspended?: boolean;
+  suspendedUntil?: string | null;
   expiresAt: number;
 }
 
@@ -80,6 +84,8 @@ export async function decrypt(token: string): Promise<SessionPayload | null> {
       email: sessionPayload.email,
       displayName: sessionPayload.displayName,
       isVerified: sessionPayload.isVerified,
+      isSuspended: sessionPayload.isSuspended,
+      suspendedUntil: sessionPayload.suspendedUntil,
       expiresAt: sessionPayload.expiresAt
     };
   } catch (error) {

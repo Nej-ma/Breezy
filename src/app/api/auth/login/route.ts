@@ -43,6 +43,8 @@ export async function POST(request: NextRequest) {
       email: data.user.email,
       displayName: data.user.displayName,
       isVerified: data.user.isVerified,
+      isSuspended: data.user.isSuspended,
+      suspendedUntil: data.user.suspendedUntil,
       expiresAt
     });
    
@@ -56,6 +58,8 @@ export async function POST(request: NextRequest) {
         displayName: data.user.displayName,
         role: data.user.role,
         isVerified: data.user.isVerified,
+        isSuspended: data.user.isSuspended,
+        suspendedUntil: data.user.suspendedUntil,
       }
     });
 
