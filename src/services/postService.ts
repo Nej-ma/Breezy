@@ -126,7 +126,7 @@ const getPostsByAuthor = async (authorId: string): Promise<Post[]> => {
   }
 };
 
-const postPost = async (content: string, visibility: string, files: File[]) => {
+const postPost = async (content: string, visibility: string, images: string[], videos: string[]) => {
   try {
     const tags = extractTags(content);
     const mentions = extractMentions(content);
@@ -136,9 +136,9 @@ const postPost = async (content: string, visibility: string, files: File[]) => {
       visibility,
       tags,
       mentions,
-      images: files.filter((file) => file.type.startsWith("image/")),
-      videos: files.filter((file) => file.type.startsWith("video/")),
-    } as PostRequest;
+      images,
+      videos,
+    };
 
     const response = await apiClient.post("posts", data);
 

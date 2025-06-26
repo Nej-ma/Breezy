@@ -40,6 +40,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 
 import { AutoCompleteUser } from "./auto-completer-user";
+import { MediaUrlDialog } from "@/components/custom/media-url-dialog";
 
 // form
 import { useForm, Controller, FormProvider } from "react-hook-form";
@@ -88,7 +89,9 @@ export default function PostComposer({
   ];
 
   const [visibility, setVisibility] = useState(visibilityOptions[0]);
-  const [attachedFiles, setAttachedFiles] = useState<File[]>([]);
+  const [images, setImages] = useState<string[]>([]);
+  const [videos, setVideos] = useState<string[]>([]);
+  const [mediaDialogOpen, setMediaDialogOpen] = useState(false);
   const [isPosting, setIsPosting] = useState(false);
   const [searchedUsers, setSearchedUsers] = useState<UserProfile[]>([]);
   const [mentioned, setMentioned] = useState<string[]>([]); // Array of mentioned user IDs
@@ -113,13 +116,15 @@ export default function PostComposer({
   const characterCount = content.length;
   const maxCharacters = 200;
 
-  const handleFileAttachment = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(event.target.files || []);
-    setAttachedFiles((prev) => [...prev, ...files]);
+  const handleAddMedia = ({ image, video }: { image: string; video: string }) => {
+    if (image && !images.includes(image)) setImages((prev) => [...prev, image]);
+    if (video && !videos.includes(video)) setVideos((prev) => [...prev, video]);
   };
-
-  const removeFile = (index: number) => {
-    setAttachedFiles((prev) => prev.filter((_, i) => i !== index));
+  const handleRemoveImage = (index: number) => {
+    setImages((prev) => prev.filter((_, i) => i !== index));
+  };
+  const handleRemoveVideo = (index: number) => {
+    setVideos((prev) => prev.filter((_, i) => i !== index));
   };
 
   useEffect(() => {
@@ -155,14 +160,11 @@ export default function PostComposer({
 
   const onSubmit = async (data: FormValues) => {
     setIsPosting(true);
-
     try {
-      // Submit post with files
-      await postService.postPost(data.content, visibility.value, attachedFiles);
-
-      // Reset the form and attached files after posting
+      await postService.postPost(data.content, visibility.value, images, videos);
       reset();
-      setAttachedFiles([]);
+      setImages([]);
+      setVideos([]);
       setSearchedUsers([]);
       refreshPosts?.();
     } catch (error) {
@@ -299,14 +301,12 @@ export default function PostComposer({
             <div className="text-xs text-red-500">{errors.content.message}</div>
           )}
 
-          {/* Attached Files */}
-          {attachedFiles.length > 0 && (
+          {/* Media URLs */}
+          {images.length > 0 && (
             <div className="space-y-2">
-              <p className="text-sm font-medium">
-                {t("post.attachedFiles", "Fichiers joints")}
-              </p>
+              <p className="text-sm font-medium">Images jointes (URL)</p>
               <div className="flex flex-wrap gap-2">
-                {attachedFiles.map((file, index) => (
+                {images.map((url, index) => (
                   <Badge
                     key={index}
                     variant="secondary"
@@ -314,13 +314,41 @@ export default function PostComposer({
                   >
                     <Paperclip className="w-3 h-3" />
                     <span className="text-xs truncate max-w-[100px]">
-                      {file.name}
+                      {url}
                     </span>
                     <Button
                       variant="ghost"
                       size="sm"
                       className="h-4 w-4 p-0 hover:bg-destructive hover:text-destructive-foreground"
-                      onClick={() => removeFile(index)}
+                      onClick={() => handleRemoveImage(index)}
+                      type="button"
+                    >
+                      <X className="w-3 h-3" />
+                    </Button>
+                  </Badge>
+                ))}
+              </div>
+            </div>
+          )}
+          {videos.length > 0 && (
+            <div className="space-y-2">
+              <p className="text-sm font-medium">Vidéos jointes (URL)</p>
+              <div className="flex flex-wrap gap-2">
+                {videos.map((url, index) => (
+                  <Badge
+                    key={index}
+                    variant="secondary"
+                    className="flex items-center gap-1"
+                  >
+                    <Paperclip className="w-3 h-3" />
+                    <span className="text-xs truncate max-w-[100px]">
+                      {url}
+                    </span>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-4 w-4 p-0 hover:bg-destructive hover:text-destructive-foreground"
+                      onClick={() => handleRemoveVideo(index)}
                       type="button"
                     >
                       <X className="w-3 h-3" />
@@ -334,27 +362,19 @@ export default function PostComposer({
           {/* Actions */}
           <div className="flex items-center justify-between pt-4 border-t mt-4">
             <div className="flex items-center gap-2">
-              {/* File Attachment */}
-              <div className="relative">
-                <input
-                  type="file"
-                  multiple
-                  onChange={handleFileAttachment}
-                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                  accept="image/*,video/*,.pdf,.doc,.docx"
-                />
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="flex items-center gap-2"
-                  type="button"
-                >
-                  <Paperclip className="w-4 h-4" />
-                  <span className="hidden sm:inline">
-                    {t("post.actions.attach", "Joindre")}
-                  </span>
-                </Button>
-              </div>
+              {/* Media URL Attachment */}
+              <Button
+                variant="ghost"
+                size="sm"
+                className="flex items-center gap-2"
+                type="button"
+                onClick={() => setMediaDialogOpen(true)}
+              >
+                <Paperclip className="w-4 h-4" />
+                <span className="hidden sm:inline">
+                  Joindre (URL)
+                </span>
+              </Button>
 
               {/* Visibility Selector */}
               <DropdownMenu>
@@ -397,7 +417,7 @@ export default function PostComposer({
             <Button
               type="submit"
               disabled={
-                (!content.trim() && attachedFiles.length === 0) ||
+                (!content.trim() && images.length === 0 && videos.length === 0) ||
                 isPosting ||
                 characterCount > maxCharacters
               }
@@ -418,6 +438,13 @@ export default function PostComposer({
           </div>
         </form>
       </FormProvider>
+
+      {/* Dialog pour l'URL du média */}
+      <MediaUrlDialog
+        open={mediaDialogOpen}
+        onOpenChange={setMediaDialogOpen}
+        onValidate={handleAddMedia}
+      />
     </div>
   );
 }
