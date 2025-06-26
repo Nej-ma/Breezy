@@ -5,6 +5,7 @@
         "save": "Sauvegarder",
         "cancel": "Annuler",
         "delete": "Supprimer",
+        "deleting": "Suppression en cours...",
         "edit": "Modifier",
         "post": "Publier",
         "publish": "Publier",
@@ -135,5 +136,14 @@
         "updating": "Mise à jour en cours...",
         "loading": "Chargement...",
         "saving": "Sauvegarde en cours..."
+    },
+
+    "users": {
+        "deleteAccount": "Supprimer le compte",
+        "deleteConfirmTitle": "Supprimer le compte",
+        "deleteConfirmDescription": "Êtes-vous sûr de vouloir supprimer le compte de {{username}} ? Cette action est irréversible et supprimera toutes vos données.",
+        "confirmDelete": "Oui, supprimer le compte",
+        "deleteSuccess": "Compte supprimé avec succès",
+        "deleteError": "Une erreur est survenue lors de la suppression du compte"
     }
 }

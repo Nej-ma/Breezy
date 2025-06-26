@@ -7,30 +7,30 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 
 import {
-    Avatar,
-    AvatarFallback,
-    AvatarImage,
-    UserPlaceholderIcon,
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+  UserPlaceholderIcon,
 } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
-    Dialog,
-    DialogClose,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogOverlay,
-    DialogTitle,
-    DialogTrigger,
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogOverlay,
+  DialogTitle,
+  DialogTrigger,
 } from "@/components/ui/dialog";
 import {
-    Form,
-    FormControl,
-    FormField,
-    FormItem,
-    FormLabel,
-    FormMessage,
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -441,4 +441,3 @@ function EditProfileForm({ user, onSave }: EditProfileProps) {
 }
 
 export { type EditProfileData };
-
