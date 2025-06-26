@@ -230,12 +230,23 @@ export default function ProfilePage() {
       </div>
 
       {/* Banner */}
-      <div className="relative h-64 overflow-hidden ">
-        <img
-          src={user.coverPicture || "/placeholder.svg"}
-          alt={user.coverPicture ? `${user.displayName}'s cover picture` : "Default placeholder cover picture"}
-          className="w-full h-64 object-cover"
-        />
+      <div className="relative h-64 overflow-hidden">
+        {user.coverPicture ? (
+          <img
+        src={user.coverPicture}
+        alt={`${user.displayName}'s cover picture`}
+        className="w-full h-64 object-cover"
+          />
+        ) : (
+          <div
+        className="w-full h-64"
+        role="img"
+        aria-label="Default cover picture"
+        style={{
+          background: "linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%)",
+        }}
+          />
+        )}
       </div>
 
       {/* Profile Content with Unique Layout */}
