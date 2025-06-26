@@ -135,7 +135,6 @@ export default function PostComposer({
       mentionTrigger !== "@" &&
       mentionTrigger === words[words.length - 1]
     ) {
-
       userService
         .searchUser(mentionTrigger.slice(1))
         .then((profiles) => {
@@ -207,7 +206,7 @@ export default function PostComposer({
           <p className="text-xs text-muted-foreground">
             {t(
               "postComposer.shareThoughts",
-              `Breeze what's on your mind, ${user?.username || "Guest"}!`
+              `Breeze what's on your mind, ${user?.displayName || "Guest"}!`
             )}
           </p>
         </div>

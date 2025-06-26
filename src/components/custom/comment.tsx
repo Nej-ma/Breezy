@@ -105,7 +105,7 @@ export function Comment({
         <div className="flex-1 min-w-0">
           <div className="flex items-center space-x-2">
             <h4 className="font-medium text-sm text-gray-900">
-              {comment.authorUsername}
+              {comment.authorDisplayName}
             </h4>
             <span className="text-gray-500 text-xs">
               {comment.authorUsername}
