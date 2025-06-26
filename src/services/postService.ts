@@ -17,9 +17,19 @@ export type PostRequest = {
 };
 
 // ✅ Utilise les API routes Next.js au lieu du backend direct
-const getAllPosts = async (): Promise<Post[]> => {
+const getAllPosts = async (params?: {
+  id?: string;
+  filter?: string;
+  author?: string;
+}): Promise<Post[]> => {
   try {
-    const response = await apiClient.get("posts");
+    const queryParams = new URLSearchParams();
+    if (params?.id) queryParams.append("id", params.id);
+    if (params?.filter) queryParams.append("filter", params.filter);
+    if (params?.author) queryParams.append("author", params.author);
+
+    const url = queryParams.toString() ? `posts?${queryParams}` : "posts";
+    const response = await apiClient.get(url);
 
     if (response.status !== 200) {
       throw new Error(`Failed to fetch posts: ${response.statusText}`);
@@ -28,6 +38,23 @@ const getAllPosts = async (): Promise<Post[]> => {
     return response.data;
   } catch (error) {
     console.error("Error fetching user posts:", error);
+    throw error;
+  }
+};
+
+const getFollowingPosts = async (): Promise<Post[]> => {
+  try {
+    const response = await apiClient.get("posts/following");
+
+    if (response.status !== 200) {
+      throw new Error(
+        `Failed to fetch following posts: ${response.statusText}`
+      );
+    }
+
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching following posts:", error);
     throw error;
   }
 };
@@ -113,9 +140,7 @@ const postPost = async (content: string, visibility: string, files: File[]) => {
       videos: files.filter((file) => file.type.startsWith("video/")),
     } as PostRequest;
 
-
     const response = await apiClient.post("posts", data);
-
 
     if (response.status === 201) {
       return response.data;
@@ -246,4 +271,5 @@ export const postService = {
   updatePostVisibility,
   deletePost,
   getPostsByTags,
+  getFollowingPosts,
 };

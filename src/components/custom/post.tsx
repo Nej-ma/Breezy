@@ -91,9 +91,9 @@ export function Post({
       icon: Globe,
     },
     {
-      value: "friends" as const,
-      label: t("post.visibility.friends"),
-      description: t("post.visibility.friendsDescription"),
+      value: "followers" as const,
+      label: t("post.visibility.followers"),
+      description: t("post.visibility.followersDescription"),
       icon: Users,
     },
     {
@@ -447,7 +447,7 @@ export function Post({
               <Share className="w-4 h-4" />
             </Button>
 
-            {userProfile.userId === post.author && (
+            {user?._id === post.author && (
               <div>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
