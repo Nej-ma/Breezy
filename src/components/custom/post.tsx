@@ -285,14 +285,16 @@ export function Post({
             <div className="flex-1">
               <div className="flex items-center gap-2 mb-2">
                 <span className="font-semibold text-gray-900 transition-colors">
-                  {authorProfile?.displayName}
+                  {post.authorDisplayName || authorProfile?.displayName}
                 </span>
-                {/* Afficher le badge de rôle seulement pour l'utilisateur connecté */}
-                {userProfile.userId === post.author && user?.role && (user.role === 'admin' || user.role === 'moderator') && (
-                  <RoleBadge role={user.role} />
+                {/* Afficher le badge de rôle pour tous les auteurs avec un rôle spécial */}
+                {(post.authorRole || authorProfile?.role) && 
+                 (post.authorRole === 'admin' || post.authorRole === 'moderator' || 
+                  authorProfile?.role === 'admin' || authorProfile?.role === 'moderator') && (
+                  <RoleBadge role={(post.authorRole || authorProfile?.role) as 'admin' | 'moderator'} />
                 )}
                 <span className="text-gray-500">
-                  @{authorProfile?.username}
+                  @{post.authorUsername || authorProfile?.username}
                 </span>
                 <span className="text-gray-400">·</span>
                 <span className="text-gray-500 text-sm">
