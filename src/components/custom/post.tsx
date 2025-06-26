@@ -30,7 +30,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "../ui/textarea";
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useTranslation } from "react-i18next";
@@ -127,27 +127,15 @@ export function Post({
 
   const { user } = useAuth();
 
-  // Debug logs pour vérifier le rôle de l'utilisateur
+  // Debug logs pour vérifier le rôle de l'utilisateur (à supprimer après debug)
   useEffect(() => {
-    console.log("=== DEBUG POST COMPONENT ===");
-    console.log("Post ID:", post._id);
-    console.log("Current user from useAuth:", user);
-    console.log("Current user role from useAuth:", user?.role);
-    console.log("UserProfile:", userProfile);
-    console.log("UserProfile role:", userProfile?.role);
-    console.log("Author profile:", authorProfile);
-    console.log("Author profile role:", authorProfile?.role);
-    console.log("Post author ID:", post.author);
-    console.log("Current user ID:", userProfile.userId);
-    console.log("Is author?", userProfile.userId === post.author);
-    console.log("Has moderator permissions (from user.role)?", user?.role && adminService.hasModeratorPermissions(user.role));
-    console.log("Has moderator permissions (from userProfile.role)?", userProfile.role && adminService.hasModeratorPermissions(userProfile.role));
-    console.log("CONCLUSION: userProfile.role est undefined car le rôle est dans le JWT (user.role), pas dans le profil");
-    console.log("adminService.hasModeratorPermissions test:", adminService.hasModeratorPermissions("admin"), adminService.hasModeratorPermissions("moderator"), adminService.hasModeratorPermissions("user"));
-    console.log("Should show dropdown menu?", userProfile.userId === post.author || (user?.role && adminService.hasModeratorPermissions(user.role)));
-    console.log("Should show delete option?", userProfile.userId === post.author || (user?.role && adminService.hasModeratorPermissions(user.role)));
-    console.log("==============================");
-  }, [user, userProfile, authorProfile, post.author, post._id]);
+    if (process.env.NODE_ENV === 'development') {
+      console.log("=== DEBUG POST COMPONENT ===");
+      console.log("User role from auth:", user?.role);
+      console.log("Has moderator permissions:", user?.role && adminService.hasModeratorPermissions(user.role));
+      console.log("==============================");
+    }
+  }, [user]);
 
   // === BACKEND INTERACTIONS ===
   const handleToggleLike = async () => {
@@ -178,26 +166,29 @@ export function Post({
     }
   };
 
-  const fetchComments = useCallback(async (forceRefresh: boolean = false) => {
-    if (!showComments) return;
-
-    setCommentsLoading(true);
-    try {
-      const fetchedComments = await getPostComments(post._id, forceRefresh);
-      setComments(fetchedComments);
-    } finally {
-      setCommentsLoading(false);
-    }
-  }, [showComments, getPostComments, post._id]);
-
   const handleCommentClick = () => {
     setShowComments(!showComments);
     setCommentComposerOpen(!commentComposerOpen);
   };
 
   useEffect(() => {
-    fetchComments();
-  }, [showComments, fetchComments]);
+    if (showComments) {
+      const loadComments = async () => {
+        setCommentsLoading(true);
+        try {
+          const fetchedComments = await getPostComments(post._id, false);
+          setComments(fetchedComments);
+        } catch (error) {
+          console.error("Error loading comments:", error);
+        } finally {
+          setCommentsLoading(false);
+        }
+      };
+      loadComments();
+    }
+    // Intentionnellement on ne met que showComments et post._id pour éviter les boucles
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [showComments, post._id]);
 
   useEffect(() => {
     if (userProfile.userId && likesState.includes(userProfile.userId)) {
@@ -221,7 +212,16 @@ export function Post({
       post.commentsCount = response.post.commentsCount;
       post.likes = response.post.likes;
 
-      await fetchComments(true);
+      // Rafraîchir les commentaires si ils sont affichés
+      if (showComments) {
+        setCommentsLoading(true);
+        try {
+          const fetchedComments = await getPostComments(post._id, true);
+          setComments(fetchedComments);
+        } finally {
+          setCommentsLoading(false);
+        }
+      }
     } catch (error) {
       console.error("Error fetching post by ID:", error);
     }
@@ -572,44 +572,26 @@ export function Post({
               <AlertDialogAction
                 className="text-white bg-destructive hover:bg-destructive/90 focus:ring-2 focus:ring-destructive/50"
                 onClick={() => {
-                  console.log("=== DELETE POST DEBUG ===");
-                  console.log("Post ID:", post._id);
-                  console.log("Post author:", post.author);
-                  console.log("Current user ID:", userProfile.userId);
-                  console.log("Current user role:", userProfile.role);
-                  console.log("User from auth:", user);
-                  console.log("User role from auth:", user?.role);
-                  console.log("Is author?", userProfile.userId === post.author);
-                  console.log("Has moderator permissions (userProfile)?", userProfile.role && adminService.hasModeratorPermissions(userProfile.role));
-                  console.log("Has moderator permissions (user)?", user?.role && adminService.hasModeratorPermissions(user.role));
-                  
                   // Vérifier si c'est une action de modération
                   const isModerationAction = userProfile.userId !== post.author && 
                     user?.role && 
                     adminService.hasModeratorPermissions(user.role);
                   
-                  console.log("Is moderation action?", isModerationAction);
-                  console.log("========================");
-                  
                   if (isModerationAction) {
                     // Suppression en tant que modérateur
-                    console.log("Attempting moderator delete...");
                     postService.moderatorDeletePost(post._id, "Contenu supprimé par modération").then(() => {
-                      console.log("Moderator delete successful");
                       setIsDeleteDialogOpen(false);
                       refreshPosts?.();
                     }).catch((error) => {
-                      console.error("Moderator delete failed:", error);
+                      console.error("Erreur suppression modération:", error);
                     });
                   } else {
                     // Suppression normale par l'auteur
-                    console.log("Attempting normal delete...");
                     postService.deletePost(post._id).then(() => {
-                      console.log("Normal delete successful");
                       setIsDeleteDialogOpen(false);
                       refreshPosts?.();
                     }).catch((error) => {
-                      console.error("Normal delete failed:", error);
+                      console.error("Erreur suppression normale:", error);
                     });
                   }
                 }}
