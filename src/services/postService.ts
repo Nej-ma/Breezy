@@ -271,5 +271,4 @@ export const postService = {
   updatePostVisibility,
   deletePost,
   getPostsByTags,
-  getFollowingPosts,
 };
