@@ -13,7 +13,7 @@ export type User = {
 };
 
 export type UserProfile = {
-  id: string;
+  _id: string;
   userId: string;
   username: string;
   displayName: string;
@@ -30,10 +30,10 @@ export type UserProfile = {
 };
 
 export type LocalUser = {
-    id: string
-    displayName: string;
-    username: string;
-    email: string;
-    isVerified: boolean;
-    role: Role;
-}
+  id: string;
+  displayName: string;
+  username: string;
+  email: string;
+  isVerified: boolean;
+  role: Role;
+};
