@@ -1,7 +1,7 @@
 "use client";
 import { EditProfile, EditProfileData } from "@/components/custom/edit-profile";
 import { FollowersModal } from "@/components/custom/followers-modal";
-import { Post } from "@/components/custom/post";
+import { DeleteUser } from "@/components/custom/delete-user";
 import { Stats } from "@/components/custom/stats";
 import {
   Avatar,
@@ -53,7 +53,9 @@ export default function ProfilePage() {
   const [followersCount, setFollowersCount] = useState<number>(0);
   const [likedPosts] = useState<number[]>([]);
   const [showFollowersModal, setShowFollowersModal] = useState(false);
-  const [followersModalTab, setFollowersModalTab] = useState<"followers" | "following">("followers");
+  const [followersModalTab, setFollowersModalTab] = useState<
+    "followers" | "following"
+  >("followers");
 
   const fetchUserAndPosts = async () => {
     try {
@@ -61,7 +63,7 @@ export default function ProfilePage() {
         params.username as string
       );
       setUserData(userData);
-      setFollowersCount(userData.followersCount || 0); 
+      setFollowersCount(userData.followersCount || 0);
 
       const userPosts = await postService.getPostsByAuthor(userData.userId);
       setUserPosts(userPosts);
@@ -72,13 +74,14 @@ export default function ProfilePage() {
       // Check if current user is following this user
       if (currentUser && currentUser.id !== userData.userId) {
         try {
-          const followingStatus = await userService.isFollowing(userData.userId);
+          const followingStatus = await userService.isFollowing(
+            userData.userId
+          );
           setIsFollowing(followingStatus);
         } catch (error) {
           console.error("Error checking follow status:", error);
         }
       }
-
     } catch {
       setUserData(undefined);
       setFollowersCount(0);
@@ -153,37 +156,46 @@ export default function ProfilePage() {
 
   const handleFollowClick = async () => {
     if (!currentUser || !user) return;
-    
+
     const wasFollowing = isFollowing;
-    const newFollowersCount = wasFollowing 
-      ? user.followersCount - 1 
+    const newFollowersCount = wasFollowing
+      ? user.followersCount - 1
       : user.followersCount + 1;
-    
+
     // ✅ Mise à jour immédiate de l'UI
     setIsFollowing(!wasFollowing);
-    setUserData(prev => prev ? { 
-      ...prev, 
-      followersCount: newFollowersCount 
-    } : prev);
-    
+    setUserData((prev) =>
+      prev
+        ? {
+            ...prev,
+            followersCount: newFollowersCount,
+          }
+        : prev
+    );
+
     try {
       if (wasFollowing) {
         await userService.unfollowUser(user.userId);
       } else {
         await userService.followUser(user.userId);
       }
-      
+
       // ✅ Validation optionnelle avec les vraies données
-      const updatedUserData = await userService.getUserProfile(params.username as string);
+      const updatedUserData = await userService.getUserProfile(
+        params.username as string
+      );
       setUserData(updatedUserData);
-      
     } catch (error) {
       // ✅ Rollback en cas d'erreur
       setIsFollowing(wasFollowing);
-      setUserData(prev => prev ? { 
-        ...prev, 
-        followersCount: user.followersCount 
-      } : prev);
+      setUserData((prev) =>
+        prev
+          ? {
+              ...prev,
+              followersCount: user.followersCount,
+            }
+          : prev
+      );
       console.error("Error:", error);
     }
   };
@@ -197,13 +209,15 @@ export default function ProfilePage() {
     setShowFollowersModal(false);
     // Rafraîchir les counts après fermeture de la modal au cas où il y aurait eu des changements
     try {
-      const updatedUserData = await userService.getUserProfile(params.username as string);
+      const updatedUserData = await userService.getUserProfile(
+        params.username as string
+      );
       setUserData(updatedUserData); // Mettre à jour l'objet user complet
     } catch (error) {
       console.error("Error refreshing user data:", error);
     }
   };
-  
+
   const isCurrentUser = currentUser && currentUser.id === user.userId;
 
   return (
@@ -230,12 +244,23 @@ export default function ProfilePage() {
       </div>
 
       {/* Banner */}
-      <div className="relative h-64 overflow-hidden ">
-        <img
-          src={user.coverPicture || "/placeholder.svg"}
-          alt={user.coverPicture ? `${user.displayName}'s cover picture` : "Default placeholder cover picture"}
-          className="w-full h-64 object-cover"
-        />
+      <div className="relative h-64 overflow-hidden">
+        {user.coverPicture ? (
+          <img
+        src={user.coverPicture}
+        alt={`${user.displayName}'s cover picture`}
+        className="w-full h-64 object-cover"
+          />
+        ) : (
+          <div
+        className="w-full h-64"
+        role="img"
+        aria-label="Default cover picture"
+        style={{
+          background: "linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%)",
+        }}
+          />
+        )}
       </div>
 
       {/* Profile Content with Unique Layout */}
@@ -263,10 +288,16 @@ export default function ProfilePage() {
               {/* Stats Cards */}
               <div className="flex gap-4 mt-4">
                 <Stats label="Posts" value={user.postsCount} />
-                <div onClick={() => handleStatsClick("followers")} className="cursor-pointer">
+                <div
+                  onClick={() => handleStatsClick("followers")}
+                  className="cursor-pointer"
+                >
                   <Stats label="Followers" value={user.followersCount || 0} />
                 </div>
-                <div onClick={() => handleStatsClick("following")} className="cursor-pointer">
+                <div
+                  onClick={() => handleStatsClick("following")}
+                  className="cursor-pointer"
+                >
                   <Stats label="Following" value={user.followingCount || 0} />
                 </div>
               </div>
@@ -305,6 +336,12 @@ export default function ProfilePage() {
                         <Flag className="w-4 h-4" />
                         Signaler
                       </DropdownMenuItem>
+                      {isCurrentUser && (
+                        <DeleteUser
+                          userId={user._id}
+                          username={user.username}
+                        />
+                      )}
                     </DropdownMenuContent>{" "}
                   </DropdownMenu>
                   {isCurrentUser ? (

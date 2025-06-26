@@ -47,7 +47,7 @@ const getUserProfile = async (username: string): Promise<UserProfile> => {
       throw new Error(`Failed to fetch user: ${response.statusText}`);
     }
     return response.data as UserProfile;
-  } catch (error) { 
+  } catch (error) {
     console.error("getUserProfile error:", error);
     throw error;
   }
@@ -123,7 +123,9 @@ const isFollowing = async (userId: string): Promise<boolean> => {
   try {
     const response = await apiClient.get(`users/${userId}/is-following`);
     if (response.status !== 200) {
-      throw new Error(`Failed to check following status: ${response.statusText}`);
+      throw new Error(
+        `Failed to check following status: ${response.statusText}`
+      );
     }
     return response.data.isFollowing;
   } catch (error) {
@@ -133,13 +135,15 @@ const isFollowing = async (userId: string): Promise<boolean> => {
 };
 
 const getFollowers = async (
-  userId: string, 
-  page: number = 1, 
+  userId: string,
+  page: number = 1,
   limit: number = 5
 ): Promise<PaginatedResponse<UserProfile>> => {
   try {
-    const response = await apiClient.get(`users/${userId}/followers?page=${page}&limit=${limit}`);
-    
+    const response = await apiClient.get(
+      `users/${userId}/followers?page=${page}&limit=${limit}`
+    );
+
     if (response.status !== 200) {
       throw new Error(`Failed to fetch followers: ${response.statusText}`);
     }
@@ -151,13 +155,15 @@ const getFollowers = async (
 };
 
 const getFollowing = async (
-  userId: string, 
-  page: number = 1, 
+  userId: string,
+  page: number = 1,
   limit: number = 5
 ): Promise<PaginatedResponse<UserProfile>> => {
   try {
-    const response = await apiClient.get(`users/${userId}/following?page=${page}&limit=${limit}`);
-    
+    const response = await apiClient.get(
+      `users/${userId}/following?page=${page}&limit=${limit}`
+    );
+
     if (response.status !== 200) {
       throw new Error(`Failed to fetch following: ${response.statusText}`);
     }
@@ -168,7 +174,10 @@ const getFollowing = async (
   }
 };
 
-const syncCounts = async (): Promise<{ message: string; syncedUsers: number }> => {
+const syncCounts = async (): Promise<{
+  message: string;
+  syncedUsers: number;
+}> => {
   try {
     const response = await apiClient.post(`users/sync-counts`);
     if (response.status !== 200) {
@@ -181,16 +190,30 @@ const syncCounts = async (): Promise<{ message: string; syncedUsers: number }> =
   }
 };
 
+const deleteUser = async (userId: string): Promise<void> => {
+  try {
+    console.log("Deleting user with ID:", userId);
+    const response = await apiClient.delete(`users/profile/${userId}`);
+    if (response.status !== 200) {
+      throw new Error(`Failed to delete user: ${response.statusText}`);
+    }
+  } catch (error) {
+    console.error("Delete user error:", error);
+    throw error;
+  }
+};
+
 export const userService = {
   searchUser,
   getUserProfileById,
   getUserProfile,
   getCurrentUser,
   updateUser,
+  deleteUser,
   followUser,
   unfollowUser,
   isFollowing,
   getFollowers,
   getFollowing,
-  syncCounts
+  syncCounts,
 };
