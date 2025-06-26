@@ -30,7 +30,9 @@ export async function GET(request: NextRequest) {
     if (author) queryParams.set("author", author);
 
     // Construct final URL
-    const backendApiUrl = `${backendUrl}/posts?${queryParams.toString()}`;
+    const backendApiUrl = queryParams.toString()
+      ? `${backendUrl}/posts?${queryParams.toString()}`
+      : `${backendUrl}/posts`;
 
     const response = await fetch(backendApiUrl, {
       method: "GET",
