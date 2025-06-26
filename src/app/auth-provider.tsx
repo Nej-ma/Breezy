@@ -38,8 +38,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         credentials: 'include',
       });
 
+      console.log("[AuthProvider] refreshUser response status:", response.status);
+
       if (response.ok) {
         const data = await response.json();
+        console.log("[AuthProvider] refreshUser data received:", data);
+        console.log("[AuthProvider] user data:", data.user);
+        console.log("[AuthProvider] user role:", data.user?.role);
         setUser(data.user);
         setError(null);
         return true;
@@ -105,6 +110,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       });
 
       const data = await response.json();
+      console.log("[AuthProvider] login response:", data);
+      console.log("[AuthProvider] login user data:", data.user);
+      console.log("[AuthProvider] login user role:", data.user?.role);
 
       if (!response.ok) {
         setError(data.error || "Login failed");

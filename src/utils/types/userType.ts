@@ -9,6 +9,7 @@ export type User = {
   isActive: boolean;
   role: Role;
   isSuspended: boolean;
+  suspendedUntil?: string | null;
   createdAt: string;
 };
 
@@ -23,6 +24,9 @@ export type UserProfile = {
   location: string;
   website: string;
   isVerified?: boolean;
+  role?: Role;
+  isSuspended?: boolean;
+  suspendedUntil?: string | null;
   followersCount: number;
   followingCount: number;
   postsCount: number;
@@ -30,10 +34,12 @@ export type UserProfile = {
 };
 
 export type LocalUser = {
-  id: string;
-  displayName: string;
-  username: string;
-  email: string;
-  isVerified: boolean;
-  role: Role;
-};
+    id: string
+    displayName: string;
+    username: string;
+    email: string;
+    isVerified: boolean;
+    role: Role;
+    isSuspended?: boolean;
+    suspendedUntil?: string | null;
+}

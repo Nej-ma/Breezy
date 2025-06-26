@@ -222,6 +222,27 @@ const deletePost = async (postId: string) => {
   }
 };
 
+// Supprimer un post en tant que modérateur (peut supprimer n'importe quel post)
+const moderatorDeletePost = async (postId: string, reason?: string) => {
+  try {
+    const response = await apiClient.delete(`posts/${postId}`, {
+      data: { 
+        moderatorAction: true,
+        reason: reason || "Contenu inapproprié" 
+      }
+    });
+
+    if (response.status === 200) {
+      console.log(`Post ${postId} supprimé par modération`);
+    } else {
+      throw new Error(`Error deleting post as moderator: ${response.statusText}`);
+    }
+  } catch (error) {
+    console.error("Error deleting post as moderator:", error);
+    throw error;
+  }
+};
+
 const getPostsByTags = async (
   tags: string[],
   limit?: number,
@@ -270,5 +291,6 @@ export const postService = {
   updatePostContent,
   updatePostVisibility,
   deletePost,
+  moderatorDeletePost,
   getPostsByTags,
 };

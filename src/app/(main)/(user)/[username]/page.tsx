@@ -3,6 +3,8 @@ import { EditProfile, EditProfileData } from "@/components/custom/edit-profile";
 import { FollowersModal } from "@/components/custom/followers-modal";
 import { DeleteUser } from "@/components/custom/delete-user";
 import { Stats } from "@/components/custom/stats";
+import { RoleBadge } from "@/components/custom/role-badge";
+import { SuspendedAccount } from "@/components/custom/suspended-account";
 import {
   Avatar,
   AvatarFallback,
@@ -19,6 +21,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { UserProfileTabs } from "@/components/custom/user-profile-tabs";
 import { userService, type UserUpdate } from "@/services/userService";
+import { adminService } from "@/services/adminService";
 import {
   ArrowLeft,
   Calendar,
@@ -30,6 +33,9 @@ import {
   Sparkles,
   UserRoundCheck,
   UserRoundPlus,
+  Shield,
+  ShieldOff,
+  Trash2,
 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
@@ -53,9 +59,8 @@ export default function ProfilePage() {
   const [followersCount, setFollowersCount] = useState<number>(0);
   const [likedPosts] = useState<number[]>([]);
   const [showFollowersModal, setShowFollowersModal] = useState(false);
-  const [followersModalTab, setFollowersModalTab] = useState<
-    "followers" | "following"
-  >("followers");
+  const [followersModalTab, setFollowersModalTab] = useState<"followers" | "following">("followers");
+  const [isModerating, setIsModerating] = useState(false);
 
   const fetchUserAndPosts = async () => {
     try {
@@ -218,7 +223,53 @@ export default function ProfilePage() {
     }
   };
 
+  // Fonctions de modération
+  const handleSuspendUser = async () => {
+    if (!currentUser || !user || !adminService.hasModeratorPermissions(currentUser.role)) return;
+    
+    setIsModerating(true);
+    try {
+      await adminService.suspendUser(user.userId, {
+        duration: 24, // 24 heures par défaut
+        reason: "Violation des règles de la communauté"
+      });
+      
+      // Recharger les données utilisateur
+      await fetchUserAndPosts();
+    } catch (error) {
+      console.error("Erreur lors de la suspension:", error);
+    } finally {
+      setIsModerating(false);
+    }
+  };
+
+  const handleUnsuspendUser = async () => {
+    if (!currentUser || !user || !adminService.hasModeratorPermissions(currentUser.role)) return;
+    
+    setIsModerating(true);
+    try {
+      await adminService.unsuspendUser(user.userId);
+      
+      // Recharger les données utilisateur
+      await fetchUserAndPosts();
+    } catch (error) {
+      console.error("Erreur lors de la levée de suspension:", error);
+    } finally {
+      setIsModerating(false);
+    }
+  };
+  
   const isCurrentUser = currentUser && currentUser.id === user.userId;
+  
+  // Vérifier si le compte est suspendu
+  if (user.isSuspended) {
+    return (
+      <SuspendedAccount 
+        displayName={user.displayName}
+        suspendedUntil={user.suspendedUntil}
+      />
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50">
@@ -280,9 +331,6 @@ export default function ProfilePage() {
                     <UserPlaceholderIcon className="w-16 h-16 text-white-400" />
                   </AvatarFallback>
                 </Avatar>
-                <div className="absolute -bottom-1 -right-1 w-8 h-8 bg-gradient-to-r from-[var(--primary)] to-[var(--primary-light)] rounded-full flex items-center justify-center shadow-lg">
-                  <Sparkles className="w-4 h-4 text-white" />
-                </div>
               </div>
 
               {/* Stats Cards */}
@@ -307,9 +355,14 @@ export default function ProfilePage() {
             <div className="flex-1">
               <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
                 <div>
-                  <h2 className="text-2xl font-bold text-gray-900 mb-1">
-                    {user.displayName}
-                  </h2>
+                  <div className="flex items-center gap-2 mb-1">
+                    <h2 className="text-2xl font-bold text-gray-900">
+                      {user.displayName}
+                    </h2>
+                    {user.role && user.role !== 'user' && (
+                      <RoleBadge role={user.role} />
+                    )}
+                  </div>
                   <p className="text-[var(--primary-light)] font-medium">
                     @{user.username}
                   </p>
@@ -332,6 +385,35 @@ export default function ProfilePage() {
                         Envoyer un message
                       </DropdownMenuItem>
                       <DropdownMenuSeparator />
+                      
+                      {/* Actions de modération - uniquement pour admins/modos et pas sur soi-même */}
+                      {currentUser && 
+                       adminService.hasModeratorPermissions(currentUser.role) && 
+                       !isCurrentUser && (
+                        <>
+                          {user.isSuspended ? (
+                            <DropdownMenuItem 
+                              className="cursor-pointer text-green-600 focus:text-green-600 focus:bg-green-50"
+                              onClick={handleUnsuspendUser}
+                              disabled={isModerating}
+                            >
+                              <ShieldOff className="w-4 h-4" />
+                              {isModerating ? "Traitement..." : "Lever la suspension"}
+                            </DropdownMenuItem>
+                          ) : (
+                            <DropdownMenuItem 
+                              className="cursor-pointer text-orange-600 focus:text-orange-600 focus:bg-orange-50"
+                              onClick={handleSuspendUser}
+                              disabled={isModerating}
+                            >
+                              <Shield className="w-4 h-4" />
+                              {isModerating ? "Traitement..." : "Suspendre utilisateur"}
+                            </DropdownMenuItem>
+                          )}
+                          <DropdownMenuSeparator />
+                        </>
+                      )}
+                      
                       <DropdownMenuItem className="cursor-pointer text-red-600 focus:text-red-600 focus:bg-red-50">
                         <Flag className="w-4 h-4" />
                         Signaler
