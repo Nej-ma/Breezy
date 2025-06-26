@@ -30,7 +30,8 @@ export async function GET(
     }
 
     const backendUrl =
-      process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8080/api";    const response = await fetch(
+      process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8080/api";
+    const response = await fetch(
       `${backendUrl}/posts/comments/${params.postCommentId}`,
       {
         method: "GET",
@@ -39,7 +40,8 @@ export async function GET(
           "Content-Type": "application/json",
         },
       }
-    );    if (!response.ok) {
+    );
+    if (!response.ok) {
       return await handleResponseError(response);
     }
 
@@ -73,7 +75,8 @@ export async function POST(
 
     const body = await request.json();
     const backendUrl =
-      process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8080/api";    const response = await fetch(
+      process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8080/api";
+    const response = await fetch(
       `${backendUrl}/posts/comments/${params.postCommentId}`,
       {
         method: "POST",
@@ -120,7 +123,8 @@ export async function PUT(
 
     const body = await request.json();
     const backendUrl =
-      process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8080/api";    const response = await fetch(
+      process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8080/api";
+    const response = await fetch(
       `${backendUrl}/posts/comments/${params.postCommentId}`,
       {
         method: "PUT",
@@ -165,7 +169,8 @@ export async function DELETE(
     }
 
     const backendUrl =
-      process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8080/api";    const response = await fetch(
+      process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8080/api";
+    const response = await fetch(
       `${backendUrl}/posts/comments/${params.postCommentId}`,
       {
         method: "DELETE",
