@@ -78,7 +78,7 @@
         },
 
         "signup": {
-            "displayName": "Nom",
+            "displayName": "Nom d'affichage",
             "displayNameDescription": "Ce nom sera affiché sur votre profil",
             "username": "Nom d'utilisateur",
             "usernameDescription": "Identifiant unique",
