@@ -35,8 +35,8 @@
         "visibility": {
             "public": "Public",
             "publicDescription": "Anyone can see this post",
-            "friends": "Friends",
-            "friendsDescription": "Only your friends can see this",
+            "followers": "Followers",
+            "followersDescription": "Only your followers can see this",
             "private": "Only me",
             "privateDescription": "Only you can see this post"
         },

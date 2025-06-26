@@ -20,10 +20,16 @@ export interface PostsSectionRef {
   refresh?: () => Promise<void>;
 }
 
+export type PostsFilters = {
+  all?: boolean;
+  following?: boolean;
+  userId?: string; // Optional, for filtering by specific user
+};
+
 interface PostsSectionProps {
   posts?: PostType[]; // Optional, if you want to pass initial posts
   userProfile: UserProfile;
-  filter?: (post: PostType) => boolean;
+  filter?: PostsFilters;
   isLoading?: boolean;
   refreshParents?: () => void;
 }
@@ -36,14 +42,16 @@ export const PostsSection = forwardRef<PostsSectionRef, PostsSectionProps>(
     const { authorProfiles, getAuthorProfile } = useAuthorProfiles();
     const [loadingAuthors, setLoadingAuthors] = useState(false);
 
-    const [posts, setPosts] = useState<PostType[]>(initialPosts || []);
-
-    const filteredPosts = filter ? posts.filter(filter) : posts;
+    const [filteredPosts, setFilteredPosts] = useState<PostType[]>(
+      initialPosts || []
+    );
 
     const fetchPosts = async () => {
       try {
-        const response = await postService.getAllPosts();
-        setPosts(response);
+        const response = filter?.following
+          ? await postService.getAllPosts({ filter: "following" })
+          : await postService.getAllPosts();
+        setFilteredPosts(response);
 
         // Fetch all author profiles in parallel
         setLoadingAuthors(true);

@@ -9,18 +9,20 @@ import PostComposer from "@/components/custom/post-composer";
 
 // ui components
 import { PostsSection } from "@/components/custom/post-section";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 // hooks
 import { useAuth } from "@/app/auth-provider";
 
 // types
 import type { UserProfile } from "@/utils/types/userType";
-import type { PostsSectionRef } from "@/components/custom/post-section";
+import type { PostsSectionRef, PostsFilters } from "@/components/custom/post-section";
 
 export default function HomePage() {
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const { user } = useAuth();
   const postsSectionRef = React.useRef<PostsSectionRef>(null);
+  const [getFollowingPost, setGetFollowingPost] = useState<boolean>(false);
 
   const refreshPosts = useCallback(() => {
     if (
@@ -51,7 +53,6 @@ export default function HomePage() {
     <div className="min-h-screen">
       {/* Header */}
       <header className="bg-white shadow border-b mb-2 ">
-        {" "}
         <div className="max-w-2xl mx-auto px-4 py-4">
           <h1 className="text-2xl font-bold">Breezy</h1>
         </div>
@@ -61,15 +62,43 @@ export default function HomePage() {
       <div className="max-w-2xl mx-auto px-4 space-y-6">
         <PostComposer userProfile={userProfile} refreshPosts={refreshPosts} />
 
-        <div className="space-y-4">
-          {userProfile && (
-            <PostsSection
-              ref={postsSectionRef}
-              userProfile={userProfile}
-              isLoading={!userProfile}
-            />
-          )}
-        </div>
+        <Tabs
+          defaultValue="all"
+          onValueChange={(value) => setGetFollowingPost(value === "following")}
+        >
+          <TabsList className="w-full">
+            <TabsTrigger value="all" className="flex-1">
+              Tous les posts
+            </TabsTrigger>
+            <TabsTrigger value="following" className="flex-1">
+              Abonnements
+            </TabsTrigger>
+          </TabsList>
+          <TabsContent value="all">
+            <div className="space-y-4">
+              {userProfile && (
+                <PostsSection
+                  ref={postsSectionRef}
+                  userProfile={userProfile}
+                  isLoading={!userProfile}
+                  filter={{ all: true }}
+                />
+              )}
+            </div>
+          </TabsContent>
+          <TabsContent value="following">
+            <div className="space-y-4">
+              {userProfile && (
+                <PostsSection
+                  ref={postsSectionRef}
+                  userProfile={userProfile}
+                  isLoading={!userProfile}
+                  filter={{ following: true }}
+                />
+              )}
+            </div>
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   );

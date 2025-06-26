@@ -1,4 +1,4 @@
-export type PostVisibility = "public" | "private" | "friends"; // adjust as needed
+export type PostVisibility = "public" | "private" | "followers"; // adjust as needed
 
 export type Post = {
   _id: string;

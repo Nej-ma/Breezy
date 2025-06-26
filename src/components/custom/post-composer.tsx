@@ -68,10 +68,10 @@ export default function PostComposer({
       icon: Globe,
     },
     {
-      value: "friends",
-      label: t("post.visibility.friends", "Amis"),
+      value: "followers",
+      label: t("post.visibility.followers", "Amis"),
       description: t(
-        "post.visibility.friendsDescription",
+        "post.visibility.followersDescription",
         "Visible par vos amis"
       ),
       icon: Users,
