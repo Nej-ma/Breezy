@@ -52,11 +52,11 @@ jobs:
           
           # Reconstruire et redémarrer SEULEMENT le frontend
           echo "Reconstruction du frontend..."
-          docker compose -f docker-compose.prod-ssl.yml up -d --build frontend
+          docker compose -f docker-compose.prod-ssl.yml up -d frontend
           
           # Attendre que le service soit prêt
           echo "Attente du démarrage..."
-          sleep 30
+          sleep 10
           
           # Vérifier que le frontend fonctionne
           echo "Vérification du statut..."
