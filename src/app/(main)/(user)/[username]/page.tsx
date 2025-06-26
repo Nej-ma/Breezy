@@ -95,16 +95,39 @@ export default function ProfilePage() {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center min-h-screen">
-        <span>Chargement...</span>
+      <div className="flex flex-col justify-center items-center min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 px-4">
+        <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-[var(--primary)] mb-6 sm:h-16 sm:w-16 h-12 w-12"></div>
+        <span className="text-xl font-semibold text-[var(--primary)] text-center sm:text-xl text-lg">
+          Chargement du profil...
+        </span>
+        <span className="text-gray-500 mt-2 text-center sm:text-base text-sm">
+          Merci de patienter pendant que nous préparons la page ✨
+        </span>
       </div>
     );
   }
 
   if (!user) {
     return (
-      <div className="flex justify-center items-center min-h-screen">
-        <span>Utilisateur non trouvé</span>
+      <div className="flex flex-col justify-center items-center min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 px-4">
+        <img
+          src="/not_found_cat.svg"
+          alt="Utilisateur non trouvé"
+          className="w-80 h-80 mb-10 opacity-100 drop-shadow-2xl max-w-full sm:w-96 sm:h-96 w-60 h-60"
+        />
+        <span className="text-2xl font-bold text-[var(--primary)] mb-3 text-center sm:text-3xl text-2xl">
+          Oups, utilisateur introuvable !
+        </span>
+        <span className="text-lg text-gray-500 mb-6 text-center sm:text-lg text-base">
+          Il semblerait que ce profil n'existe pas ou a été supprimé.
+        </span>
+        <Link
+          href="/"
+          className="text-[var(--primary)] hover:underline font-semibold flex items-center gap-2 text-lg sm:text-lg text-base"
+        >
+          <ArrowLeft className="w-5 h-5" />
+          Retour à l'accueil
+        </Link>
       </div>
     );
   }

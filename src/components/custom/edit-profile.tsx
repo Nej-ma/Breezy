@@ -34,6 +34,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { UrlInputDialog } from "@/components/custom/url-input-dialog";
 
 // Schéma de validation
 const editProfileSchema = z.object({
@@ -148,6 +149,9 @@ function EditProfileForm({ user, onSave }: EditProfileProps) {
   const [bannerPreview, setBannerPreview] = useState<string | null>(
     user.coverPicture || null
   );
+  // Dialogs pour URL
+  const [avatarDialogOpen, setAvatarDialogOpen] = useState(false);
+  const [bannerDialogOpen, setBannerDialogOpen] = useState(false);
 
   // Configuration du formulaire
   const form = useForm<EditProfileData>({
@@ -190,24 +194,39 @@ function EditProfileForm({ user, onSave }: EditProfileProps) {
   // Handlers
   const onSubmit = handleSubmit(onSave);
 
+  // Ouvre le dialog Shadcn pour l'avatar
   const handleAvatarUrl = useCallback(() => {
-    const url = window.prompt("Entrez l'URL de votre avatar :", avatarPreview || "");
-    if (url && url.trim()) {
-      setAvatarPreview(url.trim());
-      form.setValue("avatar", url.trim());
-    }
-  }, [avatarPreview, form]);
-
+    setAvatarDialogOpen(true);
+  }, []);
+  // Ouvre le dialog Shadcn pour la bannière
   const handleBannerUrl = useCallback(() => {
-    const url = window.prompt("Entrez l'URL de votre bannière :", bannerPreview || "");
-    if (url && url.trim()) {
-      setBannerPreview(url.trim());
-      form.setValue("banner", url.trim());
-    }
-  }, [bannerPreview, form]);
+    setBannerDialogOpen(true);
+  }, []);
 
   return (
     <>
+      {/* Dialog pour l'URL de l'avatar */}
+      <UrlInputDialog
+        open={avatarDialogOpen}
+        onOpenChange={setAvatarDialogOpen}
+        title="Entrez l'URL de votre avatar"
+        initialValue={avatarPreview || ""}
+        onValidate={(url) => {
+          setAvatarPreview(url);
+          form.setValue("avatar", url);
+        }}
+      />
+      {/* Dialog pour l'URL de la bannière */}
+      <UrlInputDialog
+        open={bannerDialogOpen}
+        onOpenChange={setBannerDialogOpen}
+        title="Entrez l'URL de votre bannière"
+        initialValue={bannerPreview || ""}
+        onValidate={(url) => {
+          setBannerPreview(url);
+          form.setValue("banner", url);
+        }}
+      />
       {/* Bouton de fermeture */}
       <DialogClose asChild>
         <Button
