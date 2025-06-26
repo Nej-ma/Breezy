@@ -241,7 +241,7 @@ export default function ProfilePage() {
           <div
         className="w-full h-64"
         style={{
-          background: "linear-gradient(135deg, #60a5fa 0%, #818cf8 100%)",
+          background: "linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%)",
         }}
           />
         )}
