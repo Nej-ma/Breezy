@@ -230,24 +230,12 @@ export default function ProfilePage() {
       </div>
 
       {/* Banner */}
-      <div className="relative h-64 overflow-hidden bg-gradient-to-r from-blue-400 via-purple-500 to-pink-500">
-        {user.coverPicture ? (
-          <Image
-            src={user.coverPicture}
-            alt="Banner"
-            fill
-            className="object-cover"
-            onError={(e) => {
-              // Hide the image if it fails to load and show the gradient background
-              e.currentTarget.style.display = 'none';
-            }}
-          />
-        ) : (
-          // Default gradient background when no cover picture
-          <div className="absolute inset-0 bg-gradient-to-r from-blue-400 via-purple-500 to-pink-500 opacity-80" />
-        )}
-        {/* Optional overlay for better text readability */}
-        <div className="absolute inset-0 bg-black bg-opacity-10" />
+      <div className="relative h-64 overflow-hidden ">
+        <img
+          src={user.coverPicture || "/placeholder.svg"}
+          alt={user.coverPicture ? `${user.displayName}'s cover picture` : "Default placeholder cover picture"}
+          className="w-full h-64 object-cover"
+        />
       </div>
 
       {/* Profile Content with Unique Layout */}
