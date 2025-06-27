@@ -54,6 +54,8 @@ export async function encrypt(payload: SessionPayload): Promise<string> {
     email: payload.email,
     displayName: payload.displayName,
     isVerified: payload.isVerified,
+    isSuspended: payload.isSuspended,
+    suspendedUntil: payload.suspendedUntil,
     expiresAt: payload.expiresAt
   };
   
