@@ -15,6 +15,11 @@ export type Post = {
   isDeleted: boolean;
   visibility: PostVisibility;
   createdAt: string;
+  // Enriched author data from backend
+  authorRole?: string;
+  authorDisplayName?: string;
+  authorUsername?: string;
+  authorProfilePicture?: string;
 };
 
 export type PostResponse = {

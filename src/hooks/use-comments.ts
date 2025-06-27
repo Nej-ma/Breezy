@@ -1,15 +1,19 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useCallback } from "react";
 import { CommentType } from "@/utils/types/commentType";
 import { commentService } from "@/services/commentService";
 
 export function useComments() {
   const [commentsCache, setCommentsCache] = useState<Record<string, CommentType[]>>({});
   const pendingFetches = useRef<Map<string, Promise<CommentType[]>>>(new Map());
+  const cacheRef = useRef<Record<string, CommentType[]>>({});
+  
+  // Synchroniser le cache ref avec le state
+  cacheRef.current = commentsCache;
 
-  const getPostComments = async (postId: string, forceRefresh = false) => {
+  const getPostComments = useCallback(async (postId: string, forceRefresh = false) => {
     // Return cached comments if they exist and no force refresh
-    if (commentsCache[postId] && !forceRefresh) {
-      return commentsCache[postId];
+    if (cacheRef.current[postId] && !forceRefresh) {
+      return cacheRef.current[postId];
     }
 
     // Check if there's already a pending fetch for this post
@@ -41,7 +45,7 @@ export function useComments() {
 
     pendingFetches.current.set(postId, fetchPromise);
     return fetchPromise;
-  };
+  }, []); // Pas de dépendances pour éviter les rerenders
 
   return { commentsCache, getPostComments };
 }

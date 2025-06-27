@@ -22,7 +22,6 @@ import { PostsSection } from "@/components/custom/post-section";
 // hooks
 import { useAuth } from "@/app/auth-provider";
 import { useDebounce } from "@/hooks/use-debounce";
-import { useAuthorProfiles } from "@/hooks/use-author";
 
 type SearchType = "users" | "tags" | "all";
 
@@ -211,7 +210,7 @@ export default function SearchPage() {
                   </h2>
                   <div className="space-y-2">
                     {users.slice(0, 3).map((user) => (
-                      <UserCard key={user.id} user={user} />
+                      <UserCard key={user._id || user.userId} user={user} />
                     ))}
                     {users.length > 3 && (
                       <Button
@@ -272,7 +271,7 @@ export default function SearchPage() {
               {isLoading ? (
                 <div className="text-center py-8">Recherche en cours...</div>
               ) : users.length > 0 ? (
-                users.map((user) => <UserCard key={user.id} user={user} />)
+                users.map((user) => <UserCard key={user._id || user.userId} user={user} />)
               ) : (
                 <div className="text-center text-muted-foreground py-8">
                   <Users className="h-12 w-12 mx-auto mb-4 opacity-50" />

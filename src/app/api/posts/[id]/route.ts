@@ -5,9 +5,10 @@ import { cookies } from 'next/headers';
 // src/app/api/posts/[id]/route.ts
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const cookieStore = await cookies();
     const backendToken = cookieStore.get('backend_token')?.value;
     
@@ -20,7 +21,7 @@ export async function GET(
 
     const backendUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080/api';
     
-    const response = await fetch(`${backendUrl}/posts/${params.id}`, {
+    const response = await fetch(`${backendUrl}/posts/${id}`, {
       method: 'GET',
       headers: {
         'Authorization': `Bearer ${backendToken}`,
@@ -46,9 +47,10 @@ export async function GET(
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const cookieStore = await cookies();
     const backendToken = cookieStore.get('backend_token')?.value;
     
@@ -62,7 +64,7 @@ export async function PUT(
     const body = await request.json();
     const backendUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080/api';
     
-    const response = await fetch(`${backendUrl}/posts/${params.id}`, {
+    const response = await fetch(`${backendUrl}/posts/${id}`, {
       method: 'PUT',
       headers: {
         'Authorization': `Bearer ${backendToken}`,
@@ -90,9 +92,10 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const cookieStore = await cookies();
     const backendToken = cookieStore.get('backend_token')?.value;
     
@@ -103,15 +106,30 @@ export async function DELETE(
       );
     }
 
+    // Lire le body de la requête pour récupérer les données de modération
+    let body = null;
+    try {
+      body = await request.json();
+    } catch {
+      // Si pas de body, c'est une suppression normale
+    }
+
     const backendUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080/api';
     
-    const response = await fetch(`${backendUrl}/posts/${params.id}`, {
+    const fetchOptions: RequestInit = {
       method: 'DELETE',
       headers: {
         'Authorization': `Bearer ${backendToken}`,
         'Content-Type': 'application/json',
       },
-    });
+    };
+
+    // Si on a des données de modération, les inclure dans le body
+    if (body && (body.moderatorAction || body.reason)) {
+      fetchOptions.body = JSON.stringify(body);
+    }
+    
+    const response = await fetch(`${backendUrl}/posts/${id}`, fetchOptions);
 
     if (!response.ok) {
       const errorData = await response.json();
