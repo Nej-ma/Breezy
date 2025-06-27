@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { RoleBadge } from "@/components/custom/role-badge";
 import { userService } from "@/services/userService";
 import { useAuth } from "@/app/auth-provider";
 import type { UserProfile } from "@/utils/types/userType";
@@ -94,7 +95,7 @@ export function FollowersModal({
     }
   }, [currentUser, followingStatus]);
 
-  const fetchFollowersPage = async (page: number = 1, append: boolean = false) => {
+  const fetchFollowersPage = useCallback(async (page: number = 1, append: boolean = false) => {
     if (append) {
       setFollowersData(prev => ({ ...prev, loadingMore: true }));
     } else {
@@ -118,9 +119,9 @@ export function FollowersModal({
       setFollowersData(prev => ({ ...prev, loading: false, loadingMore: false }));
       return [];
     }
-  };
+  }, [user.userId]);
 
-  const fetchFollowingPage = async (page: number = 1, append: boolean = false) => {
+  const fetchFollowingPage = useCallback(async (page: number = 1, append: boolean = false) => {
     if (append) {
       setFollowingData(prev => ({ ...prev, loadingMore: true }));
     } else {
@@ -144,7 +145,7 @@ export function FollowersModal({
       setFollowingData(prev => ({ ...prev, loading: false, loadingMore: false }));
       return [];
     }
-  };
+  }, [user.userId]);
 
   // Fonction pour charger les deux onglets ET vérifier tous les statuts
   const loadBothTabsAndStatus = useCallback(async () => {
@@ -160,7 +161,7 @@ export function FollowersModal({
     if (allUserIds.length > 0) {
       await checkAllFollowingStatus(allUserIds);
     }
-  }, [user.userId, checkAllFollowingStatus]);
+  }, [checkAllFollowingStatus, fetchFollowersPage, fetchFollowingPage]);
 
   useEffect(() => {
     if (isOpen) {
@@ -273,10 +274,8 @@ export function FollowersModal({
                     <h4 className="font-semibold text-gray-900 truncate">
                       {userItem.displayName}
                     </h4>
-                    {userItem.isVerified && (
-                      <div className="w-4 h-4 bg-blue-500 rounded-full flex items-center justify-center flex-shrink-0">
-                        <span className="text-white text-xs">✓</span>
-                      </div>
+                    {userItem.role && userItem.role !== 'user' && (
+                      <RoleBadge role={userItem.role} />
                     )}
                   </div>
                   <p className="text-sm text-gray-500 truncate">@{userItem.username}</p>

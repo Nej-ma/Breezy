@@ -1,5 +1,6 @@
 "use client";
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
+import { SuspendedUserModal } from "@/components/custom/suspended-user-modal";
 
 interface User {
   id?: string;
@@ -10,6 +11,8 @@ interface User {
   role: 'user' | 'admin' | 'moderator';
   isVerified?: boolean;
   profilePicture?: string;
+  isSuspended?: boolean;
+  suspendedUntil?: string | null;
 }
 
 interface AuthContextType {
@@ -38,8 +41,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         credentials: 'include',
       });
 
+      console.log("[AuthProvider] refreshUser response status:", response.status);
+
       if (response.ok) {
         const data = await response.json();
+        console.log("[AuthProvider] refreshUser data received:", data);
+        console.log("[AuthProvider] user data:", data.user);
+        console.log("[AuthProvider] user role:", data.user?.role);
         setUser(data.user);
         setError(null);
         return true;
@@ -105,6 +113,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       });
 
       const data = await response.json();
+      console.log("[AuthProvider] login response:", data);
+      console.log("[AuthProvider] login user data:", data.user);
+      console.log("[AuthProvider] login user role:", data.user?.role);
 
       if (!response.ok) {
         setError(data.error || "Login failed");
@@ -158,6 +169,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const handleLogout = () => {
+    setUser(null);
+  };
+
+  // Vérifier si l'utilisateur est suspendu
+  const isSuspended = user?.isSuspended && 
+    (!user.suspendedUntil || new Date(user.suspendedUntil) > new Date());
+
   const value = {
     user,
     loading,
@@ -169,7 +188,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
+    <AuthContext.Provider value={value}>
+      {children}
+      
+      {/* Modal de suspension */}
+      <SuspendedUserModal
+        isOpen={!!isSuspended}
+        suspendedUntil={user?.suspendedUntil}
+        onLogout={handleLogout}
+      />
+    </AuthContext.Provider>
   );
 }
 

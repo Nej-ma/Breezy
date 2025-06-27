@@ -123,7 +123,7 @@ export function UserSearch({ onUserSelect, onClear }: UserSearchProps) {
                 <div className="space-y-1 p-1">
                   {searchResults.map((user) => (
                     <button
-                      key={user.id}
+                      key={user._id || user.userId}
                       className="w-full flex items-center gap-3 p-2 hover:bg-muted rounded-sm transition-colors text-left"
                       onClick={() => handleUserClick(user)}
                     >

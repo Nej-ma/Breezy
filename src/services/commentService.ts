@@ -101,10 +101,26 @@ const deleteComment = async (commentId: string): Promise<void> => {
   }
 };
 
+const moderateComment = async (commentId: string, reason?: string): Promise<void> => {
+  try {
+    const response = await apiClient.delete(`posts/comments/${commentId}`, {
+      data: { reason: reason || 'Moderation action' }
+    });
+
+    if (response.status !== 200) {
+      throw new Error(`Failed to moderate comment: ${response.statusText}`);
+    }
+  } catch (error) {
+    console.error("Error moderating comment:", error);
+    throw error;
+  }
+};
+
 export const commentService = {
   getPostComments,
   createComment,
   updateComment,
   likeComment,
   deleteComment,
+  moderateComment,
 };

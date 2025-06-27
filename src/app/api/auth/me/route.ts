@@ -23,6 +23,8 @@ export async function GET() {
         email: session.email,
         displayName: session.displayName,
         isVerified: session.isVerified,
+        isSuspended: session.isSuspended,
+        suspendedUntil: session.suspendedUntil,
       }
     });
    

@@ -15,9 +15,10 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
 } from "@/components/ui/dropdown-menu";
-import { Trash2, MoreVertical, Heart, MessageCircle } from "lucide-react";
+import { Trash2, MoreVertical, Heart, MessageCircle, Shield } from "lucide-react";
 
 import { CommentComposer } from "@/components/custom/comment-composer";
+import { RoleBadge } from "@/components/custom/role-badge";
 
 // Types
 import type { CommentType } from "@/utils/types/commentType";
@@ -70,6 +71,21 @@ export function Comment({
     }
   };
 
+  const handleModerate = async (commentId: string, reason?: string) => {
+    setDeletingId(commentId);
+    try {
+      await commentService.moderateComment(commentId, reason);
+
+      if (refreshComments) {
+        refreshComments();
+      }
+    } catch (error) {
+      console.error("Erreur lors de la modération du commentaire :", error);
+    } finally {
+      setDeletingId(null);
+    }
+  };
+
   const handleToggleLike = async (commentId: string, isLiked: boolean) => {
     if (!user) return;
 
@@ -104,8 +120,12 @@ export function Comment({
         </Avatar>
         <div className="flex-1 min-w-0">
           <div className="flex items-center space-x-2">
-            <h4 className="font-medium text-sm text-gray-900">
-              {comment.authorDisplayName}
+            <h4 className="font-medium text-sm text-gray-900 flex items-center space-x-2">
+              <span>{comment.authorDisplayName}</span>
+              {/* Add role badge for admin/moderator comments */}
+              {comment.authorRole && comment.authorRole !== 'user' && (
+                <RoleBadge role={comment.authorRole} />
+              )}
             </h4>
             <span className="text-gray-500 text-xs">
               {comment.authorUsername}
@@ -184,7 +204,8 @@ export function Comment({
             )}
           </div>
         </div>
-        {user?.id === comment.author && (
+        {/* Menu dropdown pour suppression - auteur ou modérateurs/admins */}
+        {(user?.id === comment.author || user?.role === 'moderator' || user?.role === 'admin') && (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button
@@ -199,14 +220,27 @@ export function Comment({
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuItem
-                className="cursor-pointer text-red-600 focus:text-red-600 focus:bg-red-50"
-                onClick={() => handleDelete(comment._id)}
-                disabled={deletingId === comment._id}
-              >
-                <Trash2 className="w-4 h-4 text-red-600 mr-2" />
-                {t("comments.delete", "Supprimer")}
-              </DropdownMenuItem>
+              {user?.id === comment.author ? (
+                // L'auteur peut supprimer son propre commentaire
+                <DropdownMenuItem
+                  className="cursor-pointer text-red-600 focus:text-red-600 focus:bg-red-50"
+                  onClick={() => handleDelete(comment._id)}
+                  disabled={deletingId === comment._id}
+                >
+                  <Trash2 className="w-4 h-4 text-red-600 mr-2" />
+                  {t("comments.delete", "Supprimer")}
+                </DropdownMenuItem>
+              ) : (
+                // Les modérateurs/admins peuvent supprimer n'importe quel commentaire
+                <DropdownMenuItem
+                  className="cursor-pointer text-red-600 focus:text-red-600 focus:bg-red-50"
+                  onClick={() => handleModerate(comment._id, "Contenu inapproprié")}
+                  disabled={deletingId === comment._id}
+                >
+                  <Shield className="w-4 h-4 text-red-600 mr-2" />
+                  {t("comments.moderate", "Supprimer (Modération)")}
+                </DropdownMenuItem>
+              )}
             </DropdownMenuContent>
           </DropdownMenu>
         )}

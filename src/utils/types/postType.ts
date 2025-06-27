@@ -1,4 +1,4 @@
-export type PostVisibility = "public" | "private" | "friends"; // adjust as needed
+export type PostVisibility = "public" | "private" | "followers"; // adjust as needed
 
 export type Post = {
   _id: string;
@@ -15,6 +15,11 @@ export type Post = {
   isDeleted: boolean;
   visibility: PostVisibility;
   createdAt: string;
+  // Enriched author data from backend
+  authorRole?: string;
+  authorDisplayName?: string;
+  authorUsername?: string;
+  authorProfilePicture?: string;
 };
 
 export type PostResponse = {

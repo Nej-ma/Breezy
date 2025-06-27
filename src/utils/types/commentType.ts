@@ -4,6 +4,7 @@ export type CommentType = {
   authorUsername: string;
   authorDisplayName: string;
   authorProfilePicture: string;
+  authorRole?: 'user' | 'moderator' | 'admin';
   post: string;
   parentComment: string | null;
   content: string;

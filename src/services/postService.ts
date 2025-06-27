@@ -17,9 +17,19 @@ export type PostRequest = {
 };
 
 // ✅ Utilise les API routes Next.js au lieu du backend direct
-const getAllPosts = async (): Promise<Post[]> => {
+const getAllPosts = async (params?: {
+  id?: string;
+  filter?: string;
+  author?: string;
+}): Promise<Post[]> => {
   try {
-    const response = await apiClient.get("posts");
+    const queryParams = new URLSearchParams();
+    if (params?.id) queryParams.append("id", params.id);
+    if (params?.filter) queryParams.append("filter", params.filter);
+    if (params?.author) queryParams.append("author", params.author);
+
+    const url = queryParams.toString() ? `posts?${queryParams}` : "posts";
+    const response = await apiClient.get(url);
 
     if (response.status !== 200) {
       throw new Error(`Failed to fetch posts: ${response.statusText}`);
@@ -28,6 +38,23 @@ const getAllPosts = async (): Promise<Post[]> => {
     return response.data;
   } catch (error) {
     console.error("Error fetching user posts:", error);
+    throw error;
+  }
+};
+
+const getFollowingPosts = async (): Promise<Post[]> => {
+  try {
+    const response = await apiClient.get("posts/following");
+
+    if (response.status !== 200) {
+      throw new Error(
+        `Failed to fetch following posts: ${response.statusText}`
+      );
+    }
+
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching following posts:", error);
     throw error;
   }
 };
@@ -99,7 +126,7 @@ const getPostsByAuthor = async (authorId: string): Promise<Post[]> => {
   }
 };
 
-const postPost = async (content: string, visibility: string, files: File[]) => {
+const postPost = async (content: string, visibility: string, images: string[], videos: string[]) => {
   try {
     const tags = extractTags(content);
     const mentions = extractMentions(content);
@@ -109,13 +136,11 @@ const postPost = async (content: string, visibility: string, files: File[]) => {
       visibility,
       tags,
       mentions,
-      images: files.filter((file) => file.type.startsWith("image/")),
-      videos: files.filter((file) => file.type.startsWith("video/")),
-    } as PostRequest;
-
+      images,
+      videos,
+    };
 
     const response = await apiClient.post("posts", data);
-
 
     if (response.status === 201) {
       return response.data;
@@ -197,6 +222,27 @@ const deletePost = async (postId: string) => {
   }
 };
 
+// Supprimer un post en tant que modérateur (peut supprimer n'importe quel post)
+const moderatorDeletePost = async (postId: string, reason?: string) => {
+  try {
+    const response = await apiClient.delete(`posts/${postId}`, {
+      data: { 
+        moderatorAction: true,
+        reason: reason || "Contenu inapproprié" 
+      }
+    });
+
+    if (response.status === 200) {
+      console.log(`Post ${postId} supprimé par modération`);
+    } else {
+      throw new Error(`Error deleting post as moderator: ${response.statusText}`);
+    }
+  } catch (error) {
+    console.error("Error deleting post as moderator:", error);
+    throw error;
+  }
+};
+
 const getPostsByTags = async (
   tags: string[],
   limit?: number,
@@ -245,5 +291,6 @@ export const postService = {
   updatePostContent,
   updatePostVisibility,
   deletePost,
+  moderatorDeletePost,
   getPostsByTags,
 };

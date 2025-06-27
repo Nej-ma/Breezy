@@ -9,12 +9,12 @@ import {
   UserPlaceholderIcon,
 } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
+import { RoleBadge } from "@/components/custom/role-badge";
 import { Button } from "@/components/ui/button";
 import {
   MessageCircle,
   Heart,
   Share,
-  Sparkles,
   MoreVertical,
   Pencil,
   Trash2,
@@ -32,7 +32,8 @@ import { Separator } from "@/components/ui/separator";
 import { Textarea } from "../ui/textarea";
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { useTranslation } from "react-i18next"; // Add this import
+import Image from "next/image";
+import { useTranslation } from "react-i18next";
 
 import CommentSection from "./comment-section";
 import CommentComposer from "./comment-composer";
@@ -51,7 +52,7 @@ import type { CommentType } from "@/utils/types/commentType";
 
 // Services
 import { postService } from "@/services/postService";
-import { useRef } from "react";
+import { adminService } from "@/services/adminService";
 
 // Add this import if not already present
 import Loader from "./loader";
@@ -80,7 +81,7 @@ export function Post({
   refreshPosts,
 }: PostProps) {
   const { t } = useTranslation("common");
-  const { commentsCache, getPostComments } = useComments();
+  const { getPostComments } = useComments();
 
   // Define visibility options
   const visibilityOptions = [
@@ -91,9 +92,9 @@ export function Post({
       icon: Globe,
     },
     {
-      value: "friends" as const,
-      label: t("post.visibility.friends"),
-      description: t("post.visibility.friendsDescription"),
+      value: "followers" as const,
+      label: t("post.visibility.followers"),
+      description: t("post.visibility.followersDescription"),
       icon: Users,
     },
     {
@@ -124,8 +125,17 @@ export function Post({
       : initialAuthorProfile || null
   );
 
-  const likeTimeout = useRef<NodeJS.Timeout | null>(null);
   const { user } = useAuth();
+
+  // Debug logs pour vérifier le rôle de l'utilisateur (à supprimer après debug)
+  useEffect(() => {
+    if (process.env.NODE_ENV === 'development') {
+      console.log("=== DEBUG POST COMPONENT ===");
+      console.log("User role from auth:", user?.role);
+      console.log("Has moderator permissions:", user?.role && adminService.hasModeratorPermissions(user.role));
+      console.log("==============================");
+    }
+  }, [user]);
 
   // === BACKEND INTERACTIONS ===
   const handleToggleLike = async () => {
@@ -156,26 +166,29 @@ export function Post({
     }
   };
 
-  const fetchComments = async (forceRefresh: boolean = false) => {
-    if (!showComments) return;
-
-    setCommentsLoading(true);
-    try {
-      const fetchedComments = await getPostComments(post._id, forceRefresh);
-      setComments(fetchedComments);
-    } finally {
-      setCommentsLoading(false);
-    }
-  };
-
   const handleCommentClick = () => {
     setShowComments(!showComments);
     setCommentComposerOpen(!commentComposerOpen);
   };
 
   useEffect(() => {
-    fetchComments();
-  }, [showComments]);
+    if (showComments) {
+      const loadComments = async () => {
+        setCommentsLoading(true);
+        try {
+          const fetchedComments = await getPostComments(post._id, false);
+          setComments(fetchedComments);
+        } catch (error) {
+          console.error("Error loading comments:", error);
+        } finally {
+          setCommentsLoading(false);
+        }
+      };
+      loadComments();
+    }
+    // Intentionnellement on ne met que showComments et post._id pour éviter les boucles
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [showComments, post._id]);
 
   useEffect(() => {
     if (userProfile.userId && likesState.includes(userProfile.userId)) {
@@ -183,7 +196,7 @@ export function Post({
     } else {
       setLikedState(false);
     }
-  }, [userProfile.userId, post.likes]);
+  }, [userProfile.userId, likesState]);
 
   const refreshPost = async () => {
     try {
@@ -199,7 +212,16 @@ export function Post({
       post.commentsCount = response.post.commentsCount;
       post.likes = response.post.likes;
 
-      await fetchComments(true);
+      // Rafraîchir les commentaires si ils sont affichés
+      if (showComments) {
+        setCommentsLoading(true);
+        try {
+          const fetchedComments = await getPostComments(post._id, true);
+          setComments(fetchedComments);
+        } finally {
+          setCommentsLoading(false);
+        }
+      }
     } catch (error) {
       console.error("Error fetching post by ID:", error);
     }
@@ -263,11 +285,16 @@ export function Post({
             <div className="flex-1">
               <div className="flex items-center gap-2 mb-2">
                 <span className="font-semibold text-gray-900 transition-colors">
-                  {authorProfile?.displayName}
+                  {post.authorDisplayName || authorProfile?.displayName}
                 </span>
-                <Sparkles className="w-4 h-4 text-[var(--primary-light)]" />
+                {/* Afficher le badge de rôle pour tous les auteurs avec un rôle spécial */}
+                {(post.authorRole || authorProfile?.role) && 
+                 (post.authorRole === 'admin' || post.authorRole === 'moderator' || 
+                  authorProfile?.role === 'admin' || authorProfile?.role === 'moderator') && (
+                  <RoleBadge role={(post.authorRole || authorProfile?.role) as 'admin' | 'moderator'} />
+                )}
                 <span className="text-gray-500">
-                  @{authorProfile?.username}
+                  @{post.authorUsername || authorProfile?.username}
                 </span>
                 <span className="text-gray-400">·</span>
                 <span className="text-gray-500 text-sm">
@@ -276,8 +303,7 @@ export function Post({
 
                 <div className="ml-auto flex items-center gap-1">
                   {(userProfile.userId === post.author ||
-                    user?.role === "moderator" ||
-                    user?.role === "admin") && (
+                    (user?.role && adminService.hasModeratorPermissions(user.role))) && (
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <Button
@@ -301,13 +327,20 @@ export function Post({
                             {t("post.actions.edit")}
                           </DropdownMenuItem>
                         )}
-                        <DropdownMenuItem
-                          className="cursor-pointer text-red-600 focus:text-red-600 focus:bg-red-50"
-                          onClick={() => setIsDeleteDialogOpen(true)}
-                        >
-                          <Trash2 className="w-4 h-4 text-red-600" />
-                          {t("post.actions.delete")}
-                        </DropdownMenuItem>
+                        
+                        {/* Option de suppression - propriétaire du post ou modérateur */}
+                        {(userProfile.userId === post.author || 
+                          (user?.role && adminService.hasModeratorPermissions(user.role))) && (
+                          <DropdownMenuItem
+                            className="cursor-pointer text-red-600 focus:text-red-600 focus:bg-red-50"
+                            onClick={() => setIsDeleteDialogOpen(true)}
+                          >
+                            <Trash2 className="w-4 h-4 text-red-600" />
+                            {userProfile.userId === post.author 
+                              ? t("post.actions.delete") 
+                              : "Supprimer (Modération)"}
+                          </DropdownMenuItem>
+                        )}
                       </DropdownMenuContent>
                     </DropdownMenu>
                   )}
@@ -370,15 +403,17 @@ export function Post({
               )}
 
               {(post.images?.length > 0 || post.videos?.length > 0) && (
-                <div className="mb-4 rounded-2xl overflow-hidden border border-gray-100 bg-gray-50">
+                <div className="mt-3 mb-4 rounded-2xl overflow-hidden border border-gray-100 bg-gray-50">
                   {post.images &&
                     post.images.map((imgUrl, idx) => (
-                      <img
+                      <Image
                         key={`img-${idx}`}
                         src={imgUrl}
                         alt={`${t("post.image")} ${idx + 1}`}
                         className="w-full max-h-80 object-cover"
-                        loading="lazy"
+                        width={500}
+                        height={320}
+                        style={{ maxHeight: '320px', objectFit: 'cover' }}
                       />
                     ))}
                   {post.videos &&
@@ -447,7 +482,7 @@ export function Post({
               <Share className="w-4 h-4" />
             </Button>
 
-            {userProfile.userId === post.author && (
+            {user?._id === post.author && (
               <div>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
@@ -539,10 +574,28 @@ export function Post({
               <AlertDialogAction
                 className="text-white bg-destructive hover:bg-destructive/90 focus:ring-2 focus:ring-destructive/50"
                 onClick={() => {
-                  postService.deletePost(post._id).then(() => {
-                    setIsDeleteDialogOpen(false);
-                    refreshPosts?.();
-                  });
+                  // Vérifier si c'est une action de modération
+                  const isModerationAction = userProfile.userId !== post.author && 
+                    user?.role && 
+                    adminService.hasModeratorPermissions(user.role);
+                  
+                  if (isModerationAction) {
+                    // Suppression en tant que modérateur
+                    postService.moderatorDeletePost(post._id, "Contenu supprimé par modération").then(() => {
+                      setIsDeleteDialogOpen(false);
+                      refreshPosts?.();
+                    }).catch((error) => {
+                      console.error("Erreur suppression modération:", error);
+                    });
+                  } else {
+                    // Suppression normale par l'auteur
+                    postService.deletePost(post._id).then(() => {
+                      setIsDeleteDialogOpen(false);
+                      refreshPosts?.();
+                    }).catch((error) => {
+                      console.error("Erreur suppression normale:", error);
+                    });
+                  }
                 }}
               >
                 {t("common.delete")}
