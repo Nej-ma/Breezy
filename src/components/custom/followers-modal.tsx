@@ -280,7 +280,9 @@ export function FollowersModal({
                   </div>
                   <p className="text-sm text-gray-500 truncate">@{userItem.username}</p>
                   {userItem.bio && (
-                    <p className="text-xs text-gray-400 truncate mt-1">{userItem.bio}</p>
+                    <p className="text-xs text-gray-400 truncate mt-1 max-w-full">
+                      {userItem.bio.length > 45 ? `${userItem.bio.slice(0, 45)}...` : userItem.bio}
+                    </p>
                   )}
                 </div>
               </Link>
