@@ -1,4 +1,4 @@
-name: Deploy Frontend Zero-Downtime
+name: Deploy Frontend Simple
 on:
   push:
     branches: [ prod ]
@@ -14,7 +14,7 @@ jobs:
     if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.merged == true)
     
     steps:
-    - name: Zero-Downtime Frontend Deployment
+    - name: Simple Fast Deployment
       uses: appleboy/ssh-action@v0.1.7
       with:
         host: ${{ secrets.VPS_HOST }}
@@ -22,108 +22,34 @@ jobs:
         key: ${{ secrets.VPS_SSH_KEY }}
         script: |
           set -e
-          echo "🚀 Déploiement Zero-Downtime démarré..."
-          
-          # Variables
-          TIMESTAMP=$(date +%Y%m%d_%H%M%S)
-          CURRENT_SERVICE="frontend"
-          NEW_SERVICE="frontend-new"
+          echo "🚀 Déploiement rapide démarré..."
           
           cd /root/projects/Breezy
           
-          # Backup et pull
+          # Pull latest changes
           echo "📦 Mise à jour du code..."
-          git stash push -m "Pre-deploy backup $TIMESTAMP" || echo "No changes to stash"
-          git fetch origin
-          git checkout prod
-          git pull origin prod
+          git fetch origin && git checkout prod && git pull origin prod
           
           cd ../breezy-backend
           
-          # 1. Build la nouvelle image en arrière-plan (pendant que l'ancienne tourne)
-          echo "🔨 Construction de la nouvelle image..."
+          # Pre-build l'image AVANT d'arrêter le service
+          echo "🔨 Pre-build de l'image (service actuel continue)..."
           docker compose -f docker-compose.prod-ssl.yml build --no-cache frontend
           
-          # 2. Démarrer le nouveau conteneur sur un port différent (ex: 3001)
-          echo "🆕 Démarrage du nouveau conteneur..."
+          # Restart ultra-rapide (image déjà prête)
+          echo "⚡ Restart rapide..."
+          docker compose -f docker-compose.prod-ssl.yml up -d frontend --force-recreate
           
-          # Créer un service temporaire pour le nouveau conteneur
-          cat > docker-compose.temp.yml << EOF
-          version: '3.8'
-          services:
-            frontend-new:
-              build:
-                context: ../Breezy
-                dockerfile: Dockerfile
-              container_name: breezy-frontend-new
-              ports:
-                - "3001:3000"  # Port temporaire
-              environment:
-                - NODE_ENV=production
-              restart: unless-stopped
-              networks:
-                - breezy-network
-          
-          networks:
-            breezy-network:
-              external: true
-          EOF
-          
-          # Démarrer le nouveau conteneur
-          docker compose -f docker-compose.temp.yml up -d frontend-new
-          
-          # 3. Attendre que le nouveau service soit prêt
-          echo "⏳ Vérification du nouveau service..."
-          TIMEOUT=60
-          COUNTER=0
-          
-          while [ $COUNTER -lt $TIMEOUT ]; do
-            if curl -f -s http://localhost:3001 > /dev/null; then
-              echo "✅ Nouveau service prêt!"
-              break
-            fi
-            
-            if [ $COUNTER -eq $((TIMEOUT - 5)) ]; then
-              echo "❌ Le nouveau service ne répond pas, logs:"
-              docker logs breezy-frontend-new --tail 20
-              exit 1
-            fi
-            
-            echo "Attente du nouveau service... ($COUNTER/$TIMEOUT)"
-            sleep 2
-            COUNTER=$((COUNTER + 2))
-          done
-          
-          # 4. Mise à jour de la configuration Traefik/Nginx pour pointer vers le nouveau service
-          echo "🔄 Basculement du trafic..."
-          
-          # Arrêter l'ancien conteneur
-          docker compose -f docker-compose.prod-ssl.yml stop frontend
-          
-          # Reconfigurer le nouveau conteneur pour utiliser le bon port
-          docker stop breezy-frontend-new
-          docker rm breezy-frontend-new
-          
-          # Démarrer le nouveau service avec la vraie config
-          docker compose -f docker-compose.prod-ssl.yml up -d frontend
-          
-          # 5. Vérification finale rapide
-          echo "🏥 Vérification finale..."
+          # Vérification
+          echo "✅ Vérification..."
           sleep 5
           
-          if docker compose -f docker-compose.prod-ssl.yml ps frontend | grep -q "Up\|running"; then
-            echo "✅ Basculement réussi!"
-            
-            # Nettoyage
-            echo "🧹 Nettoyage..."
-            docker compose -f docker-compose.temp.yml down || true
-            rm -f docker-compose.temp.yml
+          if docker compose -f docker-compose.prod-ssl.yml ps frontend | grep -q "Up"; then
+            echo "🎉 Déploiement réussi!"
+            echo "⏱️  Interruption réduite à ~5-10 secondes"
             docker image prune -f
-            
-            echo "🎉 Déploiement terminé en $(date)!"
-            echo "⏱️  Temps d'interruption: ~2-3 secondes maximum"
           else
-            echo "❌ Problème avec le basculement"
+            echo "❌ Problème détecté"
             docker logs breezy-frontend-prod --tail 20
             exit 1
           fi

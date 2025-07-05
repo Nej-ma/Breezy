@@ -4,7 +4,26 @@ const nextConfig: NextConfig = {
   output: 'standalone',
 
   images: {
-    domains: ['api.breezy.website', 'localhost'],
+    domains: [
+      'api.breezy.website', 
+      'localhost',
+      // Domaines d'images externes couramment utilisés
+      'encrypted-tbn0.gstatic.com',
+      'encrypted-tbn1.gstatic.com', 
+      'encrypted-tbn2.gstatic.com',
+      'encrypted-tbn3.gstatic.com',
+      'images.unsplash.com',
+      'via.placeholder.com',
+      'picsum.photos',
+      'cdn.pixabay.com',
+      'source.unsplash.com'
+    ],
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: '**',
+      },
+    ],
     unoptimized: false,
   },
   
