@@ -1,36 +1,30 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🌬️ Breezy – Frontend
 
-## Getting Started
+Frontend source code for **Breezy**, a Twitter-like social network built with a microservices architecture.
 
-First, run the development server:
+🔗 Live Website: [breezy.website](https://breezy.website)
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+---
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 🧩 About the Project
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Breezy is a lightweight, secure, and modern social platform designed as part of a school project in a work-study engineering program (SSI).  
+This repository contains the frontend codebase, which interacts with a secure backend architecture using an API Gateway.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 🚀 Features
 
-## Learn More
+- User authentication and registration
+- Create, like, and delete posts
+- Real-time feed updates
+- Responsive design
+- Secure API interactions via middleware
+- Integrated with a fully containerized backend (Docker + Traefik)
 
-To learn more about Next.js, take a look at the following resources:
+## 🛠️ Tech Stack
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- **Frontend**: NextJS
+- **Styling**: TailwindCSS 
+- **API**: REST (secured via gateway) view https://github.com/Nej-ma/breezy-backend for more
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+/ ! \ Please keep in mind that this is a schoold project / ! \
