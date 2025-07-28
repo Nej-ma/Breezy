@@ -1,0 +1,276 @@
+import React, { useState } from "react";
+
+import Link from "next/link";
+
+import {
+  Avatar,
+  AvatarImage,
+  AvatarFallback,
+  UserPlaceholderIcon,
+} from "../ui/avatar";
+import { Button } from "../ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+} from "@/components/ui/dropdown-menu";
+import { Trash2, MoreVertical, Heart, MessageCircle, Shield } from "lucide-react";
+
+import { CommentComposer } from "@/components/custom/comment-composer";
+import { RoleBadge } from "@/components/custom/role-badge";
+
+// Types
+import type { CommentType } from "@/utils/types/commentType";
+
+// helpers
+import { getRelativeTime } from "@/utils/helpers/stringFormatter";
+
+// services
+import { commentService } from "@/services/commentService";
+
+// hooks
+import { useAuth } from "@/app/auth-provider";
+import { useTranslation } from "react-i18next";
+import { UserProfile } from "@/utils/types/userType";
+
+type CommentProps = {
+  comment: CommentType;
+  userProfile: UserProfile;
+  refreshComments?: () => void; // Add this prop
+  replies?: CommentType[]; // Optional, if you want to display replies
+  canReply?: boolean; // Optional, if you want to allow replies
+};
+
+export function Comment({
+  comment,
+  userProfile,
+  refreshComments,
+  replies = [],
+  canReply = false, // Allow replies by default
+}: CommentProps) {
+  const { t } = useTranslation("common");
+  const { user } = useAuth();
+
+  // state
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [toggledReply, setToggledReply] = useState<boolean>(false);
+
+  const handleDelete = async (commentId: string) => {
+    setDeletingId(commentId);
+    try {
+      await commentService.deleteComment(commentId);
+
+      if (refreshComments) {
+        refreshComments();
+      }
+    } catch (error) {
+      console.error("Erreur lors de la suppression du commentaire :", error);
+    } finally {
+      setDeletingId(null);
+    }
+  };
+
+  const handleModerate = async (commentId: string, reason?: string) => {
+    setDeletingId(commentId);
+    try {
+      await commentService.moderateComment(commentId, reason);
+
+      if (refreshComments) {
+        refreshComments();
+      }
+    } catch (error) {
+      console.error("Erreur lors de la modération du commentaire :", error);
+    } finally {
+      setDeletingId(null);
+    }
+  };
+
+  const handleToggleLike = async (commentId: string, isLiked: boolean) => {
+    if (!user) return;
+
+    const likeState = isLiked ? "like" : "unlike";
+
+    try {
+      await commentService.likeComment(commentId, likeState);
+
+      if (refreshComments) {
+        refreshComments();
+      }
+    } catch (error) {
+      console.error("Erreur lors de l'ajout du like :", error);
+    }
+  };
+
+  return (
+    <div
+      className={`${
+        !canReply ? "md:ml-6 ml-2 border-l-2 border-gray-100 pl-4" : ""
+      }`}
+    >
+      <div className="flex space-x-3">
+        <Avatar className="h-8 w-8 ring-2 border-none hidden md:inline">
+          <AvatarImage
+            src={comment.authorProfilePicture || "/placeholder.svg"}
+            alt={comment.authorUsername}
+          />
+          <AvatarFallback className="bg-gradient-to-br from-[var(--primary)] to-[var(--primary-light)] text-white">
+            <UserPlaceholderIcon className="w-8 h-8" />
+          </AvatarFallback>
+        </Avatar>
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center space-x-2">
+            <h4 className="font-medium text-sm text-gray-900 flex items-center space-x-2">
+              <span>{comment.authorDisplayName}</span>
+              {/* Add role badge for admin/moderator comments */}
+              {comment.authorRole && comment.authorRole !== 'user' && (
+                <RoleBadge role={comment.authorRole} />
+              )}
+            </h4>
+            <span className="text-gray-500 text-xs">
+              {comment.authorUsername}
+            </span>
+            <span className="text-gray-500 text-xs">·</span>
+            <span className="text-gray-500 text-xs">
+              {getRelativeTime(t, comment.createdAt)}
+            </span>
+          </div>
+          <p className="text-sm text-gray-700 mt-1">
+            {comment.content.split(" ").map((word, idx) => {
+              if (word.startsWith("@")) {
+                return (
+                  <Link
+                    href={`/${word.slice(1)}`}
+                    key={idx}
+                    className="text-primary font-semibold mr-1"
+                  >
+                    {word}{" "}
+                  </Link>
+                );
+              }
+
+              if (word.startsWith("#")) {
+                return (
+                  <Link
+                    href={`/search?q=${word.slice(1)}`}
+                    key={idx}
+                    className="text-primary font-semibold mr-1"
+                  >
+                    {word}{" "}
+                  </Link>
+                );
+              }
+
+              return word + " ";
+            })}
+          </p>
+
+          <div className="flex items-center space-x-2 mt-2">
+            <Button
+              variant="ghost"
+              size="sm"
+              className={`rounded-full transition-all
+                    ${
+                      user?.id && comment.likes.includes(user.id)
+                        ? "text-red-500 hover:text-red-600 hover:bg-red-50"
+                        : "text-gray-500 hover:text-red-500 hover:bg-red-50"
+                    }`}
+              onClick={() =>
+                handleToggleLike(
+                  comment._id,
+                  !!(user?.id && comment.likes.includes(user.id))
+                )
+              }
+            >
+              <Heart
+                className={`w-4 h-4 ${
+                  user?.id && comment.likes.includes(user.id)
+                    ? "fill-current"
+                    : "fill-none"
+                }`}
+              />
+              {comment.likes.length}
+            </Button>
+            {canReply && (
+              <Button
+                variant="ghost"
+                size="sm"
+                className="text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-full"
+                onClick={() => setToggledReply(!toggledReply)}
+              >
+                <MessageCircle className="w-4 h-4" />
+                {t("comments.reply", "Répondre")}
+              </Button>
+            )}
+          </div>
+        </div>
+        {/* Menu dropdown pour suppression - auteur ou modérateurs/admins */}
+        {(user?.id === comment.author || user?.role === 'moderator' || user?.role === 'admin') && (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-8 w-8 p-0 text-gray-500"
+              >
+                <span className="sr-only">
+                  {t("comments.menu", "Ouvrir le menu")}
+                </span>
+                <MoreVertical className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              {user?.id === comment.author ? (
+                // L'auteur peut supprimer son propre commentaire
+                <DropdownMenuItem
+                  className="cursor-pointer text-red-600 focus:text-red-600 focus:bg-red-50"
+                  onClick={() => handleDelete(comment._id)}
+                  disabled={deletingId === comment._id}
+                >
+                  <Trash2 className="w-4 h-4 text-red-600 mr-2" />
+                  {t("comments.delete", "Supprimer")}
+                </DropdownMenuItem>
+              ) : (
+                // Les modérateurs/admins peuvent supprimer n'importe quel commentaire
+                <DropdownMenuItem
+                  className="cursor-pointer text-red-600 focus:text-red-600 focus:bg-red-50"
+                  onClick={() => handleModerate(comment._id, "Contenu inapproprié")}
+                  disabled={deletingId === comment._id}
+                >
+                  <Shield className="w-4 h-4 text-red-600 mr-2" />
+                  {t("comments.moderate", "Supprimer (Modération)")}
+                </DropdownMenuItem>
+              )}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        )}
+      </div>
+
+      {replies.length > 0 && (
+        <div className="space-y-2">
+          {replies.map((reply) => (
+            <Comment
+              key={reply._id}
+              comment={reply}
+              userProfile={userProfile}
+              refreshComments={refreshComments}
+              canReply={false} // Disable replies for replies
+            />
+          ))}
+        </div>
+      )}
+
+      {/* form to reply to the comment*/}
+      {toggledReply && (
+        <div className="md:ml-6 md:border-l-2 border-gray-100 md:pl-4 md:m-y-4">
+          <CommentComposer
+            postId={comment.post}
+            parentCommentId={comment._id}
+            userProfile={userProfile}
+            refreshComments={refreshComments}
+          />
+        </div>
+      )}
+    </div>
+  );
+}

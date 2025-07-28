@@ -1,0 +1,139 @@
+{
+    "common": {
+        "loading": "Loading...",
+        "error": "An error occurred. Please try again.",
+        "save": "Save",
+        "cancel": "Cancel",
+        "delete": "Delete",
+        "edit": "Edit",
+        "post": "Post",
+        "publish": "Publish",
+        "update": "Update",
+        "search": "Search",
+        "noResults": "No results found"
+    },
+
+    "navbar": {
+        "home": "Home",
+        "logout": "Logout",
+        "profile": "Profile",
+        "message": "Message",
+        "notification": "Notification",
+        "settings": "Settings"
+    },
+
+    "post": {
+        "actions": {
+            "open": "Open menu",
+            "edit": "Edit",
+            "delete": "Delete",
+            "share": "Share",
+            "like": "Like",
+            "comment": "Comment",
+            "attach": "Attach"
+        },
+        "visibility": {
+            "public": "Public",
+            "publicDescription": "Anyone can see this post",
+            "followers": "Followers",
+            "followersDescription": "Only your followers can see this",
+            "private": "Only me",
+            "privateDescription": "Only you can see this post"
+        },
+        "time": {
+            "now": "now",
+            "minute": "m",
+            "hour": "h",
+            "day": "d"
+        },
+        "delete": {
+            "title": "Delete post",
+            "confirmation": "Are you sure you want to delete this post? This action cannot be undone."
+        },
+        "image": "Image",
+        "attachedFiles": "Attached files:",
+        "noComments": "No comments yet"
+    },
+
+    "postComposer": {
+        "placeholder": "What's happening?",
+        "createPost": "Create a post",
+        "shareThoughts": "Share what's on your mind",
+        "characterLimit": "Maximum {count} characters allowed.",
+        "posting": "Posting...",
+        "attach": "Attach",
+        "noUsersFound": "No users found."
+    },
+
+    "auth": {
+        "form": {
+            "required": "This field is required",
+            "invalidEmail": "Invalid email address",
+            "minLength": "Must contain at least {{min}} characters",
+            "passwordLowercase": "Must contain a lowercase letter",
+            "passwordUppercase": "Must contain an uppercase letter",
+            "passwordNumber": "Must contain a number",
+            "passwordSpecial": "Must contain a special character",
+            "passwordMismatch": "Passwords do not match"
+        },
+
+        "signup": {
+            "displayName": "Name",
+            "displayNameDescription": "This name will be displayed on your profile",
+            "username": "Username",
+            "usernameDescription": "Unique identifier",
+            "email": "Email",
+            "password": "Password",
+            "passwordDescription": "Password must contain at least 8 characters, one uppercase letter, one lowercase letter, one number, and one special character [@$!%*?&#].",
+            "confirmPassword": "Confirm password",
+            "submit": "Sign Up",
+            "successMessage": "Your account has been successfully created. A confirmation email has been sent to your address. Please check your inbox and click the confirmation link to activate your account.",
+            "errorMessage": "An error occurred while creating your account. Please try again later or contact support if the problem persists.",
+            "alreadyHaveAccount": "Already have an account?",
+            "showPassword": "Show password",
+            "hidePassword": "Hide password"
+        },
+
+        "signin": {
+            "username": "Username",
+            "email": "Email",
+            "password": "Password",
+            "submit": "Sign In",
+            "forgotPassword": "Forgot password?",
+            "successMessage": "Welcome back! You have successfully logged in.",
+            "errorMessage": "Incorrect username or password. Please try again.",
+            "noAccount": "I don't have an account"
+        },
+
+        "resetPassword": {
+            "title": "Reset Password",
+            "subtitle": "Please choose a new password for your account.",
+            "newPasswordPlaceholder": "New password",
+            "confirmPasswordPlaceholder": "Confirm new password",
+            "submit": "Reset Password",
+            "successMessage": "Your password has been reset successfully.",
+            "errorMessage": "Failed to reset password.",
+            "backToLogin": "Back to login",
+            "validatingToken": "Validating your request...",
+            "invalidToken": "Reset link is invalid or has expired."
+        }
+    },
+    
+    "comments": {
+        "title": "Comments",
+        "placeholder": "Write your comment...",
+        "send": "Comment",
+        "reply": "Reply",
+        "menu": "Open menu",
+        "delete": "Delete",
+        "deleting": "Deleting...",
+        "showMore": "Show {{count}} more comment(s)",
+        "hide": "Hide comments"
+    },
+
+    "suspense": {
+        "updating": "Updating...",
+        "loading": "Loading...",
+        "saving": "Saving..."
+    }
+}

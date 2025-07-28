@@ -1,0 +1,149 @@
+{
+    "common": {
+        "loading": "Chargement...",
+        "error": "Une erreur s'est produite. Veuillez réessayer.",
+        "save": "Sauvegarder",
+        "cancel": "Annuler",
+        "delete": "Supprimer",
+        "deleting": "Suppression en cours...",
+        "edit": "Modifier",
+        "post": "Publier",
+        "publish": "Publier",
+        "update": "Mettre à jour",
+        "search": "Rechercher",
+        "noResults": "Aucun résultat trouvé"
+    },
+
+    "navbar": {
+        "home": "Accueil",
+        "logout": "Se déconnecter",
+        "profile": "Profil",
+        "message": "Message",
+        "notification": "Notification",
+        "settings": "Paramètres"
+    },
+
+    "post": {
+        "actions": {
+            "open": "Ouvrir le menu",
+            "edit": "Modifier",
+            "delete": "Supprimer",
+            "share": "Partager",
+            "like": "Aimer",
+            "comment": "Commenter",
+            "attach": "Joindre"
+        },
+        "visibility": {
+            "public": "Public",
+            "publicDescription": "Tout le monde peut voir ce post",
+            "followers": "Abonnés",
+            "followersDescription": "Seuls vos abonnés peuvent voir ce post",
+            "private": "Privé",
+            "privateDescription": "Seul vous pouvez voir ce post"
+        },
+        "time": {
+            "now": "maintenant",
+            "minute": "m",
+            "hour": "h",
+            "day": "j"
+        },
+        "delete": {
+            "title": "Supprimer le post",
+            "confirmation": "Êtes-vous sûr de vouloir supprimer ce post ? Cette action est irréversible."
+        },
+        "image": "Image",
+        "attachedFiles": "Fichiers attachés:",
+        "noComments": "Aucun commentaire pour le moment"
+    },
+
+    "postComposer": {
+        "placeholder": "Quoi de neuf ?",
+        "createPost": "Créer un post",
+        "shareThoughts": "Partagez ce qui vous passe par la tête",
+        "characterLimit": "Maximum {count} caractères autorisés.",
+        "posting": "Publication en cours...",
+        "attach": "Joindre",
+        "noUsersFound": "Aucun utilisateur trouvé."
+    },
+
+    "auth": {
+        "form": {
+            "required": "Ce champ est requis",
+            "invalidEmail": "Adresse email invalide",
+            "minLength": "Doit contenir au moins {{min}} caractères",
+            "passwordLowercase": "Doit contenir une lettre minuscule",
+            "passwordUppercase": "Doit contenir une lettre majuscule",
+            "passwordNumber": "Doit contenir un chiffre",
+            "passwordSpecial": "Doit contenir un caractère spécial",
+            "passwordMismatch": "Les mots de passe ne correspondent pas"
+        },
+
+        "signup": {
+            "displayName": "Nom d'affichage",
+            "displayNameDescription": "Ce nom sera affiché sur votre profil",
+            "username": "Nom d'utilisateur",
+            "usernameDescription": "Identifiant unique",
+            "email": "Courriel",
+            "password": "Mot de passe",
+            "passwordDescription": "Le mot de passe doit contenir au moins 8 caractères, une majuscule, une minuscule, un chiffre et un caractère spécial [@$!%*?&#].",
+            "confirmPassword": "Confirmer le mot de passe",
+            "submit": "S'inscrire",
+            "successMessage": "Votre compte a été créé avec succès. Un email de confirmation a été envoyé à votre adresse. Veuillez vérifier votre boîte de réception et cliquer sur le lien de confirmation pour activer votre compte.",
+            "errorMessage": "Une erreur s'est produite lors de la création de votre compte. Veuillez réessayer plus tard ou contacter le support si le problème persiste.",
+            "alreadyHaveAccount": "Vous avez déjà un compte ?",
+            "showPassword": "Afficher le mot de passe",
+            "hidePassword": "Cacher le mot de passe"
+        },
+        
+        "signin": {
+            "username": "Nom d'utilisateur",
+            "email": "Courriel",
+            "password": "Mot de passe",
+            "submit": "Se connecter",
+            "forgotPassword": "Mot de passe oublié ?",
+            "successMessage": "Connexion réussie. Bienvenue !",
+            "errorMessage": "Nom d'utilisateur ou mot de passe incorrect. Veuillez réessayer.",
+            "noAccount": "Je n'ai pas de compte"
+        },
+
+        "resetPassword": {
+            "title": "Réinitialisation du mot de passe",
+            "subtitle": "Veuillez choisir un nouveau mot de passe pour votre compte.",
+            "newPasswordPlaceholder": "Nouveau mot de passe",
+            "confirmPasswordPlaceholder": "Confirmer le nouveau mot de passe",
+            "submit": "Réinitialiser le mot de passe",
+            "successMessage": "Votre mot de passe a été réinitialisé avec succès.",
+            "errorMessage": "La réinitialisation du mot de passe a échoué.",
+            "backToLogin": "Retour à la connexion",
+            "validatingToken": "Validation de votre demande...",
+            "invalidToken": "Le lien de réinitialisation est invalide ou a expiré."
+        }
+    },
+
+    "comments": {
+        "title": "Commentaires",
+        "placeholder": "Écrivez votre commentaire...",
+        "send": "Commenter",
+        "reply": "Répondre",
+        "menu": "Ouvrir le menu",
+        "delete": "Supprimer",
+        "deleting": "Suppression...",
+        "showMore": "Voir {{count}} commentaire(s) de plus",
+        "hide": "Masquer les commentaires"
+    },
+
+    "suspense": {
+        "updating": "Mise à jour en cours...",
+        "loading": "Chargement...",
+        "saving": "Sauvegarde en cours..."
+    },
+
+    "users": {
+        "deleteAccount": "Supprimer le compte",
+        "deleteConfirmTitle": "Supprimer le compte",
+        "deleteConfirmDescription": "Êtes-vous sûr de vouloir supprimer le compte de {{username}} ? Cette action est irréversible et supprimera toutes vos données.",
+        "confirmDelete": "Oui, supprimer le compte",
+        "deleteSuccess": "Compte supprimé avec succès",
+        "deleteError": "Une erreur est survenue lors de la suppression du compte"
+    }
+}
