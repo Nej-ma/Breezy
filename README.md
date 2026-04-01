@@ -2,7 +2,7 @@
 
 Frontend source code for **Breezy**, a Twitter-like social network built with a microservices architecture.
 
-🔗 Live Website: [breezy.website](https://breezy.website)
+🔗 Live Website: [breezy.website](https://breezy.website) WEBSITE IS DOWN !
 
 ---
 
